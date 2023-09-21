@@ -1,0 +1,49 @@
+Exercicio 1
+-------------------------------------
+b)
+
+i) female(haley).
+ii) male(gil).
+iii) parent(frank, phil).
+iv) parent(X, claire).
+v) parent(gloria, X).
+vi) parent(jay, Z), parent(Z, X)  || grandparent(jay, Y)
+vii) grandchildren(lily, Y).
+viii) parent(alex, Y).
+ix) siblings(luke, Y).
+
+c) só testar
+
+d) só testar
+
+e) c1.pl marriages and divorces
+
+
+Exercicio 2
+-------------------------------------
+b)
+
+i) teaches(X,diogenes).
+ii) teaches(X, felismina).
+iii) attends(X, claudio).
+iv) attends(X, dalmindo).
+v) professor(bernardete, eduarda).
+vi) attends(X, alberto), attends(X, alvaro).
+
+c)
+
+i, ii, iii, iv) usar funções professor and student
+v) ((teacher(X), teacher(Y)) ; (student(X), student(Y), attends(Z, X), attends(Z, Y))), X \= Y.
+vi) student(X), setof(Course, attends(Course, X), Courses), length(Courses, NumCourses), NumCourses > 1.
+
+
+Exercicio 3
+-------------------------------------
+
+
+
+
+
+
+
+
