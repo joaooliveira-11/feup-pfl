@@ -39,11 +39,45 @@ vi) student(X), setof(Course, attends(Course, X), Courses), length(Courses, NumC
 
 Exercicio 3
 -------------------------------------
+b)
+
+i) circuit_winner(porto, X).
+ii) team_winner(porto, T).
+iii) nr_gates(C, 9).
+iv) pilots(P, A), A \= edge540.
+v) circuit_winner(C1, P) , circuit_winner(C2, P), C1 \= C2.
+vi) circuit_winner(porto, P), pilots(P, A).
 
 
+Exercicio 4
+-------------------------------------
+
+translation(1, integerOverFlow).
+translation(2, divByZero).
+translation(3, idUnkown).
 
 
+Exercicio 5
+-------------------------------------
 
+a)
 
+i) O sisnando supervisiona algum analista? Se sim, qual é o seu trabalho?
+ii) O cargo de tecnico é supervisionado por que cargo? E este último é supervisionado por que cargo?
+iii) Quem é supervisionado pelo supervisor e qual o seu cargo?
+iv) Qual é o cargo do asdrubal, quem é que ele supervisiona e qual o cargo?
 
+b)
 
+i) supervisor
+ii) X=engenheiro, Y=supervisor
+iii) muitas combinações
+iv) _J = director, _S = chief_supervisor, P = gertrudes
+ _J = director, _S = secretary, P = felismina
+
+ c)
+
+ i) supervisor(X, Y) :- job(J1, X), job(J2, Y), supervised_by(J2, J1).
+ ii) job(J1, X), job(J2, Y), supervised_by(J1, S), supervised_by(J2, S).
+ iii) job(J1, X), supervised_by(J2, J1), supervised_by(J3, J1), J2 \= J3.
+ iv) job(J1, X), job(J2, Y), supervised_by(J3, J2), supervised_by(J3, J2).

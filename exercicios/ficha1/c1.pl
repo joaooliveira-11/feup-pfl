@@ -157,8 +157,32 @@ nr_gates(budapest, 6).
 nr_gates(porto, 5).
 
 
+% functions
+
+team_wins(Team, Circuit) :- circuit_winner(Circuit, Pilot), team(Pilot, Team).
+team_winer(Circuit, T) :- circuit_winner(Circuit, Pilot), team(Pilot, T).
 
 
+% Jobs and Bosses
 
+job(technician, eleuterio).
+job(technician, juvenaldo).
+job(analyst, leonilde).
+job(analyst, marciliano).
+job(engineer, osvaldo).
+job(engineer, porfirio).
+job(engineer, reginaldo).
+job(supervisor, sisnando).
+job(chief_supervisor, gertrudes).
+job(secretary, felismina).
+job(director, asdrubal).
+supervised_by(technician, engineer).
+supervised_by(engineer, supervisor).
+supervised_by(analyst, supervisor).
+supervised_by(supervisor, chief_supervisor).
+supervised_by(chief_supervisor, director).
+supervised_by(secretary, director).
 
+% functions
 
+supervisor(X, Y) :- job(J1, X), job(J2, Y), supervised_by(J2, J1).
