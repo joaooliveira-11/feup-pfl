@@ -1,3 +1,8 @@
+:- dynamic gamemode/1, boardSize/1.
+gamemode(normal).
+boardSize(8).
+
+
 % Inicializa o tabuleiro com as peças iniciais
 initial_state(Board) :-
   Board = [

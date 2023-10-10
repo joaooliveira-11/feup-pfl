@@ -1,4 +1,4 @@
-:- consult('menu.pl').
+:- consult(menu).
 
 play :-
     main_menu.
