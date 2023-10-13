@@ -9,59 +9,39 @@ read_number_aux(X,Acc):-
     read_number_aux(X,Acc1).
 read_number_aux(X,X).
 
-ask_menuOption(Lowerbound, Upperbound, Option) :- 
-    format('Please choose an option between ~w and ~w:', [Lowerbound, Upperbound]),
+get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
+    repeat,
+    format('Please choose an option between ~w and ~w:', [LOWERBOUND, UPPERBOUND]),
     flush_output,
-    read_number(Input),
-    (Input >= Lowerbound, Input =< Upperbound ->
-        Option = Input
+    read_number(OPTION),
+    (
+        between(LOWERBOUND, UPPERBOUND, OPTION), !, INPUT = OPTION
     ;
-        format('Invalid option. ~w is not in the range ~w to ~w.\n', [Input, Lowerbound, Upperbound]),
-        ask_menuOption(Lowerbound, Upperbound, Option)
+        format('Invalid option. ~w is not in the range ~w to ~w.\n', [OPTION, LOWERBOUND, UPPERBOUND]),
+        fail
     ).
 
-ask_boardsize(Lowerbound, Upperbound):-
-    format('Please choose an option between ~w and ~w:', [Lowerbound, Upperbound]),
-    flush_output,
-    read_number(Size),
-    (Size >= Lowerbound, Size =< Upperbound ->
-        retract(boardsize(_)),
-        assert(boardsize(Size))
-    ;
-        format('Invalid option. ~w is not in the range ~w to ~w.\n', [Size, Lowerbound, Upperbound]),
-        ask_boardsize(Lowerbound, Upperbound)
-    ).
+set_gamemode(1) :-
+    retract(gamemode(_)),
+    assert(gamemode(h/h)).
+set_gamemode(2) :-
+    retract(gamemode(_)),
+    assert(gamemode(h/c)).
+set_gamemode(3) :-
+    retract(gamemode(_)),
+    assert(gamemode(c/c)).
 
-input_handler(Lowerbound, Upperbound, Option) :-
-    ask_menuOption(Lowerbound, Upperbound, Option).
+set_boardsize(0) :-
+    main_menu.
+set_boardsize(1) :-
+    true.
+set_boardsize(2) :-
+    retract(boardsize(_)),
+    assert(boardsize(10)).
+set_boardsize(3) :-
+    retract(boardsize(_)),
+    assert(boardsize(12)).
 
-handle_mainMenu(Option) :-
-    (Option == 1 ->
-        retract(gamemode(_)),
-        assert(gamemode(normal)),
-        boardsize_menu
-    ;
-    Option == 2 ->
-        retract(gamemode(_)),
-        assert(gamemode(normal2)),
-        boardsize_menu
-    ;
-    Option == 3 ->
-        retract(gamemode(_)),
-        assert(gamemode(normal3)),
-        boardsize_menu
-    ).
 
-handle_boardsizeMenu(Option) :-
-    (Option == 1 ->
-        play_game % por agora já que não resolvemos a situação do player
-    ;
-    Option == 2 ->
-        ask_boardsize(9,26),
-        play_game % por agora já que não resolvemos a situação do player
-    ;
-    Option == 0 ->
-        main_menu
-    ).
 
 
