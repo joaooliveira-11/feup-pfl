@@ -1,6 +1,7 @@
 :- dynamic gamemode/1, boardsize/1, board/1. 
 gamemode(normal).
 boardsize(8).
+board([]).
 change_turn(p1,p2).
 change_turn(p2,p1).
 
