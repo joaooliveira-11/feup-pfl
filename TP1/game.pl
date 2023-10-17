@@ -1,3 +1,5 @@
+:- use_module(library(lists)).
+
 build_piecerow(SIZE, PIECE, ROW) :-
     EMPTYSIZE is SIZE -2,
     length(ROW_AUX, EMPTYSIZE),
@@ -35,22 +37,48 @@ build_board(SIZE, BOARD) :-
 
 % Exibe o tabuleiro
 display_game(BOARD, SIZE) :-
+    write('    | '),
+    print_letters_columns(SIZE), nl,
+    write('    '),
+    print_dash_line(SIZE),
     nl,
-    write('   1   2   3   4   5   6   7   8  '), nl,
-    write('  --------------------------------'), nl,
     print_matrix(BOARD, SIZE).
 
-% print_matrix(+Board, +Row)
-% Displays each row of the board recursively
+print_dash_line(0).
+print_dash_line(N) :-
+    N > 0,
+    write('----'),
+    N1 is N - 1,
+    print_dash_line(N1).
+
+
+print_letters_columns(0).
+print_letters_columns(N) :-
+    N > 0,
+    print_column_letter(N),
+    N1 is N - 1,
+    print_letters_columns(N1).
+
+print_column_letter(N) :-
+    N1 is N + 64, % Converte o número para o código ASCII da letra
+    char_code(Letter, N1), % Converte o código ASCII para a letra
+    format('~|~w | ', [Letter]).
+
+
 print_matrix([], _).
 print_matrix([Line|RestOfMatrix], Row) :-
-    write(Row),
-    write(' | '),
+    format('~|~t~d~3+ | ', [Row]),
     print_line(Line),
     nl,
-    write('  --------------------------------'), nl,
+    print_underscore_line,
+    nl,
     NewRow is Row - 1,
     print_matrix(RestOfMatrix, NewRow).
+
+print_underscore_line :-
+    boardsize(SIZE), % Obtemos o tamanho do tabuleiro
+    Length is SIZE * 4 + 4, % Calculamos o comprimento da linha de underscores
+    format('~|~`-t~*|', [Length]). % Imprimimos a linha de underscores
 
 % print_line(+Line)
 % Displays each element of the line recursively

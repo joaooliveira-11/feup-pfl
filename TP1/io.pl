@@ -31,17 +31,10 @@ set_gamemode(3) :-
     retract(gamemode(_)),
     assert(gamemode(c/c)).
 
-set_boardsize(0) :-
+set_boardsize(0, _) :-
     main_menu.
-set_boardsize(1) :-
+set_boardsize(1, _) :-
     true.
-set_boardsize(2) :-
+set_boardsize(2, Input) :-
     retract(boardsize(_)),
-    assert(boardsize(10)).
-set_boardsize(3) :-
-    retract(boardsize(_)),
-    assert(boardsize(12)).
-
-
-
-
+    assert(boardsize(Input)).
