@@ -42,7 +42,7 @@ display_game(BOARD, SIZE) :-
     write('    '),
     print_dash_line(SIZE),
     nl,
-    print_matrix(BOARD, SIZE).
+    print_matrix(BOARD, 1).
 
 print_dash_line(0).
 print_dash_line(N) :-
@@ -60,9 +60,10 @@ print_letters_columns(N) :-
     print_letters_columns(N1).
 
 print_column_letter(N) :-
-    N1 is N + 64, % Converte o número para o código ASCII da letra
-    char_code(Letter, N1), % Converte o código ASCII para a letra
+    N1 is 65 + N - 1, 
+    char_code(Letter, N1), 
     format('~|~w | ', [Letter]).
+
 
 
 print_matrix([], _).
@@ -72,8 +73,8 @@ print_matrix([Line|RestOfMatrix], Row) :-
     nl,
     print_underscore_line,
     nl,
-    NewRow is Row - 1,
-    print_matrix(RestOfMatrix, NewRow).
+    NewRow is Row + 1, % Increase the row number
+    print_matrix(RestOfMatrix, NewRow). % Recurse with the updated row number
 
 print_underscore_line :-
     boardsize(SIZE), % Obtemos o tamanho do tabuleiro

@@ -38,3 +38,7 @@ set_boardsize(1, _) :-
 set_boardsize(2, Input) :-
     retract(boardsize(_)),
     assert(boardsize(Input)).
+
+/*
+set_playerside :-
+*/

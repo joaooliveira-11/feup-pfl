@@ -37,8 +37,6 @@ boardsize_menu :-
 /*
 player_menu :-
     display_playerMenu,
-    input_handler(0, 2, INPUT),
+    get_menuinput(0, 2, INPUT),
     set_playerside(INPUT).
-    */
-
-    
+*/
