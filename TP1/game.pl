@@ -67,5 +67,5 @@ play :-
 play_game(GAMESTATE, PLAYER) :-
     make_move(GAMESTATE, NEWGAMESTATE),  % Ask for input and make a move
     display_game(NEWGAMESTATE),
-    change_turn(PLAYER, NEXTPLAYER),    % Switch to the next player
+    % change_turn(PLAYER, NEXTPLAYER),    % Switch to the next player
     play_game(NEWGAMESTATE, NEXTPLAYER).
