@@ -34,6 +34,7 @@ boardsize_menu :-
     % player_menu
     play_game.
 
+
 /*
 player_menu :-
     display_playerMenu,

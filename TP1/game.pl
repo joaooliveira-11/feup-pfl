@@ -19,7 +19,7 @@ build_rows(SIZE, NROWS, BOARD, RESULTBOARD) :-
     NROWS1 is NROWS - 1,
     build_rows(SIZE, NROWS1, UPDATEDBOARD, RESULTBOARD).
 
-build_board(SIZE, BOARD) :-
+initial_state(SIZE, BOARD) :-
     build_piecerow(SIZE, 1, FIRSTROW),
     build_piecerow(SIZE, 1, SECONDROW),
     build_piecerow(SIZE, 2, SECONDLASTROW),
@@ -36,7 +36,8 @@ build_board(SIZE, BOARD) :-
     assert(board(BOARD)).
 
 % Exibe o tabuleiro
-display_game(BOARD, SIZE) :-
+display_game(BOARD) :-
+    boardsize(SIZE),
     write('    | '),
     print_letters_columns(SIZE), nl,
     write('    '),
@@ -96,5 +97,5 @@ symbol(2, 'W').       % Player 2
 
 play_game :-
     boardsize(SIZE),
-    build_board(SIZE, BOARD),
-    display_game(BOARD, SIZE).
+    initial_state(SIZE, BOARD),
+    display_game(BOARD).
