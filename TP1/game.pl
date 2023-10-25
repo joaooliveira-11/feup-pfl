@@ -1,4 +1,6 @@
 :- use_module(library(lists)).
+:- consult(data).
+:- consult(logic).
 
 build_piecerow(SIZE, PIECE, ROW) :-
     EMPTYSIZE is SIZE -2,
@@ -45,57 +47,25 @@ display_game(BOARD) :-
     nl,
     print_matrix(BOARD, 1).
 
-print_dash_line(0).
-print_dash_line(N) :-
-    N > 0,
-    write('----'),
-    N1 is N - 1,
-    print_dash_line(N1).
 
+make_move(GAMESTATE, NEWGAMESTATE) :-
+    write('Enter the coordinates of the piece to move (X-Y): '),
+    read(COORDS),           % Read the coordinates
+    %write('You entered: '), write(COORDS),  % Add this line to print what was read
+    write('Enter the new coordinates (X-Y): '),
+    read(NEWCOORDS),        % Read the new coordinates
+    %write('You entered: '), write(NEWCOORDS),  % Add this line to print what was read
+    %cs,
+    move(GAMESTATE, COORDS, NEWCOORDS, NEWGAMESTATE).
 
-print_letters_columns(0).
-print_letters_columns(N) :-
-    N > 0,
-    print_column_letter(N),
-    N1 is N - 1,
-    print_letters_columns(N1).
-
-print_column_letter(N) :-
-    N1 is 65 + N - 1, 
-    char_code(Letter, N1), 
-    format('~|~w | ', [Letter]).
-
-
-
-print_matrix([], _).
-print_matrix([Line|RestOfMatrix], Row) :-
-    format('~|~t~d~3+ | ', [Row]),
-    print_line(Line),
-    nl,
-    print_underscore_line,
-    nl,
-    NewRow is Row + 1, % Increase the row number
-    print_matrix(RestOfMatrix, NewRow). % Recurse with the updated row number
-
-print_underscore_line :-
-    boardsize(SIZE), % Obtemos o tamanho do tabuleiro
-    Length is SIZE * 4 + 4, % Calculamos o comprimento da linha de underscores
-    format('~|~`-t~*|', [Length]). % Imprimimos a linha de underscores
-
-% print_line(+Line)
-% Displays each element of the line recursively
-print_line([]).
-print_line([CurrentElement|RestOfLine]) :-
-    symbol(CurrentElement, Symbol),
-    write(Symbol),
-    write(' | '),
-    print_line(RestOfLine).
-
-symbol(0, ' ') :- !.  % Empty square
-symbol(1, 'B').       % Player 1
-symbol(2, 'W').       % Player 2
-
-play_game :-
+play :-
     boardsize(SIZE),
     initial_state(SIZE, BOARD),
-    display_game(BOARD).
+    display_game(BOARD),
+    play_game(BOARD, p1).
+
+play_game(GAMESTATE, PLAYER) :-
+    make_move(GAMESTATE, NEWGAMESTATE),  % Ask for input and make a move
+    display_game(NEWGAMESTATE),
+    change_turn(PLAYER, NEXTPLAYER),    % Switch to the next player
+    play_game(NEWGAMESTATE, NEXTPLAYER).

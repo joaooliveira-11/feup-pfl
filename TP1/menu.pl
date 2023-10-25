@@ -31,8 +31,7 @@ boardsize_menu :-
             set_boardsize(0, BOARDSIZE)
         )
     ),
-    % player_menu
-    play_game.
+    play.
 
 
 /*

@@ -1,4 +1,4 @@
 :- consult(menu).
 
-play :-
+start :-
     main_menu.
