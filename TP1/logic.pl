@@ -57,7 +57,7 @@ vertical_top_pieces(GAMESTATE, XS-YS, PIECE, ACC, TOPPIECES) :-
     ACC1 is ACC + 1,
     vertical_top_pieces(GAMESTATE, X-Y1, PIECE, ACC1, TOPPIECES).
 
-vertical_bottom_pieces(_ ,_ ,_ , TOPPIECES, BOTTOMPIECES).
+vertical_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 vertical_bottom_pieces(GAMESTATE, XS-YS, PIECE, ACC, BOTTOMPIECES) :-
     Y1 is YS + 1,
     boardsize(SIZE),
@@ -87,4 +87,4 @@ get_direction(XS-YS, XF-YF, DIAGONAL) :-
     XS \= XF, YS \= YF, !.
 
 get_direction(XS-YS, XF-YF, INVALID) :- 
-    XS == XF, YS == YF, !.
+    XS = XF, YS = YF, !.
