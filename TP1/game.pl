@@ -51,11 +51,14 @@ display_game(BOARD) :-
 make_move(GAMESTATE, NEWGAMESTATE) :-
     write('Enter the coordinates of the piece to move (X-Y): '),
     read(COORDS),           % Read the coordinates
-    %write('You entered: '), write(COORDS),  % Add this line to print what was read
+    write('You entered: '), write(COORDS),  % Add this line to print what was read
     write('Enter the new coordinates (X-Y): '),
     read(NEWCOORDS),        % Read the new coordinates
-    %write('You entered: '), write(NEWCOORDS),  % Add this line to print what was read
+    write('You entered: '), write(NEWCOORDS),  % Add this line to print what was read
     %cs,
+
+    get_direction(COORDS, NEWCOORDS, DIRECTION),
+    write(DIRECTION),
     move(GAMESTATE, COORDS, NEWCOORDS, NEWGAMESTATE).
 
 play :-
