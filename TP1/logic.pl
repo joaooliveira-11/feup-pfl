@@ -41,3 +41,127 @@ get_direction(YS-XS, YF-XF, rdiagonal) :-
     !.
 get_direction(YS-XS, YF-XF, invalid) :- 
     XS = XF, YS = YF, !.
+
+
+horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, ACC, LEFTPIECES) :-
+    X1 is XS -1,
+    X1 >= 1,
+    get_piece(GAMESTATE, YS-X1, CURRENTPIECE),
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    horizontal_left_pieces(GAMESTATE, YS-X1, PIECE, ACC1, LEFTPIECES).
+horizontal_left_pieces(_ ,_ ,_ , LEFTPIECES, LEFTPIECES).
+
+
+horizontal_right_pieces(GAMESTATE, YS-XS, PIECE, ACC, RIGHTPIECES) :-
+    X1 is XS + 1,
+    boardsize(SIZE),
+    X1 =< SIZE,
+    get_piece(GAMESTATE, YS-X1, CURRENTPIECE),
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    horizontal_right_pieces(GAMESTATE, YS-X1, PIECE, ACC1, RIGHTPIECES).
+horizontal_right_pieces(_ ,_ ,_ , RIGHTPIECES, RIGHTPIECES).
+
+
+vertical_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
+    write('entrei na vertical top'), nl,
+    Y1 is YS - 1,
+    Y1 >= 1,
+    get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
+    write('Checking Y1-XS: '), write(Y1-XS), nl,
+    write('CURRENTPIECE: '), write(CURRENTPIECE), nl,
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    write('ACC1: '), write(ACC1), nl,
+    vertical_top_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, TOPPIECES).
+vertical_top_pieces(_, _, _, TOPPIECES, TOPPIECES) :-
+    % Print a message indicating that the top direction checking is done
+    write('Reached the top or an empty space.'), nl.
+
+
+vertical_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
+    write('entrei na vertical bottom'), nl,
+    Y1 is YS + 1,
+    write('Checking Y1-XS: '), write(Y1-XS), nl,
+    boardsize(SIZE),
+    Y1 =< SIZE,
+    get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
+    write('CURRENTPIECE: '), write(CURRENTPIECE), nl,
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    write('ACC1: '), write(ACC1), nl,
+    vertical_bottom_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, BOTTOMPIECES).
+vertical_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES):-
+    write('Reached the bottom an empty space.'), nl.
+
+
+ldiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
+    X1 is XS -1,
+    Y1 is YS -1,
+    X1 >= 1,
+    Y1 >= 1,
+    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    ldiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES).
+ldiagonal_top_pieces(_ ,_ ,_ , TOPPIECES, TOPPIECES).
+
+
+ldiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
+    X1 is XS + 1,
+    Y1 is YS + 1,
+    boardsize(SIZE),
+    X1 =< SIZE,
+    Y1 =< SIZE,
+    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    ldiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES).
+ldiagonal_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
+
+
+rdiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
+    X1 is XS + 1,
+    Y1 is YS -1,
+    boardsize(SIZE),
+    X1 =< SIZE,
+    Y1 >= 1,
+    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    rdiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES).
+rdiagonal_top_pieces(_ ,_ ,_ , TOPPIECES, TOPPIECES).
+
+
+rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
+    X1 is XS - 1,
+    Y1 is YS + 1,
+    boardsize(SIZE),
+    X1 >= 1,
+    Y1 =< SIZE,
+    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    CURRENTPIECE = PIECE,
+    ACC1 is ACC + 1,
+    rdiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES).
+rdiagonal_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
+
+horizontal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
+    horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, 0, LEFTPIECES),
+    horizontal_right_pieces(GAMESTATE, YS-XS, PIECE, 0, RIGHTPIECES),
+    LENGTH is LEFTPIECES + RIGHTPIECES + 1.
+
+vertical_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
+    vertical_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
+    vertical_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
+    LENGTH is TOPPIECES + BOTTOMPIECES + 1.
+
+ldiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
+    ldiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
+    ldiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
+    LENGTH is TOPPIECES + BOTTOMPIECES + 1.
+
+rdiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
+    rdiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
+    rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
+    LENGTH is TOPPIECES + BOTTOMPIECES + 1.

@@ -49,16 +49,32 @@ display_game(BOARD) :-
 
 
 make_move(GAMESTATE, NEWGAMESTATE) :-
-    write('Enter the coordinates of the piece to move (X-Y): '),
+    write('Enter the coordinates of the piece to move (Y-X): '),nl,
     read(COORDS),           % Read the coordinates
-    write('You entered: '), write(COORDS),  % Add this line to print what was read
-    write('Enter the new coordinates (Y-X): '),
+    write('You entered: '), write(COORDS),nl,  % Add this line to print what was read
+    write('Enter the new coordinates (Y-X): '),nl,
     read(NEWCOORDS),        % Read the new coordinates
-    write('You entered: '), write(NEWCOORDS),  % Add this line to print what was read
+    write('You entered: '), write(NEWCOORDS),nl,  % Add this line to print what was read
     %cs,
 
     get_direction(COORDS, NEWCOORDS, DIRECTION),
-    write(DIRECTION),
+    write('Your movement as direction: '), write(DIRECTION), nl,
+
+    get_piece(GAMESTATE, COORDS, PIECE),
+
+    (DIRECTION = horizontal -> 
+        horizontal_length(GAMESTATE, COORDS, PIECE, LENGTH)
+    ; DIRECTION = vertical -> 
+        vertical_length(GAMESTATE, COORDS, PIECE, LENGTH)
+    ; DIRECTION = ldiagonal -> 
+        ldiagonal_length(GAMESTATE, COORDS, PIECE, LENGTH)
+    ; DIRECTION = rdiagonal -> 
+       rdiagonal_length(GAMESTATE, COORDS, PIECE, LENGTH)
+    ),
+
+    write('Your movement has a length of: '), write(LENGTH), write(' pieces'), nl,
+
+
     move(GAMESTATE, COORDS, NEWCOORDS, NEWGAMESTATE).
 
 play :-
