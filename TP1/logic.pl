@@ -4,16 +4,16 @@ move(GAMESTATE, FROM, TO, NEWGAMESTATE) :-
     add_piece(GAMESTATE, FROM, 0, TEMPSTATE),
     add_piece(TEMPSTATE, TO, PIECE, NEWGAMESTATE).
 
-% get_piece(+GAMESTATE, +(X-Y), -PIECE)
-get_piece(GAMESTATE, X-Y, PIECE) :-
-    nth1(X, GAMESTATE, ROW),
-    nth1(Y, ROW, PIECE).
+% get_piece(+GAMESTATE, +(Y-X), -PIECE)
+get_piece(GAMESTATE, Y-X, PIECE) :-
+    nth1(Y, GAMESTATE, ROW),
+    nth1(X, ROW, PIECE).
 
-% add_piece(+GAMESTATE, +(X-Y), +PIECE, -NEWGAMESTATE)
-add_piece(GAMESTATE, X-Y, PIECE, NEWGAMESTATE) :-
-    get_row(GAMESTATE, X, ROW),
-    replace_piece(Y, ROW, PIECE, NEWROW),
-    replace_row(X, GAMESTATE, NEWROW, NEWGAMESTATE).
+% add_piece(+GAMESTATE, +(Y-X), +PIECE, -NEWGAMESTATE)
+add_piece(GAMESTATE, Y-X, PIECE, NEWGAMESTATE) :-
+    get_row(GAMESTATE, Y, ROW),
+    replace_piece(X, ROW, PIECE, NEWROW),
+    replace_row(Y, GAMESTATE, NEWROW, NEWGAMESTATE).
 
 % get_row(+GAMESTATE, +INDEX, -SELECTEDROW)
 get_row(GAMESTATE, INDEX, SELECTEDROW) :-
