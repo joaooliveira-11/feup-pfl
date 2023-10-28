@@ -2,11 +2,13 @@
 gamemode(normal).
 boardsize(8).
 board([]).
-change_turn(p1,p2).
-change_turn(p2,p1).
+change_turn('W','B').
+change_turn('B','W').
 symbol(0, ' ') :- !.  % Empty square
 symbol(1, 'B').       % Player 1
 symbol(2, 'W').       % Player 2
+means('W', white).
+means('B', black).
 
 cs :- write('\33\[2J').
 

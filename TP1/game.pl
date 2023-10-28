@@ -48,26 +48,27 @@ display_game(BOARD) :-
     print_matrix(BOARD, 1).
 
 % move(+GAMESTATE, +MOVE, +NEWGAMESTATE)
-move(GAMESTATE, [START, END], NEWGAMESTATE) :-
-    
-
+move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
     get_direction(START, END, DIRECTION),
-    write('Your movement as direction: '), write(DIRECTION), nl,
     get_piece(GAMESTATE, START, PIECE),
-    get_move_length(GAMESTATE, START, PIECE, DIRECTION, LENGTH),
-    write('Your movement has a length of: '), write(LENGTH), write(' pieces'), nl,
-    
+    get_move_maxlength(GAMESTATE, START, PIECE, DIRECTION, MAXLENGTH),
+    get_move_length([START, END], LENGTH),
+    valid_move(PLAYER, PIECE, LENGTH, MAXLENGTH, DIRECTION),
     execute_move(GAMESTATE, START, END, NEWGAMESTATE).
 
 play :-
     boardsize(SIZE),
     initial_state(SIZE, BOARD),
     display_game(BOARD),
-    play_game(BOARD, p1).
+    play_game(BOARD, 'W').
 
 play_game(GAMESTATE, PLAYER) :-
-    get_move(MOVE),
-    move(GAMESTATE, MOVE, NEWGAMESTATE),
-    display_game(NEWGAMESTATE),
-    % change_turn(PLAYER, NEXTPLAYER),    % Switch to the next player
-    play_game(NEWGAMESTATE, NEXTPLAYER).
+    get_move(PLAYER,MOVE),
+    (
+        move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
+        display_game(NEWGAMESTATE),
+        change_turn(PLAYER, NEXTPLAYER),
+        play_game(NEWGAMESTATE, NEXTPLAYER)
+    ;
+        play_game(GAMESTATE, PLAYER)
+    ).

@@ -22,8 +22,10 @@ get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
     ).
 
 
-get_move(Move) :-
+get_move(PLAYER, Move) :-
     repeat,
+    means(PLAYER, NAME),
+    format('~w pieces turn\n: ', [NAME]),
     write('Enter the coordinates of the piece to move (Y-X): '), nl,
     read(START),
     (valid_coordinates(START) ->

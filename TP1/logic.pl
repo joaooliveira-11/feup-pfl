@@ -160,13 +160,36 @@ rdiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
     rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
     LENGTH is TOPPIECES + BOTTOMPIECES + 1.
 
-get_move_length(GAMESTATE, START, PIECE, DIRECTION, LENGTH) :-
+get_move_maxlength(GAMESTATE, START, PIECE, DIRECTION, MAXLENGTH) :-
     (DIRECTION = horizontal -> 
-        horizontal_length(GAMESTATE, START, PIECE, LENGTH)
+        horizontal_length(GAMESTATE, START, PIECE, MAXLENGTH)
     ; DIRECTION = vertical -> 
-        vertical_length(GAMESTATE, START, PIECE, LENGTH)
+        vertical_length(GAMESTATE, START, PIECE, MAXLENGTH)
     ; DIRECTION = ldiagonal -> 
-        ldiagonal_length(GAMESTATE, START, PIECE, LENGTH)
+        ldiagonal_length(GAMESTATE, START, PIECE, MAXLENGTH)
     ; DIRECTION = rdiagonal -> 
-       rdiagonal_length(GAMESTATE, START, PIECE, LENGTH)
+       rdiagonal_length(GAMESTATE, START, PIECE, MAXLENGTH)
+    ; DIRECTION = invalid ->
+        MAXLENGTH = -1
     ).
+
+get_move_length([YS-XS, YF-XF], LENGTH) :-
+    DIFFX is abs(XF - XS),
+    DIFFY is abs(YF - YS),
+    LENGTH is max(DIFFX, DIFFY).
+
+valid_piece(PLAYER, PIECE) :-
+    symbol(PLAYERPIECE,PLAYER),
+    PLAYERPIECE = PIECE.
+
+valid_direction(DIRECTION) :-
+    DIRECTION \= invalid.
+
+valid_length(LENGTH, MAXLENGTH) :-
+    LENGTH >= 1, MAXLENGTH >= 1, LENGTH =< MAXLENGTH.
+
+valid_move(PLAYER, PIECE, LENGTH, MAXLENGTH, DIRECTION) :-
+    valid_piece(PLAYER, PIECE),
+    valid_direction(DIRECTION),
+    valid_length(LENGTH, MAXLENGTH).
+
