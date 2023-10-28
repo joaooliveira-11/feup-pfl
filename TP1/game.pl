@@ -51,9 +51,10 @@ display_game(BOARD) :-
 move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
     get_direction(START, END, DIRECTION),
     get_piece(GAMESTATE, START, PIECE),
+    get_piece(GAMESTATE, END, FPIECE),
     get_move_maxlength(GAMESTATE, START, PIECE, DIRECTION, MAXLENGTH),
     get_move_length([START, END], LENGTH),
-    valid_move(PLAYER, PIECE, LENGTH, MAXLENGTH, DIRECTION),
+    valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION),
     execute_move(GAMESTATE, START, END, NEWGAMESTATE).
 
 play :-

@@ -182,14 +182,19 @@ valid_piece(PLAYER, PIECE) :-
     symbol(PLAYERPIECE,PLAYER),
     PLAYERPIECE = PIECE.
 
+valid_fpiece(PLAYER, FPIECE) :-
+    symbol(PLAYERPIECE,PLAYER),
+    (PLAYERPIECE \= FPIECE ; FPIECE = 0).
+
 valid_direction(DIRECTION) :-
     DIRECTION \= invalid.
 
 valid_length(LENGTH, MAXLENGTH) :-
     LENGTH >= 1, MAXLENGTH >= 1, LENGTH =< MAXLENGTH.
 
-valid_move(PLAYER, PIECE, LENGTH, MAXLENGTH, DIRECTION) :-
+valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION) :-
     valid_piece(PLAYER, PIECE),
+    valid_fpiece(PLAYER, FPIECE),
     valid_direction(DIRECTION),
     valid_length(LENGTH, MAXLENGTH).
 
