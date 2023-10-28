@@ -21,6 +21,33 @@ get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
         fail
     ).
 
+
+get_move(Move) :-
+    repeat,
+    write('Enter the coordinates of the piece to move (Y-X): '), nl,
+    read(START),
+    (valid_coordinates(START) ->
+        true
+    ; 
+        write('Invalid coordinates. Please enter valid coordinates (Y-X) of the piece to move.'), nl,
+        fail
+    ),
+
+    write('Enter the new coordinates of the piece to move (Y-X): '), nl,
+    read(END),
+    (valid_coordinates(END) ->
+        true
+    ; 
+        write('Invalid coordinates. Please enter new valid coordinates (Y-X) of the piece to move.'), nl,
+        fail
+    ),
+    Move = [START, END], !.
+
+valid_coordinates(Y-X):-
+    boardsize(SIZE),
+    X > 0, X =< SIZE,
+    Y > 0, Y =< SIZE.
+
 set_gamemode(1) :-
     retract(gamemode(_)),
     assert(gamemode(h/h)).

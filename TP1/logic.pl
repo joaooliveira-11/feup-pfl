@@ -34,14 +34,18 @@ get_direction(YS-XS, YF-XF, vertical) :-
 get_direction(YS-XS, YF-XF, horizontal) :-
     XS \= XF, YS = YF, !.
 get_direction(YS-XS, YF-XF, ldiagonal) :- 
-    (XF > XS, YF > YS) ; (XF < XS, YF < YS),
+    ((XF > XS, YF > YS) ; (XF < XS, YF < YS)),
+    DIFFY is YF - YS,
+    DIFFX is XF - XS,
+    DIFFY = DIFFX,
     !.
 get_direction(YS-XS, YF-XF, rdiagonal) :- 
-    (XF < XS, YF > YS) ; (XF > XS, YF < YS),
+    ((XF < XS, YF > YS) ; (XF > XS, YF < YS)),
+    DIFFY is YF - YS,
+    DIFFX is XF - XS,
+    DIFFY = DIFFX,
     !.
-get_direction(YS-XS, YF-XF, invalid) :- 
-    XS = XF, YS = YF, !.
-
+get_direction(_,_, invalid).
 
 horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, ACC, LEFTPIECES) :-
     X1 is XS -1,
@@ -65,35 +69,24 @@ horizontal_right_pieces(_ ,_ ,_ , RIGHTPIECES, RIGHTPIECES).
 
 
 vertical_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
-    write('entrei na vertical top'), nl,
     Y1 is YS - 1,
     Y1 >= 1,
     get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
-    write('Checking Y1-XS: '), write(Y1-XS), nl,
-    write('CURRENTPIECE: '), write(CURRENTPIECE), nl,
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    write('ACC1: '), write(ACC1), nl,
     vertical_top_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, TOPPIECES).
-vertical_top_pieces(_, _, _, TOPPIECES, TOPPIECES) :-
-    % Print a message indicating that the top direction checking is done
-    write('Reached the top or an empty space.'), nl.
+vertical_top_pieces(_, _, _, TOPPIECES, TOPPIECES).
 
 
 vertical_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
-    write('entrei na vertical bottom'), nl,
     Y1 is YS + 1,
-    write('Checking Y1-XS: '), write(Y1-XS), nl,
     boardsize(SIZE),
     Y1 =< SIZE,
     get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
-    write('CURRENTPIECE: '), write(CURRENTPIECE), nl,
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    write('ACC1: '), write(ACC1), nl,
     vertical_bottom_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, BOTTOMPIECES).
-vertical_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES):-
-    write('Reached the bottom an empty space.'), nl.
+vertical_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 
 ldiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-

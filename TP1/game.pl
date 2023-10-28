@@ -47,35 +47,28 @@ display_game(BOARD) :-
     nl,
     print_matrix(BOARD, 1).
 
+% move(+GAMESTATE, +MOVE, +NEWGAMESTATE)
+move(GAMESTATE, [START, END], NEWGAMESTATE) :-
+    
 
-make_move(GAMESTATE, NEWGAMESTATE) :-
-    write('Enter the coordinates of the piece to move (Y-X): '),nl,
-    read(COORDS),           % Read the coordinates
-    write('You entered: '), write(COORDS),nl,  % Add this line to print what was read
-    write('Enter the new coordinates (Y-X): '),nl,
-    read(NEWCOORDS),        % Read the new coordinates
-    write('You entered: '), write(NEWCOORDS),nl,  % Add this line to print what was read
-    %cs,
-
-    get_direction(COORDS, NEWCOORDS, DIRECTION),
+    get_direction(START, END, DIRECTION),
     write('Your movement as direction: '), write(DIRECTION), nl,
-
-    get_piece(GAMESTATE, COORDS, PIECE),
+    get_piece(GAMESTATE, START, PIECE),
 
     (DIRECTION = horizontal -> 
-        horizontal_length(GAMESTATE, COORDS, PIECE, LENGTH)
+        horizontal_length(GAMESTATE, START, PIECE, LENGTH)
     ; DIRECTION = vertical -> 
-        vertical_length(GAMESTATE, COORDS, PIECE, LENGTH)
+        vertical_length(GAMESTATE, START, PIECE, LENGTH)
     ; DIRECTION = ldiagonal -> 
-        ldiagonal_length(GAMESTATE, COORDS, PIECE, LENGTH)
+        ldiagonal_length(GAMESTATE, START, PIECE, LENGTH)
     ; DIRECTION = rdiagonal -> 
-       rdiagonal_length(GAMESTATE, COORDS, PIECE, LENGTH)
+       rdiagonal_length(GAMESTATE, START, PIECE, LENGTH)
     ),
 
     write('Your movement has a length of: '), write(LENGTH), write(' pieces'), nl,
 
 
-    move(GAMESTATE, COORDS, NEWCOORDS, NEWGAMESTATE).
+    move(GAMESTATE, START, END, NEWGAMESTATE).
 
 play :-
     boardsize(SIZE),
@@ -84,7 +77,8 @@ play :-
     play_game(BOARD, p1).
 
 play_game(GAMESTATE, PLAYER) :-
-    make_move(GAMESTATE, NEWGAMESTATE),  % Ask for input and make a move
+    get_move(MOVE),
+    move(GAMESTATE, MOVE, NEWGAMESTATE),
     display_game(NEWGAMESTATE),
     % change_turn(PLAYER, NEXTPLAYER),    % Switch to the next player
     play_game(NEWGAMESTATE, NEXTPLAYER).
