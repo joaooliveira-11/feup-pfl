@@ -1,5 +1,5 @@
 % move(+GAMESTATE, +FROM, +TO, -NEWGAMESTATE)
-move(GAMESTATE, FROM, TO, NEWGAMESTATE) :-
+execute_move(GAMESTATE, FROM, TO, NEWGAMESTATE) :-
     get_piece(GAMESTATE, FROM, PIECE),
     add_piece(GAMESTATE, FROM, 0, TEMPSTATE),
     add_piece(TEMPSTATE, TO, PIECE, NEWGAMESTATE).
@@ -42,9 +42,10 @@ get_direction(YS-XS, YF-XF, ldiagonal) :-
 get_direction(YS-XS, YF-XF, rdiagonal) :- 
     ((XF < XS, YF > YS) ; (XF > XS, YF < YS)),
     DIFFY is YF - YS,
-    DIFFX is XF - XS,
+    DIFFX is XS - XF,
     DIFFY = DIFFX,
     !.
+
 get_direction(_,_, invalid).
 
 horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, ACC, LEFTPIECES) :-
@@ -158,3 +159,14 @@ rdiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
     rdiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
     rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
     LENGTH is TOPPIECES + BOTTOMPIECES + 1.
+
+get_move_length(GAMESTATE, START, PIECE, DIRECTION, LENGTH) :-
+    (DIRECTION = horizontal -> 
+        horizontal_length(GAMESTATE, START, PIECE, LENGTH)
+    ; DIRECTION = vertical -> 
+        vertical_length(GAMESTATE, START, PIECE, LENGTH)
+    ; DIRECTION = ldiagonal -> 
+        ldiagonal_length(GAMESTATE, START, PIECE, LENGTH)
+    ; DIRECTION = rdiagonal -> 
+       rdiagonal_length(GAMESTATE, START, PIECE, LENGTH)
+    ).

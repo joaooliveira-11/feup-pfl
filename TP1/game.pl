@@ -54,21 +54,10 @@ move(GAMESTATE, [START, END], NEWGAMESTATE) :-
     get_direction(START, END, DIRECTION),
     write('Your movement as direction: '), write(DIRECTION), nl,
     get_piece(GAMESTATE, START, PIECE),
-
-    (DIRECTION = horizontal -> 
-        horizontal_length(GAMESTATE, START, PIECE, LENGTH)
-    ; DIRECTION = vertical -> 
-        vertical_length(GAMESTATE, START, PIECE, LENGTH)
-    ; DIRECTION = ldiagonal -> 
-        ldiagonal_length(GAMESTATE, START, PIECE, LENGTH)
-    ; DIRECTION = rdiagonal -> 
-       rdiagonal_length(GAMESTATE, START, PIECE, LENGTH)
-    ),
-
+    get_move_length(GAMESTATE, START, PIECE, DIRECTION, LENGTH),
     write('Your movement has a length of: '), write(LENGTH), write(' pieces'), nl,
-
-
-    move(GAMESTATE, START, END, NEWGAMESTATE).
+    
+    execute_move(GAMESTATE, START, END, NEWGAMESTATE).
 
 play :-
     boardsize(SIZE),
