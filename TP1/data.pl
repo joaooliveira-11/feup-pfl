@@ -1,4 +1,4 @@
-:- dynamic gamemode/1, boardsize/1, board/1. 
+:- dynamic gamemode/1, boardsize/1, board/1, first_move/1, can_continuous_move/2.
 gamemode(normal).
 boardsize(8).
 board([]).
@@ -9,6 +9,9 @@ symbol(1, 'B').       % Player 1
 symbol(2, 'W').       % Player 2
 means('W', white).
 means('B', black).
+can_continuous_move('W', no).
+can_continuous_move('B', no).
+first_move('W').
 
 % cs/0
 % Clear screen

@@ -45,6 +45,23 @@ get_move(PLAYER, Move) :-
     ),
     Move = [START, END], !.
 
+ask_to_play_again(GAMESTATE, PLAYER) :-
+    write('Since you made a jump, you are allowed to play again!\n'),
+    write('Do you want to play again (yes or no)?\n'),
+    read(Answer),
+    (
+        Answer = 'yes' ->
+            play_game(GAMESTATE, PLAYER)
+        ;
+        Answer = 'no' ->
+            retract(can_continuous_move(PLAYER,_)),
+            assert(can_continuous_move(PLAYER, no)),
+            change_turn(PLAYER, NEXTPLAYER),    
+            play_game(GAMESTATE, NEXTPLAYER)
+        ;
+        ask_to_play_again(GAMESTATE, PLAYER)
+    ).
+    
 valid_coordinates(Y-X):-
     boardsize(SIZE),
     X > 0, X =< SIZE,

@@ -1,3 +1,5 @@
+:- consult(data).
+
 % execute_move(+GAMESTATE, +FROM, +TO, -NEWGAMESTATE)
 % Executes a move by replacing the Piece in the position 'TO' by the piece at the position 'FROM'
 execute_move(GAMESTATE, FROM, TO, NEWGAMESTATE) :-
@@ -251,10 +253,29 @@ valid_length(LENGTH, MAXLENGTH) :-
 valid_length(LENGTH,MAXLENGTH) :-
     format('Invalid move length. Your move has ~w length, and the max length of the move is ~w.\n', [LENGTH, MAXLENGTH]), fail.
 
+move_type(LENGTH, TYPE) :-
+    (LENGTH = 1 ->
+        TYPE = single_step
+    ;
+    LENGTH > 1 ->
+        TYPE = continuous_step
+    ).
+
+handle_move_type(TYPE, PLAYER) :-
+    (TYPE = single_step ->
+        retract(can_continuous_move(PLAYER, _)),
+        assert(can_continuous_move(PLAYER, no))
+    ;
+    TYPE = continuous_step ->
+        retract(can_continuous_move(PLAYER, _)),
+        assert(can_continuous_move(PLAYER, yes))
+    ).
+    
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
-valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION) :-
+valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
     valid_piece(PLAYER, PIECE),
     valid_fpiece(PLAYER, FPIECE),
     valid_direction(DIRECTION),
-    valid_length(LENGTH, MAXLENGTH).
+    valid_length(LENGTH, MAXLENGTH),
+    move_type(LENGTH, TYPE).
