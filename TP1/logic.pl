@@ -285,8 +285,9 @@ add_blocked_position(PLAYER, POSITION) :-
         retract(white_blocked_positions(POSITIONS)),
         assert(white_blocked_positions([POSITION | POSITIONS]))
     ;
-    retract(black_blocked_positions(POSITIONS)),
-    assert(black_blocked_positions([POSITION | POSITIONS]))
+    PLAYER = 'B' -> 
+        retract(black_blocked_positions(POSITIONS)),
+        assert(black_blocked_positions([POSITION | POSITIONS]))
     ).
 
 clear_blocked_positions(PLAYER) :-
@@ -294,6 +295,7 @@ clear_blocked_positions(PLAYER) :-
         retract(white_blocked_positions(_)),
         assert(white_blocked_positions([]))
     ;
+    PLAYER = 'B' -> 
         retract(black_blocked_positions(_)),
         assert(black_blocked_positions([]))
      ).
@@ -302,6 +304,7 @@ valid_position(PLAYER, END) :-
      (PLAYER = 'W' -> 
         white_blocked_positions(BLOCKEDPOSITIONS)
     ;
+    PLAYER = 'B' -> 
         black_blocked_positions(BLOCKEDPOSITIONS)
      ),
      \+ member(END, BLOCKEDPOSITIONS), !.
