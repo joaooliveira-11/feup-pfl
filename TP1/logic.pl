@@ -280,11 +280,40 @@ check_white_first_move(PLAYER) :-
 update_white_first_move(PLAYER) :-
     retract(first_move(PLAYER)).
 
+add_blocked_position(PLAYER, POSITION) :-
+    (PLAYER = 'W' -> 
+        retract(white_blocked_positions(POSITIONS)),
+        assert(white_blocked_positions([POSITION | POSITIONS]))
+    ;
+    retract(black_blocked_positions(POSITIONS)),
+    assert(black_blocked_positions([POSITION | POSITIONS]))
+    ).
+
+clear_blocked_positions(PLAYER) :-
+     (PLAYER = 'W' -> 
+        retract(white_blocked_positions(_)),
+        assert(white_blocked_positions([]))
+    ;
+        retract(black_blocked_positions(_)),
+        assert(black_blocked_positions([]))
+     ).
+
+valid_position(PLAYER, END) :-
+     (PLAYER = 'W' -> 
+        white_blocked_positions(BLOCKEDPOSITIONS)
+    ;
+        black_blocked_positions(BLOCKEDPOSITIONS)
+     ),
+     \+ member(END, BLOCKEDPOSITIONS), !.
+valid_position(_, END) :-
+    format("Error, the square ~w is a blocked position in this turn.~n", [END]), fail.
+
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
-valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
+valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
     valid_piece(PLAYER, PIECE),
     valid_fpiece(PLAYER, FPIECE),
     valid_direction(DIRECTION),
     valid_length(LENGTH, MAXLENGTH),
-    move_type(LENGTH, TYPE).
+    move_type(LENGTH, TYPE),
+    valid_position(PLAYER, END).

@@ -1,4 +1,4 @@
-:- dynamic gamemode/1, boardsize/1, board/1, first_move/1, can_continuous_move/2.
+:- dynamic gamemode/1, boardsize/1, board/1, first_move/1, can_continuous_move/2, black_blocked_positions/1 , white_blocked_positions/1.
 gamemode(normal).
 boardsize(8).
 board([]).
@@ -12,6 +12,8 @@ means('B', black).
 can_continuous_move('W', no).
 can_continuous_move('B', no).
 first_move('W').
+white_blocked_positions([]).
+black_blocked_positions([]).
 
 % cs/0
 % Clear screen

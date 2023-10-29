@@ -64,9 +64,10 @@ move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
     get_piece(GAMESTATE, END, FPIECE),
     get_move_maxlength(GAMESTATE, START, PIECE, DIRECTION, MAXLENGTH),
     get_move_length([START, END], LENGTH),
-    valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE),
+    valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE),
     execute_move(GAMESTATE, START, END, NEWGAMESTATE),
-    handle_move_type(TYPE, PLAYER).
+    handle_move_type(TYPE, PLAYER),
+    add_blocked_position(PLAYER, START).
 
 play :-
     boardsize(SIZE),
@@ -83,6 +84,7 @@ play_game(GAMESTATE, PLAYER) :-
         (
         check_white_first_move(PLAYER) ->
             change_turn(PLAYER, NEXTPLAYER),
+            clear_blocked_positions(PLAYER),
             play_game(NEWGAMESTATE, NEXTPLAYER)
         ;
         can_continuous_move(PLAYER, yes) ->
@@ -90,6 +92,7 @@ play_game(GAMESTATE, PLAYER) :-
         ;
         can_continuous_move(PLAYER, no) ->
             change_turn(PLAYER, NEXTPLAYER),
+            clear_blocked_positions(PLAYER),
             play_game(NEWGAMESTATE, NEXTPLAYER)
         )
     ;
