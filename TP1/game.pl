@@ -79,7 +79,13 @@ play_game(GAMESTATE, PLAYER) :-
     (
         move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
-        (can_continuous_move(PLAYER, yes) ->
+        
+        (
+        check_white_first_move(PLAYER) ->
+            change_turn(PLAYER, NEXTPLAYER),
+            play_game(NEWGAMESTATE, NEXTPLAYER)
+        ;
+        can_continuous_move(PLAYER, yes) ->
             ask_to_play_again(NEWGAMESTATE, PLAYER)
         ;
         can_continuous_move(PLAYER, no) ->

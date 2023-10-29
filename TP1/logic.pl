@@ -271,6 +271,15 @@ handle_move_type(TYPE, PLAYER) :-
         assert(can_continuous_move(PLAYER, yes))
     ).
     
+check_white_first_move(PLAYER) :-
+    PLAYER = 'W',
+    first_move(PLAYER),
+    write('Since is your first move as a White side, you cannot play again even with a jump move.\n'),
+    update_white_first_move(PLAYER).
+
+update_white_first_move(PLAYER) :-
+    retract(first_move(PLAYER)).
+
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
 valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
