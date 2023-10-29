@@ -10,8 +10,12 @@ symbol(2, 'W').       % Player 2
 means('W', white).
 means('B', black).
 
+% cs/0
+% Clear screen
 cs :- write('\33\[2J').
 
+% display_mainMenu/0
+% Display main menu with the game modes
 display_mainMenu :- 
     write(' _____________________________________________________________________\n'),
     write('|                                                                     |\n'),
@@ -33,6 +37,8 @@ display_mainMenu :-
     write('|_____________________________________________________________________|\n').
 
 
+% display_boardsizeMenu/0
+% Display board size menu for players to choose the board size
 display_boardsizeMenu :-
     write(' _____________________________________________________________________\n'),
     write('|                                                                     |\n'),
@@ -54,7 +60,8 @@ display_boardsizeMenu :-
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
 
-
+% display_playerMenu/0
+% Display player menu for players to choose their pieces
 display_playerMenu :-
     write(' _____________________________________________________________________\n'),
     write('|                                                                     |\n'),
@@ -76,6 +83,8 @@ display_playerMenu :-
     write('|_____________________________________________________________________|\n').
 
 
+% print_dash_line(+N)
+% Auxiliar function to display the board
 print_dash_line(0).
 print_dash_line(N) :-
     N > 0,
@@ -83,7 +92,8 @@ print_dash_line(N) :-
     N1 is N - 1,
     print_dash_line(N1).
 
-
+% print_letters_columns(+N)
+% Auxiliar function to display the board
 print_letters_columns(0).
 print_letters_columns(N) :-
     N > 0,
@@ -91,11 +101,15 @@ print_letters_columns(N) :-
     N1 is N - 1,
     print_letters_columns(N1).
 
+%print_column_letter(+N)
+% Auxiliar function to display the board
 print_column_letter(N) :-
     N1 is 65 + N - 1, 
     char_code(Letter, N1), 
     format('~|~w | ', [Letter]).
 
+% print_matrix(+BOARD, +ROW)
+% Auxiliar function to display the board
 print_matrix([], _).
 print_matrix([Line|RestOfMatrix], Row) :-
     format('~|~t~d~3+ | ', [Row]),
@@ -106,13 +120,15 @@ print_matrix([Line|RestOfMatrix], Row) :-
     NewRow is Row + 1, % Increase the row number
     print_matrix(RestOfMatrix, NewRow). % Recurse with the updated row number
 
+% print_underscore_line/0
+% % Auxiliar function to display the board
 print_underscore_line :-
     boardsize(SIZE), % Obtemos o tamanho do tabuleiro
     Length is SIZE * 4 + 4, % Calculamos o comprimento da linha de underscores
     format('~|~`-t~*|', [Length]). % Imprimimos a linha de underscores
 
 % print_line(+Line)
-% Displays each element of the line recursively
+% % Auxiliar function to display the board
 print_line([]).
 print_line([CurrentElement|RestOfLine]) :-
     symbol(CurrentElement, Symbol),

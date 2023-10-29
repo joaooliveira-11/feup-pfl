@@ -2,6 +2,8 @@
 :- consult(data).
 :- consult(logic).
 
+% build_piecerow(+SIZE, +PIECE, -ROW)
+% Predicate to build a row with  SIZE-2 pieces.
 build_piecerow(SIZE, PIECE, ROW) :-
     EMPTYSIZE is SIZE -2,
     length(ROW_AUX, EMPTYSIZE),
@@ -9,10 +11,14 @@ build_piecerow(SIZE, PIECE, ROW) :-
     ROW_AUX1 = [0 | ROW_AUX],
     append(ROW_AUX1, [0], ROW).
 
+% build_normalrow(+SIZE, -ROW)
+% Predicate to build an empty row
 build_normalrow(SIZE, ROW) :-
     length(ROW, SIZE),
     maplist(=(0), ROW).
 
+% build_rows(+SIZE, +NROWS, +BOARD, -RESULTBOARD)
+% Predicate to build the middle rows of the board.
 build_rows(_, 0, BOARD, BOARD).
 build_rows(SIZE, NROWS, BOARD, RESULTBOARD) :-
     NROWS > 0,
@@ -21,6 +27,8 @@ build_rows(SIZE, NROWS, BOARD, RESULTBOARD) :-
     NROWS1 is NROWS - 1,
     build_rows(SIZE, NROWS1, UPDATEDBOARD, RESULTBOARD).
 
+% initial_state(+SIZE, -BOARD)
+% Predicate to build a board (size x size) given a size.
 initial_state(SIZE, BOARD) :-
     build_piecerow(SIZE, 1, FIRSTROW),
     build_piecerow(SIZE, 1, SECONDROW),
@@ -37,7 +45,8 @@ initial_state(SIZE, BOARD) :-
     retract(board(_)),
     assert(board(BOARD)).
 
-% Exibe o tabuleiro
+% display_game(+BOARD)
+% Predicate to display the board.
 display_game(BOARD) :-
     boardsize(SIZE),
     write('    | '),
@@ -47,7 +56,8 @@ display_game(BOARD) :-
     nl,
     print_matrix(BOARD, 1).
 
-% move(+GAMESTATE, +MOVE, +NEWGAMESTATE)
+% move(+GAMESTATE, +PLAYER, +MOVE, -NEWGAMESTATE)
+% Predicate to analise and execute a move from a player.
 move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
     get_direction(START, END, DIRECTION),
     get_piece(GAMESTATE, START, PIECE),
