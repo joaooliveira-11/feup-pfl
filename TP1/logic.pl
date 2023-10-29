@@ -66,7 +66,7 @@ horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, ACC, LEFTPIECES) :-
     get_piece(GAMESTATE, YS-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    horizontal_left_pieces(GAMESTATE, YS-X1, PIECE, ACC1, LEFTPIECES).
+    horizontal_left_pieces(GAMESTATE, YS-X1, PIECE, ACC1, LEFTPIECES), !.
 horizontal_left_pieces(_ ,_ ,_ , LEFTPIECES, LEFTPIECES).
 
 % horizontal_right_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -RIGHTPIECES)
@@ -79,7 +79,7 @@ horizontal_right_pieces(GAMESTATE, YS-XS, PIECE, ACC, RIGHTPIECES) :-
     get_piece(GAMESTATE, YS-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    horizontal_right_pieces(GAMESTATE, YS-X1, PIECE, ACC1, RIGHTPIECES).
+    horizontal_right_pieces(GAMESTATE, YS-X1, PIECE, ACC1, RIGHTPIECES), !.
 horizontal_right_pieces(_ ,_ ,_ , RIGHTPIECES, RIGHTPIECES).
 
 % vertical_top_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -TOPPIECES)
@@ -91,7 +91,7 @@ vertical_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
     get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    vertical_top_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, TOPPIECES).
+    vertical_top_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, TOPPIECES), !.
 vertical_top_pieces(_, _, _, TOPPIECES, TOPPIECES).
 
 % vertical_bottom_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -BOTTOMPIECES)
@@ -104,7 +104,7 @@ vertical_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
     get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    vertical_bottom_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, BOTTOMPIECES).
+    vertical_bottom_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, BOTTOMPIECES), !.
 vertical_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 % ldiagonal_top_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -TOPPIECES)
@@ -119,7 +119,7 @@ ldiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
     get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    ldiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES).
+    ldiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES), !.
 ldiagonal_top_pieces(_ ,_ ,_ , TOPPIECES, TOPPIECES).
 
 % ldiagonal_bottom_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -BOTTOMPIECES)
@@ -135,7 +135,7 @@ ldiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
     get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    ldiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES).
+    ldiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES), !.
 ldiagonal_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 % rdiagonal_top_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -TOPPIECES)
@@ -151,7 +151,7 @@ rdiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
     get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    rdiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES).
+    rdiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES), !.
 rdiagonal_top_pieces(_ ,_ ,_ , TOPPIECES, TOPPIECES).
 
 % rdiagonal_bottom_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -BOTTOMPIECES)
@@ -167,7 +167,7 @@ rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
     get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    rdiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES).
+    rdiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES), !.
 rdiagonal_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 % horizontal_length(+GAMESTATE, +(YS-XS), +PIECE, -LENGTH)
@@ -224,30 +224,37 @@ get_move_length([YS-XS, YF-XF], LENGTH) :-
 % Validates if the piece that player is trying to move is valid or not
 valid_piece(PLAYER, PIECE) :-
     symbol(PLAYERPIECE,PLAYER),
-    PLAYERPIECE = PIECE.
+    PLAYERPIECE = PIECE, !.
+valid_piece(_,_) :-
+    write('Invalid starting piece. You can only control your own pieces!\n'), fail.
 
 % valid_fpiece(+PLAYER, +FPIECE)
 % Validates if the piece in the landing position is valid or not
 % If is an enemy piece or empty is valid, otherwise invalid
 valid_fpiece(PLAYER, FPIECE) :-
     symbol(PLAYERPIECE,PLAYER),
-    (PLAYERPIECE \= FPIECE ; FPIECE = 0).
+    (PLAYERPIECE \= FPIECE ; FPIECE = 0), !.
+valid_fpiece(_,_) :-
+    write('Invalid landing piece. You cannot land on your own pieces!\n'), fail.
 
 % valid_direction(+DIRECTION)
 % Validates if the move has a valid direction
 valid_direction(DIRECTION) :-
-    DIRECTION \= invalid.
+    DIRECTION \= invalid, !.
+valid_direction(_) :-
+    write('Invalid direction! You can only use diagonal, vertical, or horizontal directions.\n'), fail.
 
 % valid_length(+LENGTH, +MAXLENGTH)
 % Validates if the move length is lower or equal to the move max length
 valid_length(LENGTH, MAXLENGTH) :-
-    LENGTH >= 1, MAXLENGTH >= 1, LENGTH =< MAXLENGTH.
+    LENGTH >= 1, MAXLENGTH >= 1, LENGTH =< MAXLENGTH, !.
+valid_length(LENGTH,MAXLENGTH) :-
+    format('Invalid move length. Your move has ~w length, and the max length of the move is ~w.\n', [LENGTH, MAXLENGTH]), fail.
 
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
-% Validates if a move is valid by using many auxiliar valid move predicates
+% Validates if a move is valid
 valid_move(PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION) :-
     valid_piece(PLAYER, PIECE),
     valid_fpiece(PLAYER, FPIECE),
     valid_direction(DIRECTION),
     valid_length(LENGTH, MAXLENGTH).
-
