@@ -28,8 +28,7 @@ get_move(PLAYER, Move) :-
     means(PLAYER, NAME),
     format('~w pieces turn\n: ', [NAME]),
     write('Enter the coordinates of the piece to move (Y-X): '), nl,
-    read(START),
-    (valid_coordinates(START) ->
+    (catch(read(START), _, fail), valid_coordinates(START) ->
         true
     ; 
         write('Invalid coordinates. Please enter valid coordinates (Y-X) of the piece to move.'), nl,
@@ -37,8 +36,7 @@ get_move(PLAYER, Move) :-
     ),
 
     write('Enter the new coordinates of the piece to move (Y-X): '), nl,
-    read(END),
-    (valid_coordinates(END) ->
+    (catch(read(END), _, fail), valid_coordinates(END) ->
         true
     ; 
         write('Invalid coordinates. Please enter new valid coordinates (Y-X) of the piece to move.'), nl,
@@ -47,9 +45,10 @@ get_move(PLAYER, Move) :-
     Move = [START, END], !.
 
 ask_to_play_again(GAMESTATE, PLAYER) :-
+    repeat,
     write('Since you made a jump, you are allowed to play again!\n'),
     write('Do you want to play again (yes or no)?\n'),
-    read(ANSWER),
+    catch(read(ANSWER), _, (write('Invalid input. Please enter yes or no.\n'),fail)),
     (
         ANSWER = 'yes' ->
             play_game(GAMESTATE, PLAYER)
@@ -60,6 +59,7 @@ ask_to_play_again(GAMESTATE, PLAYER) :-
             change_turn(PLAYER, NEXTPLAYER),    
             play_game(GAMESTATE, NEXTPLAYER)
         ;
+        write('Invalid input. Please enter yes or no.\n'),
         ask_to_play_again(GAMESTATE, PLAYER)
     ).
 
