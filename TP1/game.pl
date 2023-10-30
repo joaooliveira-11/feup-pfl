@@ -80,6 +80,9 @@ play_game(GAMESTATE, PLAYER) :-
     (
         move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
+        boardsize(SIZE),
+        get_player_positions(NEWGAMESTATE, PLAYER, SIZE, POSITIONS),
+        print_positions(POSITIONS), nl,
         
         (
         check_white_first_move(PLAYER) ->

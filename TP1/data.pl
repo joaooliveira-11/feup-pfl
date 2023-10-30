@@ -140,3 +140,8 @@ print_line([CurrentElement|RestOfLine]) :-
     write(Symbol),
     write(' | '),
     print_line(RestOfLine).
+
+print_positions([]).
+print_positions([Position | Rest]) :-
+    format('~w-~w ', Position),
+    print_positions(Rest).

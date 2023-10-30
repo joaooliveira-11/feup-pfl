@@ -333,3 +333,7 @@ valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
     move_type(LENGTH, TYPE),
     valid_move_type(PLAYER, TYPE),
     valid_position(PLAYER, END).
+
+
+get_player_positions(BOARD, PLAYER, SIZE, POSITIONS) :-
+    findall([Y, X], (between(1, SIZE, Y), nth1(Y, BOARD, ROW), between(1, SIZE, X), nth1(X, ROW, PIECE),  symbol(PLAYERPIECE, PLAYER), PLAYERPIECE =:= PIECE), POSITIONS).
