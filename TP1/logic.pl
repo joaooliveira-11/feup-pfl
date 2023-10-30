@@ -202,17 +202,17 @@ rdiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
 
 % get_move_maxlength(+GAMESTATE, +START, +PIECE, +DIRECTION, -MAXLENGTH)
 % Calculates the move max length using its direction
-get_move_maxlength(GAMESTATE, START, PIECE, DIRECTION, MAXLENGTH) :-
+get_move_linelength(GAMESTATE, START, PIECE, DIRECTION, LINELENGTH) :-
     (DIRECTION = horizontal -> 
-        horizontal_length(GAMESTATE, START, PIECE, MAXLENGTH)
+        horizontal_length(GAMESTATE, START, PIECE, LINELENGTH)
     ; DIRECTION = vertical -> 
-        vertical_length(GAMESTATE, START, PIECE, MAXLENGTH)
+        vertical_length(GAMESTATE, START, PIECE, LINELENGTH)
     ; DIRECTION = ldiagonal -> 
-        ldiagonal_length(GAMESTATE, START, PIECE, MAXLENGTH)
+        ldiagonal_length(GAMESTATE, START, PIECE, LINELENGTH)
     ; DIRECTION = rdiagonal -> 
-       rdiagonal_length(GAMESTATE, START, PIECE, MAXLENGTH)
+       rdiagonal_length(GAMESTATE, START, PIECE, LINELENGTH)
     ; DIRECTION = invalid ->
-        MAXLENGTH = -1
+        LINELENGTH = -1
     ).
 
 % get_move_length(+[START, END], -LENGTH)
@@ -248,10 +248,10 @@ valid_direction(_) :-
 
 % valid_length(+LENGTH, +MAXLENGTH)
 % Validates if the move length is lower or equal to the move max length
-valid_length(LENGTH, MAXLENGTH) :-
-    LENGTH >= 1, MAXLENGTH >= 1, LENGTH =< MAXLENGTH, !.
-valid_length(LENGTH,MAXLENGTH) :-
-    format('Invalid move length. Your move has ~w length, and the max length of the move is ~w.\n', [LENGTH, MAXLENGTH]), fail.
+valid_length(LENGTH, LINELENGTH) :-
+    LENGTH >= 1, LINELENGTH >= 1, LENGTH = LINELENGTH, !.
+valid_length(LENGTH,LINELENGTH) :-
+    format('Invalid move length. Your move has ~w length, and the line length is ~w. They must be equal!\n', [LENGTH, LINELENGTH]), fail.
 
 move_type(LENGTH, TYPE) :-
     (LENGTH = 1 ->
@@ -325,11 +325,11 @@ valid_position(_, END) :-
 
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
-valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
+valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE) :-
     valid_piece(PLAYER, PIECE),
     valid_fpiece(PLAYER, FPIECE),
     valid_direction(DIRECTION),
-    valid_length(LENGTH, MAXLENGTH),
+    valid_length(LENGTH, LINELENGTH),
     move_type(LENGTH, TYPE),
     valid_move_type(PLAYER, TYPE),
     valid_position(PLAYER, END).
