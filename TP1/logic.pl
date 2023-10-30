@@ -253,6 +253,11 @@ valid_length(LENGTH, LINELENGTH) :-
 valid_length(LENGTH,LINELENGTH) :-
     format('Invalid move length. Your move has ~w length, and the line length is ~w. They must be equal!\n', [LENGTH, LINELENGTH]), fail.
 
+valid_coordinates(Y-X):-
+    boardsize(SIZE),
+    X > 0, X =< SIZE,
+    Y > 0, Y =< SIZE.
+
 move_type(LENGTH, TYPE) :-
     (LENGTH = 1 ->
         TYPE = single_step
@@ -334,6 +339,78 @@ valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE) :-
     valid_move_type(PLAYER, TYPE),
     valid_position(PLAYER, END).
 
-
 get_player_positions(BOARD, PLAYER, SIZE, POSITIONS) :-
     findall([Y, X], (between(1, SIZE, Y), nth1(Y, BOARD, ROW), between(1, SIZE, X), nth1(X, ROW, PIECE),  symbol(PLAYERPIECE, PLAYER), PLAYERPIECE =:= PIECE), POSITIONS).
+
+check_positions(_, _, []).
+check_positions(BOARD, PLAYER, [[Y, X] | REST]) :-
+    check_position(BOARD, PLAYER, [Y, X]),
+    check_positions(BOARD,PLAYER, REST).
+
+check_position(BOARD, PLAYER,[Y,X]) :-
+    X1 is X + 1,
+    X2 is X - 1,
+    Y1 is Y + 1,
+    \+ (has_friendly_piece(BOARD, PLAYER, [Y,X1]);
+        has_friendly_piece(BOARD, PLAYER, [Y1,X]); 
+        has_friendly_piece(BOARD, PLAYER, [Y1,X1]);
+        has_friendly_piece(BOARD, PLAYER, [Y1,X2])
+        ).
+
+has_friendly_piece(BOARD, PLAYER,[Y,X]) :-
+    (valid_coordinates(Y-X) -> 
+        get_piece(BOARD, Y-X, PIECE),
+        symbol(PLAYERPIECE, PLAYER),
+        PLAYERPIECE =:= PIECE
+    ;
+        false
+    ).
+
+check_win(BOARD, PLAYER, SIZE) :-
+    get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
+    check_positions(BOARD, PLAYER, POSITIONS).
+
+
+both_players_win(NEWGAMESTATE, PLAYER, NEXTPLAYER, SIZE) :-
+    check_win(NEWGAMESTATE, PLAYER, SIZE),
+    check_win(NEWGAMESTATE, NEXTPLAYER, SIZE).
+    
+player_wins(NEWGAMESTATE, PLAYER, SIZE) :-
+    check_win(NEWGAMESTATE, PLAYER, SIZE).
+
+declare_win(PLAYER) :-
+    means(PLAYER, PLAYERNAME),
+    format(' ~w side has won the game!~n', [PLAYERNAME]).
+declare_draw(PLAYER, NEXTPLAYER) :-
+    means(NEXTPLAYER, NEXTPLAYERNAME),
+    means(PLAYER, PLAYERNAME),
+    format('Both ~w and ~w sides have won the game!~n', [PLAYERNAME, NEXTPLAYERNAME]), nl,
+    format('However, since ~w caused this draw, ~w side won the game!', [PLAYERNAME, NEXTPLAYERNAME]), nl.
+
+continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER) :-
+    (check_white_first_move(PLAYER) ->
+        allow_single_steps(PLAYER),
+        clear_blocked_positions(PLAYER),
+        play_game(NEWGAMESTATE, NEXTPLAYER)
+    ;
+    can_continuous_move(PLAYER, yes) ->
+        ask_to_play_again(NEWGAMESTATE, PLAYER)
+    ;
+    can_continuous_move(PLAYER, no) ->
+        clear_blocked_positions(PLAYER),
+        play_game(NEWGAMESTATE, NEXTPLAYER)
+    ).
+
+game_outcome(NEWGAMESTATE, PLAYER, SIZE) :-
+    change_turn(PLAYER, NEXTPLAYER),
+    (both_players_win(NEWGAMESTATE, PLAYER, NEXTPLAYER, SIZE) ->
+        declare_draw(PLAYER, NEXTPLAYER)
+    ;
+    check_win(NEWGAMESTATE, PLAYER, SIZE) -> 
+        declare_win(PLAYER)
+    ;
+    check_win(NEWGAMESTATE, NEXTPLAYER, SIZE) ->
+        declare_win(NEXTPLAYER)
+    ;
+    continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER)
+    ).

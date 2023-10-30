@@ -72,6 +72,7 @@ move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
 play :-
     boardsize(SIZE),
     initial_state(SIZE, BOARD),
+    % board_checkwin(BOARD),
     display_game(BOARD),
     play_game(BOARD, 'W').
 
@@ -81,24 +82,7 @@ play_game(GAMESTATE, PLAYER) :-
         move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
         boardsize(SIZE),
-        get_player_positions(NEWGAMESTATE, PLAYER, SIZE, POSITIONS),
-        print_positions(POSITIONS), nl,
-        
-        (
-        check_white_first_move(PLAYER) ->
-            allow_single_steps(PLAYER),
-            change_turn(PLAYER, NEXTPLAYER),
-            clear_blocked_positions(PLAYER),
-            play_game(NEWGAMESTATE, NEXTPLAYER)
-        ;
-        can_continuous_move(PLAYER, yes) ->
-            ask_to_play_again(NEWGAMESTATE, PLAYER)
-        ;
-        can_continuous_move(PLAYER, no) ->
-            change_turn(PLAYER, NEXTPLAYER),
-            clear_blocked_positions(PLAYER),
-            play_game(NEWGAMESTATE, NEXTPLAYER)
-        )
+        game_outcome(NEWGAMESTATE, PLAYER, SIZE)
     ;
         play_game(GAMESTATE, PLAYER)
     ).

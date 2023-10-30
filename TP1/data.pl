@@ -145,3 +145,17 @@ print_positions([]).
 print_positions([Position | Rest]) :-
     format('~w-~w ', Position),
     print_positions(Rest).
+
+
+
+board_checkwin(BOARD) :-
+    BOARD = [
+    [0, 0, 1, 0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0],
+    [2, 0, 0, 0, 2, 0, 0, 2],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 2, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 2, 0, 2],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 2, 0, 0, 2]
+  ].

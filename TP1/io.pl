@@ -1,4 +1,5 @@
 :- consult(game).
+:- consult(logic).
 
 read_number(X):-
     read_number_aux(X,0).
@@ -61,11 +62,6 @@ ask_to_play_again(GAMESTATE, PLAYER) :-
         ;
         ask_to_play_again(GAMESTATE, PLAYER)
     ).
-
-valid_coordinates(Y-X):-
-    boardsize(SIZE),
-    X > 0, X =< SIZE,
-    Y > 0, Y =< SIZE.
 
 set_gamemode(1) :-
     retract(gamemode(_)),
