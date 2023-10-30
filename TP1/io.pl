@@ -54,10 +54,7 @@ ask_to_play_again(GAMESTATE, PLAYER) :-
             play_game(GAMESTATE, PLAYER)
         ;
         ANSWER = 'no' ->
-        /*
-            retract(can_continuous_move(PLAYER,_)),
-            assert(can_continuous_move(PLAYER, no)),
-        */
+            allow_single_steps(PLAYER),
             clear_blocked_positions(PLAYER),
             change_turn(PLAYER, NEXTPLAYER),    
             play_game(GAMESTATE, NEXTPLAYER)

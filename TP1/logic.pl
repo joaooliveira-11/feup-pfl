@@ -258,18 +258,30 @@ move_type(LENGTH, TYPE) :-
         TYPE = single_step
     ;
     LENGTH > 1 ->
-        TYPE = continuous_step
+        TYPE = jump
     ).
 
 handle_move_type(TYPE, PLAYER) :-
     (TYPE = single_step ->
-        retract(can_continuous_move(PLAYER, _)),
-        assert(can_continuous_move(PLAYER, no))
+        allow_single_steps(PLAYER)
     ;
-    TYPE = continuous_step ->
-        retract(can_continuous_move(PLAYER, _)),
-        assert(can_continuous_move(PLAYER, yes))
+    TYPE = jump ->
+        allow_continous_moves(PLAYER)
     ).
+
+allow_single_steps(PLAYER) :-
+    retract(can_continuous_move(PLAYER,_)),
+    assert(can_continuous_move(PLAYER, no)).
+allow_continous_moves(PLAYER):-
+    retract(can_continuous_move(PLAYER, _)),
+    assert(can_continuous_move(PLAYER, yes)).
+
+valid_move_type(_, jump) :-
+    true, !.
+valid_move_type(PLAYER, single_step) :-
+    can_continuous_move(PLAYER, no), !.
+valid_move_type(_, single_step) :-
+    write('Since you are making continous moves, single steps are not allowed!\n'),fail.
     
 check_white_first_move(PLAYER) :-
     PLAYER = 'W',
@@ -319,4 +331,5 @@ valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, MAXLENGTH, DIRECTION, TYPE) :-
     valid_direction(DIRECTION),
     valid_length(LENGTH, MAXLENGTH),
     move_type(LENGTH, TYPE),
+    valid_move_type(PLAYER, TYPE),
     valid_position(PLAYER, END).

@@ -83,6 +83,7 @@ play_game(GAMESTATE, PLAYER) :-
         
         (
         check_white_first_move(PLAYER) ->
+            allow_single_steps(PLAYER),
             change_turn(PLAYER, NEXTPLAYER),
             clear_blocked_positions(PLAYER),
             play_game(NEWGAMESTATE, NEXTPLAYER)
