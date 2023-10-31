@@ -64,9 +64,9 @@ move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
     get_piece(GAMESTATE, END, FPIECE),
     get_move_linelength(GAMESTATE, START, PIECE, DIRECTION, LINELENGTH),
     get_move_length([START, END], LENGTH),
-    valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE),
+    valid_move([START, END], PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE),
     execute_move(GAMESTATE, START, END, NEWGAMESTATE),
-    handle_move_type(TYPE, PLAYER),
+    handle_move_type(TYPE, PLAYER, END),
     add_blocked_position(PLAYER, START).
 
 play :-

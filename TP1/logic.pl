@@ -266,13 +266,21 @@ move_type(LENGTH, TYPE) :-
         TYPE = jump
     ).
 
-handle_move_type(TYPE, PLAYER) :-
+handle_move_type(TYPE, PLAYER, END) :-
     (TYPE = single_step ->
         allow_single_steps(PLAYER)
     ;
     TYPE = jump ->
-        allow_continous_moves(PLAYER)
+        allow_continous_moves(PLAYER),
+        update_continousmove_piece(PLAYER, END)
     ).
+
+update_continousmove_piece(PLAYER, END) :-
+    retract(jump_piece(PLAYER,_)),
+    assert(jump_piece(PLAYER, END)).
+
+remove_continousmove_piece(PLAYER) :-
+    retract(jump_piece(PLAYER,_)).
 
 allow_single_steps(PLAYER) :-
     retract(can_continuous_move(PLAYER,_)),
@@ -281,12 +289,24 @@ allow_continous_moves(PLAYER):-
     retract(can_continuous_move(PLAYER, _)),
     assert(can_continuous_move(PLAYER, yes)).
 
-valid_move_type(_, jump) :-
-    true, !.
-valid_move_type(PLAYER, single_step) :-
+valid_move_type(PLAYER, jump, Y-X) :-
+    (
+        (can_continuous_move(PLAYER, yes),
+        jump_piece(PLAYER, POSITION),
+        Y1-X1 = POSITION,
+        Y = Y1, X = X1)
+    ;
+        can_continuous_move(PLAYER, no)
+    ), !.
+valid_move_type(PLAYER, jump, _) :-
+    jump_piece(PLAYER, POSITION),
+    Y-X = POSITION,
+    format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)', [Y, X]), fail.
+
+valid_move_type(PLAYER, single_step, _) :-
     can_continuous_move(PLAYER, no), !.
-valid_move_type(_, single_step) :-
-    write('Since you are making continous moves, single steps are not allowed!\n'),fail.
+valid_move_type(_, single_step, _) :-
+    write('Invalid move. Since you are making continous moves, single steps are not allowed!\n'),fail.
     
 check_white_first_move(PLAYER) :-
     PLAYER = 'W',
@@ -330,13 +350,13 @@ valid_position(_, END) :-
 
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
-valid_move(END, PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE) :-
+valid_move([START, END], PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE) :-
     valid_piece(PLAYER, PIECE),
     valid_fpiece(PLAYER, FPIECE),
     valid_direction(DIRECTION),
     valid_length(LENGTH, LINELENGTH),
     move_type(LENGTH, TYPE),
-    valid_move_type(PLAYER, TYPE),
+    valid_move_type(PLAYER, TYPE, START),
     valid_position(PLAYER, END).
 
 get_player_positions(BOARD, PLAYER, SIZE, POSITIONS) :-
@@ -391,6 +411,7 @@ continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER) :-
     (check_white_first_move(PLAYER) ->
         allow_single_steps(PLAYER),
         clear_blocked_positions(PLAYER),
+        remove_continousmove_piece(PLAYER),
         play_game(NEWGAMESTATE, NEXTPLAYER)
     ;
     can_continuous_move(PLAYER, yes) ->
@@ -398,6 +419,7 @@ continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER) :-
     ;
     can_continuous_move(PLAYER, no) ->
         clear_blocked_positions(PLAYER),
+        remove_continousmove_piece(PLAYER),
         play_game(NEWGAMESTATE, NEXTPLAYER)
     ).
 

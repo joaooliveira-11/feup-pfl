@@ -56,6 +56,7 @@ ask_to_play_again(GAMESTATE, PLAYER) :-
         ANSWER = 'no' ->
             allow_single_steps(PLAYER),
             clear_blocked_positions(PLAYER),
+            remove_continousmove_piece(PLAYER),
             change_turn(PLAYER, NEXTPLAYER),    
             play_game(GAMESTATE, NEXTPLAYER)
         ;
