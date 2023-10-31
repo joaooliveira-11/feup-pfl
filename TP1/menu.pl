@@ -52,3 +52,6 @@ player_menu :-
     get_menuinput(0, 2, INPUT),
     set_playerside(INPUT).
 */
+
+gamewin_menu(WINNER):-
+    display_gamewin(WINNER).
