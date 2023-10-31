@@ -266,6 +266,17 @@ move_type(LENGTH, TYPE) :-
         TYPE = jump
     ).
 
+update_continousmove_piece(PLAYER, END) :-
+    (jump_piece(PLAYER,_) ->
+        retract(jump_piece(PLAYER, _))
+    ;
+        true
+    ),
+    assert(jump_piece(PLAYER, END)).
+
+remove_continousmove_piece(PLAYER) :-
+    retract(jump_piece(PLAYER,_)).
+
 handle_move_type(TYPE, PLAYER, END) :-
     (TYPE = single_step ->
         allow_single_steps(PLAYER)
@@ -274,13 +285,6 @@ handle_move_type(TYPE, PLAYER, END) :-
         allow_continous_moves(PLAYER),
         update_continousmove_piece(PLAYER, END)
     ).
-
-update_continousmove_piece(PLAYER, END) :-
-    retract(jump_piece(PLAYER,_)),
-    assert(jump_piece(PLAYER, END)).
-
-remove_continousmove_piece(PLAYER) :-
-    retract(jump_piece(PLAYER,_)).
 
 allow_single_steps(PLAYER) :-
     retract(can_continuous_move(PLAYER,_)),
@@ -423,16 +427,33 @@ continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER) :-
         play_game(NEWGAMESTATE, NEXTPLAYER)
     ).
 
-game_outcome(NEWGAMESTATE, PLAYER, SIZE) :-
+value(NEWGAMESTATE, PLAYER, VALUE) :-
     change_turn(PLAYER, NEXTPLAYER),
+    boardsize(SIZE),
     (both_players_win(NEWGAMESTATE, PLAYER, NEXTPLAYER, SIZE) ->
-        declare_draw(PLAYER, NEXTPLAYER)
+        VALUE = draw
     ;
-    check_win(NEWGAMESTATE, PLAYER, SIZE) -> 
-        declare_win(PLAYER)
+    check_win(NEWGAMESTATE, PLAYER, SIZE) ->
+        VALUE = player_wins
     ;
     check_win(NEWGAMESTATE, NEXTPLAYER, SIZE) ->
+        VALUE = nextplayer_wins
+    ;
+        VALUE = continue_playing
+    ).
+
+handle_value(NEWGAMESTATE, PLAYER, VALUE) :-
+    change_turn(PLAYER, NEXTPLAYER),
+    (VALUE = draw ->
+        declare_draw(PLAYER, NEXTPLAYER)
+    ;
+    VALUE = player_wins ->
+        declare_win(PLAYER)
+    ;
+    VALUE = nextplayer_wins ->
         declare_win(NEXTPLAYER)
     ;
-    continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER)
+    VALUE = continue_playing ->
+        continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER)
     ).
+

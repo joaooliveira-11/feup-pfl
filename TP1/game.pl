@@ -81,8 +81,8 @@ play_game(GAMESTATE, PLAYER) :-
     (
         move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
-        boardsize(SIZE),
-        game_outcome(NEWGAMESTATE, PLAYER, SIZE)
+        value(NEWGAMESTATE, PLAYER, VALUE),
+        handle_value(NEWGAMESTATE, PLAYER, VALUE)
     ;
         play_game(GAMESTATE, PLAYER)
     ).
