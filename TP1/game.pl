@@ -71,8 +71,8 @@ move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
 
 play :-
     boardsize(SIZE),
-    initial_state(SIZE, BOARD),
-    % board_checkwin(BOARD),
+    %initial_state(SIZE, BOARD),
+    board_checkwin(BOARD),
     display_game(BOARD),
     play_game(BOARD, 'W').
 
@@ -81,8 +81,11 @@ play_game(GAMESTATE, PLAYER) :-
     (
         move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
-        value(NEWGAMESTATE, PLAYER, VALUE),
-        handle_value(NEWGAMESTATE, PLAYER, VALUE)
+        (game_over(NEWGAMESTATE, PLAYER, WINNER) ->
+            gamewin_menu(WINNER)
+        ;
+            continue_game(NEWGAMESTATE, PLAYER)
+        )
     ;
         play_game(GAMESTATE, PLAYER)
     ).

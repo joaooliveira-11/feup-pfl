@@ -402,20 +402,12 @@ both_players_win(NEWGAMESTATE, PLAYER, NEXTPLAYER, SIZE) :-
 player_wins(NEWGAMESTATE, PLAYER, SIZE) :-
     check_win(NEWGAMESTATE, PLAYER, SIZE).
 
-declare_win(PLAYER) :-
-    means(PLAYER, PLAYERNAME),
-    format(' ~w side has won the game!~n', [PLAYERNAME]).
-declare_draw(PLAYER, NEXTPLAYER) :-
-    means(NEXTPLAYER, NEXTPLAYERNAME),
-    means(PLAYER, PLAYERNAME),
-    format('Both ~w and ~w sides have won the game!~n', [PLAYERNAME, NEXTPLAYERNAME]), nl,
-    format('However, since ~w caused this draw, ~w side won the game!', [PLAYERNAME, NEXTPLAYERNAME]), nl.
-
-continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER) :-
+continue_game(NEWGAMESTATE, PLAYER) :-
     (check_white_first_move(PLAYER) ->
         allow_single_steps(PLAYER),
         clear_blocked_positions(PLAYER),
         remove_continousmove_piece(PLAYER),
+        change_turn(PLAYER, NEXTPLAYER),
         play_game(NEWGAMESTATE, NEXTPLAYER)
     ;
     can_continuous_move(PLAYER, yes) ->
@@ -424,36 +416,21 @@ continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER) :-
     can_continuous_move(PLAYER, no) ->
         clear_blocked_positions(PLAYER),
         remove_continousmove_piece(PLAYER),
+        change_turn(PLAYER, NEXTPLAYER),
         play_game(NEWGAMESTATE, NEXTPLAYER)
     ).
 
-value(NEWGAMESTATE, PLAYER, VALUE) :-
+game_over(GAMESTATE, PLAYER, WINNER) :-
     change_turn(PLAYER, NEXTPLAYER),
     boardsize(SIZE),
-    (both_players_win(NEWGAMESTATE, PLAYER, NEXTPLAYER, SIZE) ->
-        VALUE = draw
+    (both_players_win(GAMESTATE, PLAYER, NEXTPLAYER, SIZE) ->
+        WINNER = NEXTPLAYER
     ;
-    check_win(NEWGAMESTATE, PLAYER, SIZE) ->
-        VALUE = player_wins
+    check_win(GAMESTATE, PLAYER, SIZE) ->
+        WINNER = PLAYER
     ;
-    check_win(NEWGAMESTATE, NEXTPLAYER, SIZE) ->
-        VALUE = nextplayer_wins
-    ;
-        VALUE = continue_playing
+    check_win(GAMESTATE, NEXTPLAYER, SIZE) ->
+        WINNER = NEXTPLAYER
     ).
 
-handle_value(NEWGAMESTATE, PLAYER, VALUE) :-
-    change_turn(PLAYER, NEXTPLAYER),
-    (VALUE = draw ->
-        declare_draw(PLAYER, NEXTPLAYER)
-    ;
-    VALUE = player_wins ->
-        declare_win(PLAYER)
-    ;
-    VALUE = nextplayer_wins ->
-        declare_win(NEXTPLAYER)
-    ;
-    VALUE = continue_playing ->
-        continue_game(NEWGAMESTATE, PLAYER, NEXTPLAYER)
-    ).
 
