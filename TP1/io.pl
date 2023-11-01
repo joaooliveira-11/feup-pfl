@@ -45,7 +45,7 @@ get_move(PLAYER, MOVE) :-
 
 ask_to_play_again(GAMESTATE) :-
     repeat,
-    write('Since you made a jump, you are allowed to play again!\n'),
+    write('Since you made a jump and the jumped piece can move again, you are allowed to play again\n'),
     write('Do you want to play again (yes or no)?\n'),
     catch(read(ANSWER), _, (write('Invalid input. Please enter yes or no.\n'),fail)),
     (

@@ -442,8 +442,17 @@ continue_game(GAMESTATE) :-
         NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
         play_game(NEWGAMESTATE)
     ;
-    can_continuous_move(PLAYER, yes) ->
-        ask_to_play_again(GAMESTATE)
+    can_continuous_move(PLAYER, yes)->
+        valid_moves(GAMESTATE, VALIDMOVES),
+        (VALIDMOVES \= [] -> ask_to_play_again(GAMESTATE)
+        ;
+        allow_single_steps(PLAYER),
+        clear_blocked_positions(PLAYER),
+        remove_continousmove_piece(PLAYER),
+        change_turn(PLAYER, NEXTPLAYER),
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+        play_game(NEWGAMESTATE)
+        )
     ;
     can_continuous_move(PLAYER, no) ->
         change_turn(PLAYER, NEXTPLAYER),
