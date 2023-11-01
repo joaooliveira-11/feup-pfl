@@ -180,3 +180,14 @@ board_checkwin(BOARD) :-
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 2, 0, 0, 2, 0, 0, 2]
   ].
+
+
+print_moves([]).
+print_moves([[StartX-StartY, EndX-EndY] | Rest]) :-
+    format('Move from ~w-~w to ~w-~w\n', [StartX, StartY, EndX, EndY]),
+    print_moves(Rest).
+
+print_positions([]).
+print_positions([[Y, X] | Rest]) :- 
+    format('Position: ~w-~w\n', [X, Y]),
+    print_positions(Rest).

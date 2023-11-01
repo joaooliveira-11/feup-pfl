@@ -230,7 +230,8 @@ valid_piece(PLAYER, PIECE) :-
     symbol(PLAYERPIECE,PLAYER),
     PLAYERPIECE = PIECE, !.
 valid_piece(_,_) :-
-    write('Invalid starting piece. You can only control your own pieces!\n'), fail.
+    %write('Invalid starting piece. You can only control your own pieces!\n'), 
+    fail.
 
 % valid_fpiece(+PLAYER, +FPIECE)
 % Validates if the piece in the landing position is valid or not
@@ -239,21 +240,24 @@ valid_fpiece(PLAYER, FPIECE) :-
     symbol(PLAYERPIECE,PLAYER),
     (PLAYERPIECE \= FPIECE ; FPIECE = 0), !.
 valid_fpiece(_,_) :-
-    write('Invalid landing piece. You cannot land on your own pieces!\n'), fail.
+    %write('Invalid landing piece. You cannot land on your own pieces!\n'), 
+    fail.
 
 % valid_direction(+DIRECTION)
 % Validates if the move has a valid direction
 valid_direction(DIRECTION) :-
     DIRECTION \= invalid, !.
 valid_direction(_) :-
-    write('Invalid direction! You can only use diagonal, vertical, or horizontal directions.\n'), fail.
+    %write('Invalid direction! You can only use diagonal, vertical, or horizontal directions.\n'), 
+    fail.
 
 % valid_length(+LENGTH, +MAXLENGTH)
 % Validates if the move length is lower or equal to the move max length
 valid_length(LENGTH, LINELENGTH) :-
     LENGTH >= 1, LINELENGTH >= 1, LENGTH = LINELENGTH, !.
 valid_length(LENGTH,LINELENGTH) :-
-    format('Invalid move length. Your move has ~w length, and the line length is ~w. They must be equal!\n', [LENGTH, LINELENGTH]), fail.
+    %format('Invalid move length. Your move has ~w length, and the line length is ~w. They must be equal!\n', [LENGTH, LINELENGTH]), 
+    fail.
 
 valid_coordinates(Y-X):-
     boardsize(SIZE),
@@ -308,12 +312,14 @@ valid_move_type(PLAYER, jump, Y-X) :-
 valid_move_type(PLAYER, jump, _) :-
     jump_piece(PLAYER, POSITION),
     Y-X = POSITION,
-    format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)\n', [Y, X]), fail.
+    %format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)\n', [Y, X]), 
+    fail.
 
 valid_move_type(PLAYER, single_step, _) :-
     can_continuous_move(PLAYER, no), !.
 valid_move_type(_, single_step, _) :-
-    write('Invalid move. Since you are making continous moves, single steps are not allowed!\n'),fail.
+    %write('Invalid move. Since you are making continous moves, single steps are not allowed!\n'),
+    fail.
     
 check_white_first_move(PLAYER) :-
     PLAYER = 'W',
@@ -353,14 +359,20 @@ valid_position(PLAYER, END) :-
      ),
      \+ member(END, BLOCKEDPOSITIONS), !.
 valid_position(_, END) :-
-    format("Error, the square ~w is a blocked position in this turn.~n", [END]), fail.
+    %format("Error, the square ~w is a blocked position in this turn.~n", [END]), 
+    fail.
 
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
-valid_move([START, END], PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE) :-
+valid_move(BOARD, PLAYER, [START, END], TYPE) :-
+    get_piece(BOARD, START, PIECE),
     valid_piece(PLAYER, PIECE),
+    get_piece(BOARD, END, FPIECE),
     valid_fpiece(PLAYER, FPIECE),
+    get_direction(START, END, DIRECTION),
     valid_direction(DIRECTION),
+    get_move_linelength(BOARD, START, PIECE, DIRECTION, LINELENGTH),
+    get_move_length([START, END], LENGTH),
     valid_length(LENGTH, LINELENGTH),
     move_type(LENGTH, TYPE),
     valid_move_type(PLAYER, TYPE, START),
@@ -438,3 +450,20 @@ game_over(GAMESTATE, WINNER) :-
     check_win(NEWGAMESTATE) ->
         WINNER = NEXTPLAYER
     ).
+
+valid_moves(GAMESTATE, VALIDMOVES) :-
+    [BOARD,SIZE, PLAYER, _] = GAMESTATE,
+    get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
+    findall(
+        [YS-XS, YF-XF],
+        (
+        member([YS,XS], POSITIONS),
+        between(1, SIZE, YF),
+        between(1, SIZE, XF),
+        valid_move(BOARD, PLAYER, [YS-XS, YF-XF],_)
+        ),
+        VALIDMOVES
+    ).
+
+
+
