@@ -2,30 +2,32 @@
 
 % execute_move(+GAMESTATE, +FROM, +TO, -NEWGAMESTATE)
 % Executes a move by replacing the Piece in the position 'TO' by the piece at the position 'FROM'
-execute_move(GAMESTATE, FROM, TO, NEWGAMESTATE) :-
-    get_piece(GAMESTATE, FROM, PIECE),
-    add_piece(GAMESTATE, FROM, 0, TEMPSTATE),
-    add_piece(TEMPSTATE, TO, PIECE, NEWGAMESTATE).
+execute_move(GAMESTATE, [START, END], NEWGAMESTATE) :-
+    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    get_piece(BOARD, START, PIECE),
+    add_piece(BOARD, START, 0, TEMPBOARD),
+    add_piece(TEMPBOARD, END, PIECE, NEWGAMEBOARD),
+    NEWGAMESTATE = [NEWGAMEBOARD,SIZE, PLAYER, GAMEMODE].
 
 % get_piece(+GAMESTATE, +(Y-X), -PIECE)
 % Gets the piece in the specified position
-get_piece(GAMESTATE, Y-X, PIECE) :-
-    nth1(Y, GAMESTATE, ROW),
+get_piece(BOARD, Y-X, PIECE) :-
+    nth1(Y, BOARD, ROW),
     nth1(X, ROW, PIECE).
 
 % add_piece(+GAMESTATE, +(Y-X), +PIECE, -NEWGAMESTATE)
 % Gets the board row that matches the y coordinates
 % Replaces the collumn x of that row with the input piece
 % Replaces the row with the modified piece into the board
-add_piece(GAMESTATE, Y-X, PIECE, NEWGAMESTATE) :-
-    get_row(GAMESTATE, Y, ROW),
+add_piece(BOARD, Y-X, PIECE, NEWGAMEBOARD) :-
+    get_row(BOARD, Y, ROW),
     replace_piece(X, ROW, PIECE, NEWROW),
-    replace_row(Y, GAMESTATE, NEWROW, NEWGAMESTATE).
+    replace_row(Y, BOARD, NEWROW, NEWGAMEBOARD).
 
 % get_row(+GAMESTATE, +INDEX, -SELECTEDROW)
 % Gets a board row in the specified index
-get_row(GAMESTATE, INDEX, SELECTEDROW) :-
-    nth1(INDEX, GAMESTATE, SELECTEDROW).
+get_row(BOARD, INDEX, SELECTEDROW) :-
+    nth1(INDEX, BOARD, SELECTEDROW).
 
 % replace_piece(+INDEX, +ROW, +PIECE, -NEWROW)
 % Replaces the piece at the index input of the row input by the piece input
@@ -62,155 +64,155 @@ get_direction(_,_, invalid).
 % horizontal_left_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -LEFTPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the left position of the original position
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, ACC, LEFTPIECES) :-
+horizontal_left_pieces(BOARD, YS-XS, PIECE, ACC, LEFTPIECES) :-
     X1 is XS -1,
     X1 >= 1,
-    get_piece(GAMESTATE, YS-X1, CURRENTPIECE),
+    get_piece(BOARD, YS-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    horizontal_left_pieces(GAMESTATE, YS-X1, PIECE, ACC1, LEFTPIECES), !.
+    horizontal_left_pieces(BOARD, YS-X1, PIECE, ACC1, LEFTPIECES), !.
 horizontal_left_pieces(_ ,_ ,_ , LEFTPIECES, LEFTPIECES).
 
 % horizontal_right_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -RIGHTPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the right position of the original position
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-horizontal_right_pieces(GAMESTATE, YS-XS, PIECE, ACC, RIGHTPIECES) :-
+horizontal_right_pieces(BOARD, YS-XS, PIECE, ACC, RIGHTPIECES) :-
     X1 is XS + 1,
     boardsize(SIZE),
     X1 =< SIZE,
-    get_piece(GAMESTATE, YS-X1, CURRENTPIECE),
+    get_piece(BOARD, YS-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    horizontal_right_pieces(GAMESTATE, YS-X1, PIECE, ACC1, RIGHTPIECES), !.
+    horizontal_right_pieces(BOARD, YS-X1, PIECE, ACC1, RIGHTPIECES), !.
 horizontal_right_pieces(_ ,_ ,_ , RIGHTPIECES, RIGHTPIECES).
 
 % vertical_top_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -TOPPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the above position of the original position
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-vertical_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
+vertical_top_pieces(BOARD, YS-XS, PIECE, ACC, TOPPIECES) :-
     Y1 is YS - 1,
     Y1 >= 1,
-    get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
+    get_piece(BOARD, Y1-XS, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    vertical_top_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, TOPPIECES), !.
+    vertical_top_pieces(BOARD, Y1-XS, PIECE, ACC1, TOPPIECES), !.
 vertical_top_pieces(_, _, _, TOPPIECES, TOPPIECES).
 
 % vertical_bottom_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -BOTTOMPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the position bellow of the original position
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-vertical_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
+vertical_bottom_pieces(BOARD, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
     Y1 is YS + 1,
     boardsize(SIZE),
     Y1 =< SIZE,
-    get_piece(GAMESTATE, Y1-XS, CURRENTPIECE),
+    get_piece(BOARD, Y1-XS, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    vertical_bottom_pieces(GAMESTATE, Y1-XS, PIECE, ACC1, BOTTOMPIECES), !.
+    vertical_bottom_pieces(BOARD, Y1-XS, PIECE, ACC1, BOTTOMPIECES), !.
 vertical_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 % ldiagonal_top_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -TOPPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the position
 % The line starts at the position of the first upper left diagonal square of the original position.
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-ldiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
+ldiagonal_top_pieces(BOARD, YS-XS, PIECE, ACC, TOPPIECES) :-
     X1 is XS -1,
     Y1 is YS -1,
     X1 >= 1,
     Y1 >= 1,
-    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    get_piece(BOARD, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    ldiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES), !.
+    ldiagonal_top_pieces(BOARD, Y1-X1, PIECE, ACC1, TOPPIECES), !.
 ldiagonal_top_pieces(_ ,_ ,_ , TOPPIECES, TOPPIECES).
 
 % ldiagonal_bottom_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -BOTTOMPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the position
 % The line starts at the position of the first bottom right diagonal square of the original position.
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-ldiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
+ldiagonal_bottom_pieces(BOARD, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
     X1 is XS + 1,
     Y1 is YS + 1,
     boardsize(SIZE),
     X1 =< SIZE,
     Y1 =< SIZE,
-    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    get_piece(BOARD, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    ldiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES), !.
+    ldiagonal_bottom_pieces(BOARD, Y1-X1, PIECE, ACC1, BOTTOMPIECES), !.
 ldiagonal_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 % rdiagonal_top_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -TOPPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the position
 % The line starts at the position of the first upper right diagonal square of the original position.
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-rdiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, ACC, TOPPIECES) :-
+rdiagonal_top_pieces(BOARD, YS-XS, PIECE, ACC, TOPPIECES) :-
     X1 is XS + 1,
     Y1 is YS -1,
     boardsize(SIZE),
     X1 =< SIZE,
     Y1 >= 1,
-    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    get_piece(BOARD, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    rdiagonal_top_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, TOPPIECES), !.
+    rdiagonal_top_pieces(BOARD, Y1-X1, PIECE, ACC1, TOPPIECES), !.
 rdiagonal_top_pieces(_ ,_ ,_ , TOPPIECES, TOPPIECES).
 
 % rdiagonal_bottom_pieces(+GAMESTATE, +(YS-XS), +PIECE, +ACC, -BOTTOMPIECES)
 % Calculates the ammount of pieces that form a piece line starting at the position
 % The line starts at the position of the first bottom right diagonal square of the original position.
 % Piece lines are lines formed with only one type of piece, in this case the player piece
-rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
+rdiagonal_bottom_pieces(BOARD, YS-XS, PIECE, ACC, BOTTOMPIECES) :-
     X1 is XS - 1,
     Y1 is YS + 1,
     boardsize(SIZE),
     X1 >= 1,
     Y1 =< SIZE,
-    get_piece(GAMESTATE, Y1-X1, CURRENTPIECE),
+    get_piece(BOARD, Y1-X1, CURRENTPIECE),
     CURRENTPIECE = PIECE,
     ACC1 is ACC + 1,
-    rdiagonal_bottom_pieces(GAMESTATE, Y1-X1, PIECE, ACC1, BOTTOMPIECES), !.
+    rdiagonal_bottom_pieces(BOARD, Y1-X1, PIECE, ACC1, BOTTOMPIECES), !.
 rdiagonal_bottom_pieces(_ ,_ ,_ , BOTTOMPIECES, BOTTOMPIECES).
 
 % horizontal_length(+GAMESTATE, +(YS-XS), +PIECE, -LENGTH)
 % Calculates the max length of the horizontal move starting at the input position
-horizontal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
-    horizontal_left_pieces(GAMESTATE, YS-XS, PIECE, 0, LEFTPIECES),
-    horizontal_right_pieces(GAMESTATE, YS-XS, PIECE, 0, RIGHTPIECES),
+horizontal_length(BOARD, YS-XS, PIECE, LENGTH) :-
+    horizontal_left_pieces(BOARD, YS-XS, PIECE, 0, LEFTPIECES),
+    horizontal_right_pieces(BOARD, YS-XS, PIECE, 0, RIGHTPIECES),
     LENGTH is LEFTPIECES + RIGHTPIECES + 1.
 
 % vertical_length(+GAMESTATE, +(YS-XS), +PIECE, -LENGTH)
 % Calculates the max length of the vertical move starting at the input position
-vertical_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
-    vertical_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
-    vertical_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
+vertical_length(BOARD, YS-XS, PIECE, LENGTH) :-
+    vertical_top_pieces(BOARD, YS-XS, PIECE, 0, TOPPIECES),
+    vertical_bottom_pieces(BOARD, YS-XS, PIECE, 0, BOTTOMPIECES),
     LENGTH is TOPPIECES + BOTTOMPIECES + 1.
 
 % ldiagonal_length(+GAMESTATE, +(YS-XS), +PIECE, -LENGTH)
 % Calculates the max length of the left diagonal move starting at the input position
-ldiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
-    ldiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
-    ldiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
+ldiagonal_length(BOARD, YS-XS, PIECE, LENGTH) :-
+    ldiagonal_top_pieces(BOARD, YS-XS, PIECE, 0, TOPPIECES),
+    ldiagonal_bottom_pieces(BOARD, YS-XS, PIECE, 0, BOTTOMPIECES),
     LENGTH is TOPPIECES + BOTTOMPIECES + 1.
 
 % rdiagonal_length(+GAMESTATE, +(YS-XS), +PIECE, -LENGTH)
 % Calculates the max length of the right diagonal move starting at the input position
-rdiagonal_length(GAMESTATE, YS-XS, PIECE, LENGTH) :-
-    rdiagonal_top_pieces(GAMESTATE, YS-XS, PIECE, 0, TOPPIECES),
-    rdiagonal_bottom_pieces(GAMESTATE, YS-XS, PIECE, 0, BOTTOMPIECES),
+rdiagonal_length(BOARD, YS-XS, PIECE, LENGTH) :-
+    rdiagonal_top_pieces(BOARD, YS-XS, PIECE, 0, TOPPIECES),
+    rdiagonal_bottom_pieces(BOARD, YS-XS, PIECE, 0, BOTTOMPIECES),
     LENGTH is TOPPIECES + BOTTOMPIECES + 1.
 
 % get_move_maxlength(+GAMESTATE, +START, +PIECE, +DIRECTION, -MAXLENGTH)
 % Calculates the move max length using its direction
-get_move_linelength(GAMESTATE, START, PIECE, DIRECTION, LINELENGTH) :-
+get_move_linelength(BOARD, START, PIECE, DIRECTION, LINELENGTH) :-
     (DIRECTION = horizontal -> 
-        horizontal_length(GAMESTATE, START, PIECE, LINELENGTH)
+        horizontal_length(BOARD, START, PIECE, LINELENGTH)
     ; DIRECTION = vertical -> 
-        vertical_length(GAMESTATE, START, PIECE, LINELENGTH)
+        vertical_length(BOARD, START, PIECE, LINELENGTH)
     ; DIRECTION = ldiagonal -> 
-        ldiagonal_length(GAMESTATE, START, PIECE, LINELENGTH)
+        ldiagonal_length(BOARD, START, PIECE, LINELENGTH)
     ; DIRECTION = rdiagonal -> 
-       rdiagonal_length(GAMESTATE, START, PIECE, LINELENGTH)
+       rdiagonal_length(BOARD, START, PIECE, LINELENGTH)
     ; DIRECTION = invalid ->
         LINELENGTH = -1
     ).
@@ -277,13 +279,14 @@ update_continousmove_piece(PLAYER, END) :-
 remove_continousmove_piece(PLAYER) :-
     retract(jump_piece(PLAYER,_)).
 
-handle_move_type(TYPE, PLAYER, END) :-
+handle_move_type(TYPE, PLAYER, [START, END]) :-
     (TYPE = single_step ->
         allow_single_steps(PLAYER)
     ;
     TYPE = jump ->
         allow_continous_moves(PLAYER),
-        update_continousmove_piece(PLAYER, END)
+        update_continousmove_piece(PLAYER, END),
+        add_blocked_position(PLAYER, START)
     ).
 
 allow_single_steps(PLAYER) :-
@@ -305,7 +308,7 @@ valid_move_type(PLAYER, jump, Y-X) :-
 valid_move_type(PLAYER, jump, _) :-
     jump_piece(PLAYER, POSITION),
     Y-X = POSITION,
-    format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)', [Y, X]), fail.
+    format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)\n', [Y, X]), fail.
 
 valid_move_type(PLAYER, single_step, _) :-
     can_continuous_move(PLAYER, no), !.
@@ -390,47 +393,48 @@ has_friendly_piece(BOARD, PLAYER,[Y,X]) :-
         false
     ).
 
-check_win(BOARD, PLAYER, SIZE) :-
+check_win(GAMESTATE) :-
+    [BOARD, SIZE, PLAYER, _] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     check_positions(BOARD, PLAYER, POSITIONS).
 
+both_players_win(GAMESTATE) :-
+    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    change_turn(PLAYER, NEXTPLAYER),
+    check_win(GAMESTATE),
+    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE], 
+    check_win(NEWGAMESTATE).
 
-both_players_win(NEWGAMESTATE, PLAYER, NEXTPLAYER, SIZE) :-
-    check_win(NEWGAMESTATE, PLAYER, SIZE),
-    check_win(NEWGAMESTATE, NEXTPLAYER, SIZE).
-    
-player_wins(NEWGAMESTATE, PLAYER, SIZE) :-
-    check_win(NEWGAMESTATE, PLAYER, SIZE).
-
-continue_game(NEWGAMESTATE, PLAYER) :-
+continue_game(GAMESTATE) :-
+    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
     (check_white_first_move(PLAYER) ->
         allow_single_steps(PLAYER),
         clear_blocked_positions(PLAYER),
         remove_continousmove_piece(PLAYER),
         change_turn(PLAYER, NEXTPLAYER),
-        play_game(NEWGAMESTATE, NEXTPLAYER)
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+        play_game(NEWGAMESTATE)
     ;
     can_continuous_move(PLAYER, yes) ->
-        ask_to_play_again(NEWGAMESTATE, PLAYER)
+        ask_to_play_again(GAMESTATE)
     ;
     can_continuous_move(PLAYER, no) ->
-        clear_blocked_positions(PLAYER),
-        remove_continousmove_piece(PLAYER),
         change_turn(PLAYER, NEXTPLAYER),
-        play_game(NEWGAMESTATE, NEXTPLAYER)
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+        play_game(NEWGAMESTATE)
     ).
 
-game_over(GAMESTATE, PLAYER, WINNER) :-
+game_over(GAMESTATE, WINNER) :-
+    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
     change_turn(PLAYER, NEXTPLAYER),
-    boardsize(SIZE),
-    (both_players_win(GAMESTATE, PLAYER, NEXTPLAYER, SIZE) ->
+    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+    (both_players_win(GAMESTATE) ->
         WINNER = NEXTPLAYER
     ;
-    check_win(GAMESTATE, PLAYER, SIZE) ->
+    check_win(GAMESTATE) ->
         WINNER = PLAYER
     ;
-    check_win(GAMESTATE, NEXTPLAYER, SIZE) ->
+    check_win(NEWGAMESTATE) ->
         WINNER = NEXTPLAYER
     ).
-
-

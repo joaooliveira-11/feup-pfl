@@ -47,8 +47,8 @@ initial_state(SIZE, BOARD) :-
 
 % display_game(+BOARD)
 % Predicate to display the board.
-display_game(BOARD) :-
-    boardsize(SIZE),
+display_game(GAMESTATE) :-
+    [BOARD, SIZE, _, _] = GAMESTATE,
     write('    | '),
     print_letters_columns(SIZE), nl,
     write('    '),
@@ -58,34 +58,36 @@ display_game(BOARD) :-
 
 % move(+GAMESTATE, +PLAYER, +MOVE, -NEWGAMESTATE)
 % Predicate to analise and execute a move from a player.
-move(GAMESTATE, PLAYER, [START, END], NEWGAMESTATE) :-
+move(GAMESTATE, [START, END], NEWGAMESTATE) :-
+    [BOARD,_, PLAYER, _] = GAMESTATE,
     get_direction(START, END, DIRECTION),
-    get_piece(GAMESTATE, START, PIECE),
-    get_piece(GAMESTATE, END, FPIECE),
-    get_move_linelength(GAMESTATE, START, PIECE, DIRECTION, LINELENGTH),
+    get_piece(BOARD, START, PIECE),
+    get_piece(BOARD, END, FPIECE),
+    get_move_linelength(BOARD, START, PIECE, DIRECTION, LINELENGTH),
     get_move_length([START, END], LENGTH),
     valid_move([START, END], PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE),
-    execute_move(GAMESTATE, START, END, NEWGAMESTATE),
-    handle_move_type(TYPE, PLAYER, END),
-    add_blocked_position(PLAYER, START).
+    execute_move(GAMESTATE, [START, END], NEWGAMESTATE),
+    handle_move_type(TYPE, PLAYER, [START, END]).
 
 play :-
     boardsize(SIZE),
-    %initial_state(SIZE, BOARD),
-    board_checkwin(BOARD),
-    display_game(BOARD),
-    play_game(BOARD, 'W').
+    gamemode(GAMEMODE),
+    initial_state(SIZE, BOARD),
+    % board_checkwin(BOARD),
+    display_game([BOARD, SIZE, 'W',GAMEMODE]),
+    play_game([BOARD, SIZE, 'W',GAMEMODE]).
 
-play_game(GAMESTATE, PLAYER) :-
-    get_move(PLAYER,MOVE),
+play_game(GAMESTATE) :-
+    [_,_, PLAYER, _] = GAMESTATE,
+    get_move(PLAYER, MOVE),
     (
-        move(GAMESTATE, PLAYER, MOVE, NEWGAMESTATE),
+        move(GAMESTATE, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
-        (game_over(NEWGAMESTATE, PLAYER, WINNER) ->
+        (game_over(NEWGAMESTATE, WINNER) ->
             gamewin_menu(WINNER)
         ;
-            continue_game(NEWGAMESTATE, PLAYER)
+            continue_game(NEWGAMESTATE)
         )
     ;
-        play_game(GAMESTATE, PLAYER)
+        play_game(GAMESTATE)
     ).

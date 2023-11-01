@@ -164,6 +164,9 @@ print_positions([Position | Rest]) :-
     format('~w-~w ', Position),
     print_positions(Rest).
 
+print_player_turn(PLAYER):-
+    means(PLAYER, NAME),
+    format('~w pieces turn\n: ', [NAME]).
 
 
 board_checkwin(BOARD) :-
