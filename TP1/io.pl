@@ -1,5 +1,7 @@
 :- consult(game).
 :- consult(logic).
+:- use_module(library(random)).
+:- use_module(library(system)).
 
 read_number(X):-
     read_number_aux(X,0).
@@ -23,8 +25,23 @@ get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
     ).
 
 
-get_move(PLAYER, MOVE) :-
-    repeat,
+random_member(Elem, List) :-
+    length(List, Length),
+    random(0, Length, Index),
+    nth0(Index, List, Elem).
+
+get_move(GAMESTATE, MOVE) :-
+    [_,_, PLAYER, GAMEMODE] = GAMESTATE,
+    valid_moves(GAMESTATE, VALIDMOVES),
+    (GAMEMODE = c/c ->
+        print_player_turn(PLAYER),
+        sleep(3),  
+        valid_moves(GAMESTATE, VALIDMOVES),
+        random_member(MOVE, VALIDMOVES),
+        MOVE = [YS-XS, YF-XF],
+        format('computer moved from (~w-~w) to (~w-~w)', [YS, XS, YF, XF]),nl
+    ;
+    (repeat,
     print_player_turn(PLAYER),
     write('Enter the coordinates of the piece to move (Y-X): '), nl,
     (catch(read(START), _, fail), valid_coordinates(START) ->
@@ -41,10 +58,31 @@ get_move(PLAYER, MOVE) :-
         write('Invalid coordinates. Please enter new valid coordinates (Y-X) of the piece to move.'), nl,
         fail
     ),
-    MOVE = [START, END], !.
+    MOVE = [START, END], !)
+    ).
 
 ask_to_play_again(GAMESTATE) :-
-    repeat,
+    [_,_, PLAYER, GAMEMODE] = GAMESTATE,
+    (GAMEMODE = c/c ->
+        write('Since you made a jump and the jumped piece can move again, you are allowed to play again\n'),
+        write('Do you want to play again (yes or no)?\n'),
+        random_member(ANSWER, ['yes', 'no']),
+        format('computer chose: ~w\n', [ANSWER]),
+        (
+        ANSWER = 'yes' ->
+            play_game(GAMESTATE)
+        ;
+        ANSWER = 'no' ->
+            [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+            allow_single_steps(PLAYER),
+            clear_blocked_positions(PLAYER),
+            remove_continousmove_piece(PLAYER),
+            change_turn(PLAYER, NEXTPLAYER),
+            NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],    
+            play_game(NEWGAMESTATE)
+        )
+    ;
+    (repeat,
     write('Since you made a jump and the jumped piece can move again, you are allowed to play again\n'),
     write('Do you want to play again (yes or no)?\n'),
     catch(read(ANSWER), _, (write('Invalid input. Please enter yes or no.\n'),fail)),
@@ -63,6 +101,8 @@ ask_to_play_again(GAMESTATE) :-
         ;
         write('Invalid input. Please enter yes or no.\n'),
         ask_to_play_again(GAMESTATE)
+    )
+    )
     ).
 
 set_gamemode(1) :-
@@ -79,9 +119,9 @@ set_boardsize(0, _) :-
     main_menu.
 set_boardsize(1, _) :-
     true.
-set_boardsize(2, Input) :-
+set_boardsize(2, INPUT) :-
     retract(boardsize(_)),
-    assert(boardsize(Input)).
+    assert(boardsize(INPUT)).
 
 /*
 set_playerside :-

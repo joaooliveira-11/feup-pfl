@@ -1,5 +1,5 @@
 :- dynamic gamemode/1, boardsize/1, board/1, first_move/1, can_continuous_move/2, black_blocked_positions/1 , white_blocked_positions/1, jump_piece/2.
-gamemode(normal).
+gamemode(h/h).
 boardsize(8).
 board([]).
 change_turn('W','B').

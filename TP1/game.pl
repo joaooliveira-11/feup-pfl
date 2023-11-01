@@ -69,15 +69,16 @@ play :-
     gamemode(GAMEMODE),
     initial_state(SIZE, BOARD),
     % board_checkwin(BOARD),
-    display_game([BOARD, SIZE, 'W',GAMEMODE]),
+    display_game([BOARD, SIZE, 'W',GAMEMODE]), nl,nl,nl,
     play_game([BOARD, SIZE, 'W',GAMEMODE]).
 
 play_game(GAMESTATE) :-
-    [_,_, PLAYER, _] = GAMESTATE,
+    /*
     write('Os moves validos para esta jogado sao os seguintes: \n'),
     valid_moves(GAMESTATE, VALIDMOVES),
     print_moves(VALIDMOVES), nl,
-    get_move(PLAYER, MOVE),
+    */
+    get_move(GAMESTATE, MOVE),
     (   
         move(GAMESTATE, MOVE, NEWGAMESTATE),
         display_game(NEWGAMESTATE),
