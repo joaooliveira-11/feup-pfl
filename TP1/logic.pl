@@ -226,34 +226,46 @@ get_move_length([YS-XS, YF-XF], LENGTH) :-
 
 % valid_piece(+PLAYER, +PIECE)
 % Validates if the piece that player is trying to move is valid or not
-valid_piece(PLAYER, PIECE) :-
+valid_piece(PLAYER, PIECE, _) :-
     symbol(PLAYERPIECE,PLAYER),
     PLAYERPIECE = PIECE, !.
-valid_piece(_,_) :-
-    write('Invalid starting piece. You can only control your own pieces!\n'), fail.
+valid_piece(_,_,1) :-
+    write('Invalid starting piece. You can only control your own pieces!\n'), 
+    fail.
+valid_piece(_,_,0) :- 
+    fail.
 
 % valid_fpiece(+PLAYER, +FPIECE)
 % Validates if the piece in the landing position is valid or not
 % If is an enemy piece or empty is valid, otherwise invalid
-valid_fpiece(PLAYER, FPIECE) :-
+valid_fpiece(PLAYER, FPIECE,_) :-
     symbol(PLAYERPIECE,PLAYER),
     (PLAYERPIECE \= FPIECE ; FPIECE = 0), !.
-valid_fpiece(_,_) :-
-    write('Invalid landing piece. You cannot land on your own pieces!\n'), fail.
+valid_fpiece(_,_,1) :-
+    write('Invalid landing piece. You cannot land on your own pieces!\n'), 
+    fail.
+valid_fpiece(_,_,0) :-
+    fail.
 
 % valid_direction(+DIRECTION)
 % Validates if the move has a valid direction
-valid_direction(DIRECTION) :-
+valid_direction(DIRECTION, _) :-
     DIRECTION \= invalid, !.
-valid_direction(_) :-
-    write('Invalid direction! You can only use diagonal, vertical, or horizontal directions.\n'), fail.
+valid_direction(_,1) :-
+    write('Invalid direction! You can only use diagonal, vertical, or horizontal directions.\n'), 
+    fail.
+valid_direction(_,0) :-
+    fail.
 
 % valid_length(+LENGTH, +MAXLENGTH)
 % Validates if the move length is lower or equal to the move max length
-valid_length(LENGTH, LINELENGTH) :-
+valid_length(LENGTH, LINELENGTH, _) :-
     LENGTH >= 1, LINELENGTH >= 1, LENGTH = LINELENGTH, !.
-valid_length(LENGTH,LINELENGTH) :-
-    format('Invalid move length. Your move has ~w length, and the line length is ~w. They must be equal!\n', [LENGTH, LINELENGTH]), fail.
+valid_length(LENGTH,LINELENGTH, 1) :-
+    format('Invalid move length. Your move has ~w length, and the line length is ~w. They must be equal!\n', [LENGTH, LINELENGTH]), 
+    fail.
+valid_length(_,_, 0) :-
+    fail.
 
 valid_coordinates(Y-X):-
     boardsize(SIZE),
@@ -296,7 +308,7 @@ allow_continous_moves(PLAYER):-
     retract(can_continuous_move(PLAYER, _)),
     assert(can_continuous_move(PLAYER, yes)).
 
-valid_move_type(PLAYER, jump, Y-X) :-
+valid_move_type(PLAYER, jump, Y-X, _) :-
     (
         (can_continuous_move(PLAYER, yes),
         jump_piece(PLAYER, POSITION),
@@ -305,15 +317,21 @@ valid_move_type(PLAYER, jump, Y-X) :-
     ;
         can_continuous_move(PLAYER, no)
     ), !.
-valid_move_type(PLAYER, jump, _) :-
+valid_move_type(PLAYER, jump, _, 1) :-
     jump_piece(PLAYER, POSITION),
     Y-X = POSITION,
-    format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)\n', [Y, X]), fail.
+    format('Invalid move. Since you are making continuous moves, you can only move the previous piece, now at position (~w,~w)\n', [Y, X]), 
+    fail.
+valid_move_type(_, jump, _, 0) :-
+    fail.
 
-valid_move_type(PLAYER, single_step, _) :-
+valid_move_type(PLAYER, single_step, _, _) :-
     can_continuous_move(PLAYER, no), !.
-valid_move_type(_, single_step, _) :-
-    write('Invalid move. Since you are making continous moves, single steps are not allowed!\n'),fail.
+valid_move_type(_, single_step, _, 1) :-
+    write('Invalid move. Since you are making continous moves, single steps are not allowed!\n'),
+    fail.
+valid_move_type(_, single_step, _, 0) :-
+    fail.
     
 check_white_first_move(PLAYER) :-
     PLAYER = 'W',
@@ -344,7 +362,7 @@ clear_blocked_positions(PLAYER) :-
         assert(black_blocked_positions([]))
      ).
 
-valid_position(PLAYER, END) :-
+valid_position(PLAYER, END, _) :-
      (PLAYER = 'W' -> 
         white_blocked_positions(BLOCKEDPOSITIONS)
     ;
@@ -352,19 +370,27 @@ valid_position(PLAYER, END) :-
         black_blocked_positions(BLOCKEDPOSITIONS)
      ),
      \+ member(END, BLOCKEDPOSITIONS), !.
-valid_position(_, END) :-
-    format("Error, the square ~w is a blocked position in this turn.~n", [END]), fail.
+valid_position(_, END, 1) :-
+    format("Error, the square ~w is a blocked position in this turn.~n", [END]), 
+    fail.
+valid_position(_, _, 0) :-
+    fail.
 
 % valid_move(+PLAYER, +PIECE, +FPIECE, +LENGTH, +MAXLENGTH, +DIRECTION)
 % Validates if a move is valid
-valid_move([START, END], PLAYER, PIECE, FPIECE, LENGTH, LINELENGTH, DIRECTION, TYPE) :-
-    valid_piece(PLAYER, PIECE),
-    valid_fpiece(PLAYER, FPIECE),
-    valid_direction(DIRECTION),
-    valid_length(LENGTH, LINELENGTH),
+valid_move(BOARD, PLAYER, [START, END], TYPE, DISPLAYERRORS) :-
+    get_piece(BOARD, START, PIECE),
+    valid_piece(PLAYER, PIECE, DISPLAYERRORS),
+    get_piece(BOARD, END, FPIECE),
+    valid_fpiece(PLAYER, FPIECE, DISPLAYERRORS),
+    get_direction(START, END, DIRECTION),
+    valid_direction(DIRECTION, DISPLAYERRORS),
+    get_move_linelength(BOARD, START, PIECE, DIRECTION, LINELENGTH),
+    get_move_length([START, END], LENGTH),
+    valid_length(LENGTH, LINELENGTH, DISPLAYERRORS),
     move_type(LENGTH, TYPE),
-    valid_move_type(PLAYER, TYPE, START),
-    valid_position(PLAYER, END).
+    valid_move_type(PLAYER, TYPE, START, DISPLAYERRORS),
+    valid_position(PLAYER, END, DISPLAYERRORS).
 
 get_player_positions(BOARD, PLAYER, SIZE, POSITIONS) :-
     findall([Y, X], (between(1, SIZE, Y), nth1(Y, BOARD, ROW), between(1, SIZE, X), nth1(X, ROW, PIECE),  symbol(PLAYERPIECE, PLAYER), PLAYERPIECE =:= PIECE), POSITIONS).
@@ -438,3 +464,20 @@ game_over(GAMESTATE, WINNER) :-
     check_win(NEWGAMESTATE) ->
         WINNER = NEXTPLAYER
     ).
+
+valid_moves(GAMESTATE, VALIDMOVES) :-
+    [BOARD,SIZE, PLAYER, _] = GAMESTATE,
+    get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
+    findall(
+        [YS-XS, YF-XF],
+        (
+        member([YS,XS], POSITIONS),
+        between(1, SIZE, YF),
+        between(1, SIZE, XF),
+        valid_move(BOARD, PLAYER, [YS-XS, YF-XF],_,0)
+        ),
+        VALIDMOVES
+    ).
+
+
+
