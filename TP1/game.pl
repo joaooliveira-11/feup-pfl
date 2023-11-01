@@ -60,7 +60,7 @@ display_game(GAMESTATE) :-
 % Predicate to analise and execute a move from a player.
 move(GAMESTATE, [START, END], NEWGAMESTATE) :-
     [BOARD,_, PLAYER, _] = GAMESTATE,
-    valid_move(BOARD, PLAYER, [START, END], TYPE),
+    valid_move(BOARD, PLAYER, [START, END], TYPE, 1),
     execute_move(GAMESTATE, [START, END], NEWGAMESTATE),
     handle_move_type(TYPE, PLAYER, [START, END]).
 
@@ -74,8 +74,9 @@ play :-
 
 play_game(GAMESTATE) :-
     [_,_, PLAYER, _] = GAMESTATE,
+    write('Os moves validos para esta jogado sao os seguintes: \n'),
     valid_moves(GAMESTATE, VALIDMOVES),
-    print_moves(VALIDMOVES),
+    print_moves(VALIDMOVES), nl,
     get_move(PLAYER, MOVE),
     (   
         move(GAMESTATE, MOVE, NEWGAMESTATE),
