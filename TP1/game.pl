@@ -61,11 +61,11 @@ move(GAMESTATE, [START, END], NEWGAMESTATE) :-
     execute_move(GAMESTATE, [START, END], NEWGAMESTATE),
     handle_move_type(TYPE, PLAYER, [START, END]).
 
-play :-
+prepare_game :-
     boardsize(SIZE),
     gamemode(GAMEMODE),
     initial_state(SIZE, BOARD),
-    %oard_checkwin(BOARD),
+    %board_checkwin(BOARD),
     display_game([BOARD, SIZE, 'W',GAMEMODE]), nl,nl,nl,
     play_game([BOARD, SIZE, 'W',GAMEMODE]).
 

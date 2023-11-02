@@ -11,13 +11,13 @@ choose_move(GAMESTATE, 1, MOVE) :-
     valid_moves(GAMESTATE, VALIDMOVES),
     random_choice(MOVE, VALIDMOVES),
     MOVE = [YS-XS, YF-XF],
-    format('Computer randomly moved from (~w-~w) to (~w-~w)', [YS, XS, YF, XF]),nl.
+    format('Computer randomly moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]),nl.
 
 get_computer_answer(GAMESTATE) :-
-    write('Since you made a jump and the jumped piece can move again, you are allowed to play again\n'),
+    write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
     write('Do you want to play again (yes or no)?\n'),
     random_choice(ANSWER, ['yes', 'no']),
-    format('computer chose: ~w\n', [ANSWER]),
+    format('computer chose: ~w.\n', [ANSWER]),
     (
     ANSWER = 'yes' ->
         play_game(GAMESTATE)

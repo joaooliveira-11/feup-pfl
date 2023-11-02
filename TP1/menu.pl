@@ -3,11 +3,6 @@
 :- consult(game).
 :- use_module(library(between)).
 
-% display_menu/0
-% Display the input menu
-display_menu(MENU) :-
-    write(MENU).
-
 % main_menu/0
 % Displays the main menu
 % Asks user to choose the game mode
@@ -44,13 +39,13 @@ player_menu :-
     display_playerMenu,
     get_menuinput(0, 2, INPUT),
     set_playerside(INPUT),
-    play.
+    prepare_game.
 
 bot_level_menu :-
     display_botMenu,
     get_menuinput(0, 2, INPUT),
     set_bot_level(INPUT),
-    play.
+    prepare_game.
 
 gamewin_menu(WINNER):-
     display_gamewin(WINNER).

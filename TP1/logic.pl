@@ -336,7 +336,7 @@ valid_move_type(_, single_step, _, 0) :-
 check_white_first_move(PLAYER) :-
     PLAYER = 'W',
     first_move(PLAYER),
-    write('Since is your first move as a White side, you cannot play again even with a jump move.\n'),
+    write('Since is your first move as a white side, you cannot play again even with a jump move.\n'),
     update_white_first_move(PLAYER).
 
 update_white_first_move(PLAYER) :-
