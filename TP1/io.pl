@@ -1,7 +1,6 @@
 :- consult(game).
 :- consult(logic).
 :- consult(computer).
-:- use_module(library(system)).
 
 set_gamemode(1) :-
     retract(gamemode(_)),
@@ -51,7 +50,7 @@ get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
 
 get_human_move(GAMESTATE, MOVE) :-
     repeat,
-    [_,_, PLAYER, _] = GAMESTATE,
+    [_,_, PLAYER, _, _] = GAMESTATE,
     print_player_turn(PLAYER),
     write('Enter the coordinates of the piece to move (Y-X): '), nl,
     (catch(read(START), _, fail), valid_coordinates(START) ->
@@ -74,33 +73,33 @@ get_move(GAMESTATE, h/h, MOVE) :-
     get_human_move(GAMESTATE, MOVE).
 
 get_move(GAMESTATE, h/c, MOVE):-
-    [_,_, PLAYER, _] = GAMESTATE,
+    [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
     (PLAYER = 'W' ->
         get_human_move(GAMESTATE, MOVE)
     ;
         print_player_turn(PLAYER),
         sleep(3), 
-        choose_move(GAMESTATE, 1, MOVE)
+        choose_move(GAMESTATE, BOTLEVEL, MOVE)
     ).
 
 get_move(GAMESTATE, c/h, MOVE):-
-    [_,_, PLAYER, _] = GAMESTATE,
+    [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
     (PLAYER = 'B' ->
         get_human_move(GAMESTATE, MOVE)
     ;
         print_player_turn(PLAYER),
         sleep(3), 
-        choose_move(GAMESTATE, 1, MOVE)
+        choose_move(GAMESTATE, BOTLEVEL, MOVE)
     ).
 
 get_move(GAMESTATE, c/c, MOVE):-
-    [_,_, PLAYER, _] = GAMESTATE,
+    [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
     print_player_turn(PLAYER),
     sleep(3), 
-    choose_move(GAMESTATE, 1, MOVE). 
+    choose_move(GAMESTATE, BOTLEVEL, MOVE). 
 
 get_human_answer(GAMESTATE) :-
-    [_,_, PLAYER, GAMEMODE] = GAMESTATE,
+    [_,_, PLAYER, GAMEMODE, _] = GAMESTATE,
     repeat,
     write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
     write('Do you want to play again (yes or no)?\n'),
@@ -110,12 +109,12 @@ get_human_answer(GAMESTATE) :-
             play_game(GAMESTATE)
         ;
         ANSWER = 'no' ->
-            [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+            [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
             allow_single_steps(PLAYER),
             clear_blocked_positions(PLAYER),
             remove_continousmove_piece(PLAYER),
             change_turn(PLAYER, NEXTPLAYER),
-            NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],    
+            NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],    
             play_game(NEWGAMESTATE)
         ;
         write('Invalid input. Please enter yes or no.\n'),
@@ -126,20 +125,21 @@ ask_to_play_again(GAMESTATE, h/h) :-
     get_human_answer(GAMESTATE).
 
 ask_to_play_again(GAMESTATE, h/c) :-
-    [_,_, PLAYER, _] = GAMESTATE,
+    [_,_, PLAYER, _,BOTLEVEL] = GAMESTATE,
     (PLAYER = 'W' ->
         get_human_answer(GAMESTATE)
     ;
-        get_computer_answer(GAMESTATE)
+        get_computer_answer(GAMESTATE, BOTLEVEL)
     ).
 
 ask_to_play_again(GAMESTATE, c/h) :-
-    [_,_, PLAYER, _] = GAMESTATE,
+    [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
     (PLAYER = 'B' ->
         get_human_answer(GAMESTATE)
     ;
-        get_computer_answer(GAMESTATE)
+        get_computer_answer(GAMESTATE, BOTLEVEL)
     ).
 
 ask_to_play_again(GAMESTATE, c/c) :-
-    get_computer_answer(GAMESTATE).
+    [_,_, _, _, BOTLEVEL] = GAMESTATE,
+    get_computer_answer(GAMESTATE, BOTLEVEL).

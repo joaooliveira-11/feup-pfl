@@ -3,11 +3,11 @@
 % execute_move(+GAMESTATE, +FROM, +TO, -NEWGAMESTATE)
 % Executes a move by replacing the Piece in the position 'TO' by the piece at the position 'FROM'
 execute_move(GAMESTATE, [START, END], NEWGAMESTATE) :-
-    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
     get_piece(BOARD, START, PIECE),
     add_piece(BOARD, START, 0, TEMPBOARD),
     add_piece(TEMPBOARD, END, PIECE, NEWGAMEBOARD),
-    NEWGAMESTATE = [NEWGAMEBOARD,SIZE, PLAYER, GAMEMODE].
+    NEWGAMESTATE = [NEWGAMEBOARD,SIZE, PLAYER, GAMEMODE, BOTLEVEL].
 
 % get_piece(+GAMESTATE, +(Y-X), -PIECE)
 % Gets the piece in the specified position
@@ -420,26 +420,25 @@ has_friendly_piece(BOARD, PLAYER,[Y,X]) :-
     ).
 
 check_win(GAMESTATE) :-
-    [BOARD, SIZE, PLAYER, _] = GAMESTATE,
+    [BOARD, SIZE, PLAYER, _,_] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     check_positions(BOARD, PLAYER, POSITIONS).
 
 both_players_win(GAMESTATE) :-
-    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
     change_turn(PLAYER, NEXTPLAYER),
     check_win(GAMESTATE),
-    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
-    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE], 
+    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL], 
     check_win(NEWGAMESTATE).
 
 continue_game(GAMESTATE) :-
-    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
     (check_white_first_move(PLAYER) ->
         allow_single_steps(PLAYER),
         clear_blocked_positions(PLAYER),
         remove_continousmove_piece(PLAYER),
         change_turn(PLAYER, NEXTPLAYER),
-        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
         play_game(NEWGAMESTATE)
     ;
     can_continuous_move(PLAYER, yes)->
@@ -450,20 +449,20 @@ continue_game(GAMESTATE) :-
         clear_blocked_positions(PLAYER),
         remove_continousmove_piece(PLAYER),
         change_turn(PLAYER, NEXTPLAYER),
-        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
         play_game(NEWGAMESTATE)
         )
     ;
     can_continuous_move(PLAYER, no) ->
         change_turn(PLAYER, NEXTPLAYER),
-        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
         play_game(NEWGAMESTATE)
     ).
 
 game_over(GAMESTATE, WINNER) :-
-    [BOARD, SIZE, PLAYER, GAMEMODE] = GAMESTATE,
+    [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
     change_turn(PLAYER, NEXTPLAYER),
-    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE],
+    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
     (both_players_win(GAMESTATE) ->
         WINNER = NEXTPLAYER
     ;
@@ -475,7 +474,7 @@ game_over(GAMESTATE, WINNER) :-
     ).
 
 valid_moves(GAMESTATE, VALIDMOVES) :-
-    [BOARD,SIZE, PLAYER, _] = GAMESTATE,
+    [BOARD,SIZE, PLAYER, _, _] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     findall(
         [YS-XS, YF-XF],
@@ -487,6 +486,4 @@ valid_moves(GAMESTATE, VALIDMOVES) :-
         ),
         VALIDMOVES
     ).
-
-
 

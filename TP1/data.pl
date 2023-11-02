@@ -148,7 +148,7 @@ print_letters_columns(N) :-
     N1 is N - 1,
     print_letters_columns(N1).
 
-%print_column_letter(+N)
+% print_column_letter(+N)
 % Auxiliar function to display the board
 print_column_letter(N) :-
     N1 is 65 + N - 1, 
