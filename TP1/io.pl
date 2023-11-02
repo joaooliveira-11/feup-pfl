@@ -1,30 +1,57 @@
 :- consult(game).
 :- consult(logic).
+:- consult(computer).
+:- use_module(library(system)).
 
-read_number(X):-
-    read_number_aux(X,0).
-read_number_aux(X,Acc):- 
-    get_code(C),
-    between(48, 57, C), !,
-    Acc1 is 10*Acc + (C - 48),
-    read_number_aux(X,Acc1).
-read_number_aux(X,X).
+set_gamemode(1) :-
+    retract(gamemode(_)),
+    assert(gamemode(h/h)).
+set_gamemode(2) :-
+    retract(gamemode(_)),
+    assert(gamemode(h/c)).
+set_gamemode(3) :-
+    retract(gamemode(_)),
+    assert(gamemode(c/h)).
+set_gamemode(4) :-
+    retract(gamemode(_)),
+    assert(gamemode(c/c)).
+
+set_boardsize(0, _) :-
+    main_menu.
+set_boardsize(1, _) :-
+    true.
+set_boardsize(2, INPUT) :-
+    retract(boardsize(_)),
+    assert(boardsize(INPUT)).
+
+set_playerside(0) :-
+    main_menu.
+set_playerside(1) :-
+    true.
+set_playerside(2) :-
+    true.
+
+set_bot_level(0) :-
+    main_menu.
+set_bot_level(1) :-
+    true.
+set_bot_level(2) :-
+    retract(bot_level(_)),
+    assert(bot_level(2)).
 
 get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
     repeat,
     format('Please choose an option between ~w and ~w:', [LOWERBOUND, UPPERBOUND]),
-    flush_output,
-    read_number(OPTION),
-    (
-        between(LOWERBOUND, UPPERBOUND, OPTION), !, INPUT = OPTION
+    (catch(read(OPTION), _, fail), between(LOWERBOUND, UPPERBOUND, OPTION) ->
+        INPUT = OPTION
     ;
-        format('Invalid option. ~w is not in the range ~w to ~w.\n', [OPTION, LOWERBOUND, UPPERBOUND]),
+        format('Invalid option. Option is not in the range ~w to ~w.\n', [LOWERBOUND, UPPERBOUND]),
         fail
-    ).
+    ), !.
 
-
-get_move(PLAYER, MOVE) :-
+get_human_move(GAMESTATE, MOVE) :-
     repeat,
+    [_,_, PLAYER, _] = GAMESTATE,
     print_player_turn(PLAYER),
     write('Enter the coordinates of the piece to move (Y-X): '), nl,
     (catch(read(START), _, fail), valid_coordinates(START) ->
@@ -43,7 +70,37 @@ get_move(PLAYER, MOVE) :-
     ),
     MOVE = [START, END], !.
 
-ask_to_play_again(GAMESTATE) :-
+get_move(GAMESTATE, h/h, MOVE) :-
+    get_human_move(GAMESTATE, MOVE).
+
+get_move(GAMESTATE, h/c, MOVE):-
+    [_,_, PLAYER, _] = GAMESTATE,
+    print_player_turn(PLAYER),
+    (PLAYER = 'W' ->
+        get_human_move(GAMESTATE, MOVE)
+    ;
+        sleep(3), 
+        choose_move(GAMESTATE, 1, MOVE)
+    ).
+
+get_move(GAMESTATE, c/h, MOVE):-
+     [_,_, PLAYER, _] = GAMESTATE,
+    print_player_turn(PLAYER),
+    (PLAYER = 'B' ->
+        get_human_move(GAMESTATE, MOVE)
+    ;
+        sleep(3), 
+        choose_move(GAMESTATE, 1, MOVE)
+    ).
+
+get_move(GAMESTATE, c/c, MOVE):-
+    [_,_, PLAYER, _] = GAMESTATE,
+    print_player_turn(PLAYER),
+    sleep(3), 
+    choose_move(GAMESTATE, 1, MOVE). 
+
+get_human_answer(GAMESTATE) :-
+    [_,_, PLAYER, GAMEMODE] = GAMESTATE,
     repeat,
     write('Since you made a jump and the jumped piece can move again, you are allowed to play again\n'),
     write('Do you want to play again (yes or no)?\n'),
@@ -65,24 +122,24 @@ ask_to_play_again(GAMESTATE) :-
         ask_to_play_again(GAMESTATE)
     ).
 
-set_gamemode(1) :-
-    retract(gamemode(_)),
-    assert(gamemode(h/h)).
-set_gamemode(2) :-
-    retract(gamemode(_)),
-    assert(gamemode(h/c)).
-set_gamemode(3) :-
-    retract(gamemode(_)),
-    assert(gamemode(c/c)).
+ask_to_play_again(GAMESTATE, h/h) :-
+    get_human_answer(GAMESTATE).
 
-set_boardsize(0, _) :-
-    main_menu.
-set_boardsize(1, _) :-
-    true.
-set_boardsize(2, Input) :-
-    retract(boardsize(_)),
-    assert(boardsize(Input)).
+ask_to_play_again(GAMESTATE, h/c) :-
+    [_,_, PLAYER, _] = GAMESTATE,
+    (PLAYER = 'W' ->
+        get_human_answer(GAMESTATE)
+    ;
+        get_computer_answer(GAMESTATE)
+    ).
 
-/*
-set_playerside :-
-*/
+ask_to_play_again(GAMESTATE, c/h) :-
+    [_,_, PLAYER, _] = GAMESTATE,
+    (PLAYER = 'B' ->
+        get_human_answer(GAMESTATE)
+    ;
+        get_computer_answer(GAMESTATE)
+    ).
+
+ask_to_play_again(GAMESTATE, c/c) :-
+    get_computer_answer(GAMESTATE).

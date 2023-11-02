@@ -1,5 +1,6 @@
 :- consult(io).
 :- consult(data).
+:- consult(game).
 :- use_module(library(between)).
 
 % display_menu/0
@@ -14,7 +15,7 @@ display_menu(MENU) :-
 % Moves to next menu
 main_menu :-
     display_mainMenu,
-    get_menuinput(1, 3, INPUT),
+    get_menuinput(1, 4, INPUT),
     set_gamemode(INPUT),
     boardsize_menu.
 
@@ -26,32 +27,30 @@ main_menu :-
 boardsize_menu :-
     display_boardsizeMenu,
     get_menuinput(0, 2, INPUT),
-    (
-        INPUT = 2 ->
-        (
-            get_menuinput(8, 25, BOARDSIZE),
-            set_boardsize(2, BOARDSIZE)            
-        );
-
-        INPUT = 1 ->
-        (
-            set_boardsize(1, BOARDSIZE)
-        );
-
-        INPUT = 0 ->
-        (
-            set_boardsize(0, BOARDSIZE)
-        )
+    (INPUT = 2 ->
+        get_menuinput(8, 25, BOARDSIZE),
+        set_boardsize(2, BOARDSIZE)            
+    ;
+        set_boardsize(INPUT, _)
     ),
-    play.
+    gamemode(GAMEMODE),
+    (GAMEMODE = h/h ->
+        player_menu
+    ;
+        bot_level_menu
+    ).
 
-
-/*
 player_menu :-
     display_playerMenu,
     get_menuinput(0, 2, INPUT),
-    set_playerside(INPUT).
-*/
+    set_playerside(INPUT),
+    play.
+
+bot_level_menu :-
+    display_botMenu,
+    get_menuinput(0, 2, INPUT),
+    set_bot_level(INPUT),
+    play.
 
 gamewin_menu(WINNER):-
     display_gamewin(WINNER).
