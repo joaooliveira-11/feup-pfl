@@ -75,20 +75,20 @@ get_move(GAMESTATE, h/h, MOVE) :-
 
 get_move(GAMESTATE, h/c, MOVE):-
     [_,_, PLAYER, _] = GAMESTATE,
-    print_player_turn(PLAYER),
     (PLAYER = 'W' ->
         get_human_move(GAMESTATE, MOVE)
     ;
+        print_player_turn(PLAYER),
         sleep(3), 
         choose_move(GAMESTATE, 1, MOVE)
     ).
 
 get_move(GAMESTATE, c/h, MOVE):-
-     [_,_, PLAYER, _] = GAMESTATE,
-    print_player_turn(PLAYER),
+    [_,_, PLAYER, _] = GAMESTATE,
     (PLAYER = 'B' ->
         get_human_move(GAMESTATE, MOVE)
     ;
+        print_player_turn(PLAYER),
         sleep(3), 
         choose_move(GAMESTATE, 1, MOVE)
     ).
@@ -102,7 +102,7 @@ get_move(GAMESTATE, c/c, MOVE):-
 get_human_answer(GAMESTATE) :-
     [_,_, PLAYER, GAMEMODE] = GAMESTATE,
     repeat,
-    write('Since you made a jump and the jumped piece can move again, you are allowed to play again\n'),
+    write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
     write('Do you want to play again (yes or no)?\n'),
     catch(read(ANSWER), _, (write('Invalid input. Please enter yes or no.\n'),fail)),
     (
