@@ -1,7 +1,8 @@
-:- dynamic gamemode/1, boardsize/1, board/1, first_move/1, can_continuous_move/2, black_blocked_positions/1 , white_blocked_positions/1, jump_piece/2.
-gamemode(h/h).
+:- dynamic gamemode/1, boardsize/1, bot_level/1, first_move/1, can_continuous_move/2, black_blocked_positions/1 , white_blocked_positions/1, jump_piece/2.
+gamemode(c/c).
 boardsize(8).
-board([]).
+bot_level(1).
+
 change_turn('W','B').
 change_turn('B','W').
 symbol(0, ' ') :- !.  % Empty square
@@ -9,6 +10,7 @@ symbol(1, 'B').       % Player 1
 symbol(2, 'W').       % Player 2
 means('W', white).
 means('B', black).
+
 can_continuous_move('W', no).
 can_continuous_move('B', no).
 first_move('W').
@@ -39,7 +41,9 @@ display_mainMenu :-
     write('|                                                                     |\n'),
     write('|                        2. Human vs Computer                         |\n'),
     write('|                                                                     |\n'),
-    write('|                        3. Computer vs Computer                      |\n'),
+    write('|                        3. Computer vs Human                         |\n'),
+    write('|                                                                     |\n'),
+    write('|                        4. Computer vs Computer                      |\n'),
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
 
@@ -83,6 +87,26 @@ display_playerMenu :-
     write('|                        1. Player 1 - B                              |\n'),
     write('|                                                                     |\n'),
     write('|                        2. Player 2 - W (Starts First)               |\n'),
+    write('|                                                                     |\n'),
+    write('|                        0. Main Menu                                 |\n'),
+    write('|                                                                     |\n'),
+    write('|                                                                     |\n'),
+    write('|_____________________________________________________________________|\n').
+
+display_botMenu :-
+    write(' _____________________________________________________________________\n'),
+    write('|                                                                     |\n'),
+    write('|                                                                     |\n'),
+    write('|                   |-----+-----+-----+-----+-----|                   |\n'),
+    write('|                   |  A  |  P  |  A  |  R  |  T  |                   |\n'),
+    write('|                   |-----+-----+-----+-----+-----|                   |\n'),
+    write('|                                                                     |\n'),
+    write('|                                                                     |\n'),
+    write('|                        Bot Menu                                     |\n'),
+    write('|                                                                     |\n'),
+    write('|                        1. Level 1 (Random Moves)                    |\n'),
+    write('|                                                                     |\n'),
+    write('|                        2. Level 2 (Greedy Moves)                    |\n'),
     write('|                                                                     |\n'),
     write('|                        0. Main Menu                                 |\n'),
     write('|                                                                     |\n'),
@@ -171,12 +195,12 @@ print_player_turn(PLAYER):-
 
 board_checkwin(BOARD) :-
     BOARD = [
-    [0, 0, 1, 0, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 2, 0, 0, 0],
     [2, 0, 0, 0, 0, 0, 0, 2],
+    [2, 0, 0, 0, 1, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 2, 2],
+    [0, 2, 0, 1, 0, 0, 2, 2],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 2, 0, 0, 2, 0, 0, 2]
   ].

@@ -444,7 +444,7 @@ continue_game(GAMESTATE) :-
     ;
     can_continuous_move(PLAYER, yes)->
         valid_moves(GAMESTATE, VALIDMOVES),
-        (VALIDMOVES \= [] -> ask_to_play_again(GAMESTATE)
+        (VALIDMOVES \= [] -> ask_to_play_again(GAMESTATE, GAMEMODE)
         ;
         allow_single_steps(PLAYER),
         clear_blocked_positions(PLAYER),
