@@ -52,7 +52,7 @@ get_computer_answer(GAMESTATE, 1) :-
     write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
     write('Do you want to play again (yes or no)?\n'),
     random_choice(ANSWER, ['yes', 'no']),
-    format('computer chose: ~w.\n', [ANSWER]),
+    format('computer randomly chose: ~w.\n', [ANSWER]),
     (
     ANSWER = 'yes' ->
         play_game(GAMESTATE)
@@ -68,11 +68,8 @@ get_computer_answer(GAMESTATE, 1) :-
     ).
 
 get_computer_answer(GAMESTATE, 2) :-
-    write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
-    write('Do you want to play again (yes or no)?\n'),
-    % random_choice(ANSWER, ['yes', 'no']),
-    ANSWER = 'no',
-    format('computer chose: ~w.\n', [ANSWER]),
+    choose_best_answer(GAMESTATE, ANSWER),
+    format('computer greedily chose: ~w.\n', [ANSWER]),
     (
     ANSWER = 'yes' ->
         play_game(GAMESTATE)
@@ -86,3 +83,16 @@ get_computer_answer(GAMESTATE, 2) :-
         NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],    
         play_game(NEWGAMESTATE)
     ).
+
+choose_best_answer(GAMESTATE, ANSWER) :-
+    value(GAMESTATE, CURRENTVALUE),
+    valid_moves(GAMESTATE, VALIDMOVES),
+    choose_best_move(GAMESTATE, VALIDMOVES, MOVE),
+    execute_move(GAMESTATE, MOVE, NEWGAMESTATE),
+    value(NEWGAMESTATE, FUTUREVALUE),
+    (FUTUREVALUE > CURRENTVALUE ->
+        ANSWER = 'yes'
+    ;
+        ANSWER = 'no'
+    ).
+
