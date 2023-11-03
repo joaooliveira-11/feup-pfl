@@ -195,14 +195,14 @@ print_player_turn(PLAYER):-
 
 board_checkwin(BOARD) :-
     BOARD = [
-    [0, 1, 1, 0, 1, 0, 1, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1],
     [0, 0, 0, 0, 2, 0, 0, 0],
-    [2, 0, 0, 0, 0, 0, 0, 2],
-    [2, 0, 0, 0, 1, 0, 0, 0],
+    [2, 2, 0, 0, 0, 0, 0, 2],
+    [0, 0, 0, 0, 2, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 1, 0, 0, 2, 2],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 0, 2, 0, 0, 2]
+    [0, 2, 2, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 2],
+    [2, 0, 2, 0, 0, 2, 0, 2]
   ].
 
 
@@ -210,3 +210,14 @@ print_moves([]).
 print_moves([[StartX-StartY, EndX-EndY] | Rest]) :-
     format('Move from ~w-~w to ~w-~w\n', [StartX, StartY, EndX, EndY]),
     print_moves(Rest).
+
+print_isolated_positions([]).
+print_isolated_positions([[Y, X] | Rest]) :-
+    format("(~d-~d),", [Y, X]),
+    print_isolated_positions(Rest).
+
+print_sorted_moves([]).
+print_sorted_moves([Value-Move | Rest]) :-
+    [YS-XS, YF-XF] = Move,
+    format("Move from ~w-~w to ~w-~w, Value: ~w~n", [YS,XS, YF,XF, Value]),
+    print_sorted_moves(Rest).

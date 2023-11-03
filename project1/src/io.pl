@@ -95,7 +95,6 @@ get_move(GAMESTATE, c/h, MOVE):-
 get_move(GAMESTATE, c/c, MOVE):-
     [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
     print_player_turn(PLAYER),
-    sleep(3), 
     choose_move(GAMESTATE, BOTLEVEL, MOVE). 
 
 get_human_answer(GAMESTATE) :-

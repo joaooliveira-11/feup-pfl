@@ -410,6 +410,16 @@ check_position(BOARD, PLAYER,[Y,X]) :-
         has_friendly_piece(BOARD, PLAYER, [Y1,X2])
         ).
 
+check_position_2(BOARD, PLAYER,[Y,X]) :-
+    X1 is X + 1,
+    X2 is X - 1,
+    Y1 is Y - 1,
+    \+ (has_friendly_piece(BOARD, PLAYER, [Y,X2]);
+        has_friendly_piece(BOARD, PLAYER, [Y1,X]); 
+        has_friendly_piece(BOARD, PLAYER, [Y1,X1]);
+        has_friendly_piece(BOARD, PLAYER, [Y1,X2])
+        ).
+
 has_friendly_piece(BOARD, PLAYER,[Y,X]) :-
     (valid_coordinates(Y-X) -> 
         get_piece(BOARD, Y-X, PIECE),
@@ -487,3 +497,16 @@ valid_moves(GAMESTATE, VALIDMOVES) :-
         VALIDMOVES
     ).
 
+value(GAMESTATE, VALUE) :-
+    [BOARD, SIZE, PLAYER, _, _] = GAMESTATE,
+    get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
+    findall(
+        [Y, X],
+        (   
+            member([Y,X], POSITIONS),
+            check_position(BOARD, PLAYER,[Y,X]),
+            check_position_2(BOARD, PLAYER,[Y,X])
+        ),
+        ISOLATEDPOSITIONS
+    ),
+    length(ISOLATEDPOSITIONS, VALUE).
