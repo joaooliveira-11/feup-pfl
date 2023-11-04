@@ -44,9 +44,10 @@ choose_best_move(GAMESTATE, VALIDMOVES, MOVE) :-
         ),
         MOVESVALUE
     ),
-    keysort(MOVESVALUE, TEMPSORT),
-    reverse(TEMPSORT, SORTEDMOVESVALUE),
-    [VALUE-MOVE | _] = SORTEDMOVESVALUE,
+    keysort(MOVESVALUE, SORTEDMOVESVALUE),
+    last(SORTEDMOVESVALUE, MAX-_),
+    findall(MOVES, member(MAX-MOVES, SORTEDMOVESVALUE), MAXMOVES),
+    random_choice(MOVE, MAXMOVES),
     print_sorted_moves(SORTEDMOVESVALUE).  
 
 get_computer_answer(GAMESTATE, 1) :-
