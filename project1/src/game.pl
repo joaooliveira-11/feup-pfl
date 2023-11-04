@@ -47,7 +47,7 @@ initial_state(SIZE, BOARD) :-
 display_game(GAMESTATE) :-
     [BOARD, SIZE, _, _,_] = GAMESTATE,
     write('    | '),
-    print_letters_columns(SIZE), nl,
+    print_columns(SIZE), nl,
     write('    '),
     print_dash_line(SIZE),
     nl,

@@ -133,21 +133,17 @@ print_dash_line(N) :-
     N1 is N - 1,
     print_dash_line(N1).
 
-% print_letters_columns(+N)
-% Auxiliar function to display the board
-print_letters_columns(0).
-print_letters_columns(N) :-
-    N > 0,
-    print_column_letter(N),
-    N1 is N - 1,
-    print_letters_columns(N1).
+% print_columns(+N)
+% Auxiliar function to display the board with column numbers in ascending order starting from 1
+print_columns(N) :-
+    print_columns(0, N).
 
-% print_column_letter(+N)
-% Auxiliar function to display the board
-print_column_letter(N) :-
-    N1 is 65 + N - 1, 
-    char_code(Letter, N1), 
-    format('~|~w | ', [Letter]).
+print_columns(N, N).
+print_columns(Current, N) :-
+    Next is Current + 1,
+    format('~|~d | ', [Next]),
+    print_columns(Next, N).
+
 
 % print_matrix(+BOARD, +ROW)
 % Auxiliar function to display the board
