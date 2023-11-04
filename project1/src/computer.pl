@@ -93,7 +93,7 @@ choose_best_answer(GAMESTATE, PLAYER, ANSWER) :-
     valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
     choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE),
     execute_move(GAMESTATE, MOVE, NEWGAMESTATE),
-    value(NEWGAMESTATE, FUTUREVALUE),
+    value(NEWGAMESTATE, PLAYER, FUTUREVALUE),
     (FUTUREVALUE > CURRENTVALUE ->
         ANSWER = 'yes'
     ;
