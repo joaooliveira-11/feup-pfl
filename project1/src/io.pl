@@ -79,7 +79,7 @@ get_move(GAMESTATE, h/c, MOVE):-
     ;
         print_player_turn(PLAYER),
         sleep(3), 
-        choose_move(GAMESTATE, BOTLEVEL, MOVE)
+        choose_move(GAMESTATE, PLAYER, BOTLEVEL, MOVE)
     ).
 
 get_move(GAMESTATE, c/h, MOVE):-
@@ -89,13 +89,13 @@ get_move(GAMESTATE, c/h, MOVE):-
     ;
         print_player_turn(PLAYER),
         sleep(3), 
-        choose_move(GAMESTATE, BOTLEVEL, MOVE)
+        choose_move(GAMESTATE, PLAYER, BOTLEVEL, MOVE)
     ).
 
 get_move(GAMESTATE, c/c, MOVE):-
     [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
     print_player_turn(PLAYER),
-    choose_move(GAMESTATE, BOTLEVEL, MOVE). 
+    choose_move(GAMESTATE, PLAYER, BOTLEVEL, MOVE). 
 
 get_human_answer(GAMESTATE) :-
     [_,_, PLAYER, GAMEMODE, _] = GAMESTATE,
@@ -128,7 +128,7 @@ ask_to_play_again(GAMESTATE, h/c) :-
     (PLAYER = 'W' ->
         get_human_answer(GAMESTATE)
     ;
-        get_computer_answer(GAMESTATE, BOTLEVEL)
+        get_computer_answer(GAMESTATE, PLAYER, BOTLEVEL)
     ).
 
 ask_to_play_again(GAMESTATE, c/h) :-
@@ -136,9 +136,9 @@ ask_to_play_again(GAMESTATE, c/h) :-
     (PLAYER = 'B' ->
         get_human_answer(GAMESTATE)
     ;
-        get_computer_answer(GAMESTATE, BOTLEVEL)
+        get_computer_answer(GAMESTATE, PLAYER, BOTLEVEL)
     ).
 
 ask_to_play_again(GAMESTATE, c/c) :-
-    [_,_, _, _, BOTLEVEL] = GAMESTATE,
-    get_computer_answer(GAMESTATE, BOTLEVEL).
+    [_,_, PLAYER, _, BOTLEVEL] = GAMESTATE,
+    get_computer_answer(GAMESTATE, PLAYER, BOTLEVEL).

@@ -452,7 +452,7 @@ continue_game(GAMESTATE) :-
         play_game(NEWGAMESTATE)
     ;
     can_continuous_move(PLAYER, yes)->
-        valid_moves(GAMESTATE, VALIDMOVES),
+        valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
         (VALIDMOVES \= [] -> ask_to_play_again(GAMESTATE, GAMEMODE)
         ;
         allow_single_steps(PLAYER),
@@ -483,8 +483,8 @@ game_over(GAMESTATE, WINNER) :-
         WINNER = NEXTPLAYER
     ).
 
-valid_moves(GAMESTATE, VALIDMOVES) :-
-    [BOARD,SIZE, PLAYER, _, _] = GAMESTATE,
+valid_moves(GAMESTATE, PLAYER, VALIDMOVES) :-
+    [BOARD,SIZE, _, _, _] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     findall(
         [YS-XS, YF-XF],
@@ -497,8 +497,8 @@ valid_moves(GAMESTATE, VALIDMOVES) :-
         VALIDMOVES
     ).
 
-value(GAMESTATE, VALUE) :-
-    [BOARD, SIZE, PLAYER, _, _] = GAMESTATE,
+value(GAMESTATE, PLAYER, VALUE) :-
+    [BOARD, SIZE, _, _, _] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     findall(
         [Y, X],
