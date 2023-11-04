@@ -35,18 +35,29 @@ choose_move(GAMESTATE, 2, MOVE) :-
     format('Computer greedily moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]), nl.
 
 choose_best_move(GAMESTATE, VALIDMOVES, MOVE) :-
+    [BOARD, SIZE, PLAYER, _, _] = GAMESTATE,
+    change_turn(PLAYER, NEXTPLAYER),
     findall(
         VALUE-MOVE,
         (
             member(MOVE, VALIDMOVES),
+            get_player_positions(BOARD, NEXTPLAYER, SIZE, BEFOREMOVE),
+            length(BEFOREMOVE, PIECESBEFORE),
             execute_move(GAMESTATE, MOVE, NEWGAMESTATE),
-            value(NEWGAMESTATE, VALUE)
+            [NEWBOARDBOARD, _, _, _, _] = NEWGAMESTATE,
+            value(NEWGAMESTATE, BOARDVALUE),
+            get_player_positions(NEWBOARDBOARD, NEXTPLAYER, SIZE, AFTERMOVE),
+            length(AFTERMOVE, PIECESAFTER),
+            TRADE_OFF_FACTOR is -2,
+            ENEMY_PIECES_CAPTURED is PIECESBEFORE - PIECESAFTER,
+            VALUE is BOARDVALUE + (TRADE_OFF_FACTOR * ENEMY_PIECES_CAPTURED)
         ),
         MOVESVALUE
     ),
     keysort(MOVESVALUE, TEMPSORT),
     reverse(TEMPSORT, SORTEDMOVESVALUE),
-    [VALUE-MOVE | _] = SORTEDMOVESVALUE.
+    [VALUE-MOVE | _] = SORTEDMOVESVALUE,
+    print_sorted_moves(SORTEDMOVESVALUE).  
 
 get_computer_answer(GAMESTATE, 1) :-
     write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
