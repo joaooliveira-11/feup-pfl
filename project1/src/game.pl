@@ -66,9 +66,9 @@ prepare_game :-
     gamemode(GAMEMODE),
     initial_state(SIZE, BOARD),
     bot_level(BOTLEVEL),
-    %board_checkwin(BOARD),
+    % board_checkwin(BOARD),
     change_random_seed,
-    display_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]), nl,nl,nl,
+    display_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]), nl,
     play_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]).
 
 play_game(GAMESTATE) :-
