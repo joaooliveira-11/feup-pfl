@@ -33,9 +33,7 @@ display_mainMenu :-
     write('|                   |  A  |  P  |  A  |  R  |  T  |                   |\n'),
     write('|                   |-----+-----+-----+-----+-----|                   |\n'),
     write('|                                                                     |\n'),
-    write('|                                                                     |\n'),
-    write('|                        Main Menu                                    |\n'),
-    write('|                        (Select a Game Mode:)                        |\n'),
+    write('|                   |------- Game Mode Menu ------|                   |\n'),
     write('|                                                                     |\n'),
     write('|                        1. Human vs Human                            |\n'),
     write('|                                                                     |\n'),
@@ -58,16 +56,13 @@ display_boardsizeMenu :-
     write('|                   |  A  |  P  |  A  |  R  |  T  |                   |\n'),
     write('|                   |-----+-----+-----+-----+-----|                   |\n'),
     write('|                                                                     |\n'),
-    write('|                                                                     |\n'),
-    write('|                        Board Size Menu                              |\n'),
-    write('|                                                                     |\n'),
-    write('|                        Select a Board Size:                         |\n'),
+    write('|                   |------ Board Size Menu ------|                   |\n'),
     write('|                                                                     |\n'),
     write('|                        1. 8x8 (Recomended)                          |\n'),
     write('|                                                                     |\n'),
     write('|                        2. Other                                     |\n'),
     write('|                                                                     |\n'),
-    write('|                        0. Main Menu                                 |\n'),
+    write('|                        0. Game Mode Menu                            |\n'),
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
 
@@ -81,18 +76,18 @@ display_playerMenu :-
     write('|                   |  A  |  P  |  A  |  R  |  T  |                   |\n'),
     write('|                   |-----+-----+-----+-----+-----|                   |\n'),
     write('|                                                                     |\n'),
-    write('|                                                                     |\n'),
-    write('|                        Player Menu                                  |\n'),
+    write('|                   |-------- Player Menu --------|                   |\n'),
     write('|                                                                     |\n'),
     write('|                        1. Player 1 - B                              |\n'),
     write('|                                                                     |\n'),
     write('|                        2. Player 2 - W (Starts First)               |\n'),
     write('|                                                                     |\n'),
-    write('|                        0. Main Menu                                 |\n'),
-    write('|                                                                     |\n'),
+    write('|                        0. Game Mode Menu                            |\n'),
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
 
+% display_botMenu/0
+% Display bot menu with the game modes
 display_botMenu :-
     write(' _____________________________________________________________________\n'),
     write('|                                                                     |\n'),
@@ -101,18 +96,18 @@ display_botMenu :-
     write('|                   |  A  |  P  |  A  |  R  |  T  |                   |\n'),
     write('|                   |-----+-----+-----+-----+-----|                   |\n'),
     write('|                                                                     |\n'),
+    write('|                   |---------- Bot Menu ---------|                   |\n'),
     write('|                                                                     |\n'),
-    write('|                        Bot Menu                                     |\n'),
+    write('|                      1. Level 1 (Random Moves)                      |\n'),
     write('|                                                                     |\n'),
-    write('|                        1. Level 1 (Random Moves)                    |\n'),
+    write('|                      2. Level 2 (Greedy Moves)                      |\n'),
     write('|                                                                     |\n'),
-    write('|                        2. Level 2 (Greedy Moves)                    |\n'),
-    write('|                                                                     |\n'),
-    write('|                        0. Main Menu                                 |\n'),
-    write('|                                                                     |\n'),
+    write('|                      0. Game Mode Menu                              |\n'),
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
 
+% display_gamewinMenu/0
+% Display the winner
 display_gamewin(WINNER) :-
     write(' _____________________________________________________________________\n'),
     write('|                                                                     |\n'),
@@ -122,9 +117,8 @@ display_gamewin(WINNER) :-
     write('|                   |-----+-----+-----+-----+-----|                   |\n'),
     write('|                                                                     |\n'),
     write('|                                                                     |\n'),
-    write('|                        G A M E   W I N                              |\n'),
-    format('|                        Winner: ~w', [WINNER]),
-    write('                          |\n'),
+    write('|                           G A M E   W I N                           |\n'),
+    format('|                        Winner: ~w', [WINNER]                           ),
     write('|                                                                     |\n'),
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
