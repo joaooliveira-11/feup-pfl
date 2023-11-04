@@ -29,8 +29,8 @@ choose_move(GAMESTATE, 1, MOVE) :-
 choose_move(GAMESTATE, 2, MOVE) :-
     valid_moves(GAMESTATE, VALIDMOVES),
     choose_best_move(GAMESTATE, VALIDMOVES, MOVE),
-    wait_execute,
-    % sleep(3)
+    % wait_execute,
+    sleep(3),
     [YS-XS, YF-XF] = MOVE,
     format('Computer greedily moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]), nl.
 
@@ -47,8 +47,8 @@ choose_best_move(GAMESTATE, VALIDMOVES, MOVE) :-
     keysort(MOVESVALUE, SORTEDMOVESVALUE),
     last(SORTEDMOVESVALUE, MAX-_),
     findall(MOVES, member(MAX-MOVES, SORTEDMOVESVALUE), MAXMOVES),
-    random_choice(MOVE, MAXMOVES),
-    print_sorted_moves(SORTEDMOVESVALUE).  
+    random_choice(MOVE, MAXMOVES).
+    % print_sorted_moves(SORTEDMOVESVALUE).  
 
 get_computer_answer(GAMESTATE, 1) :-
     write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
@@ -70,6 +70,8 @@ get_computer_answer(GAMESTATE, 1) :-
     ).
 
 get_computer_answer(GAMESTATE, 2) :-
+    write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
+    write('Do you want to play again (yes or no)?\n'),
     choose_best_answer(GAMESTATE, ANSWER),
     format('computer greedily chose: ~w.\n', [ANSWER]),
     (
