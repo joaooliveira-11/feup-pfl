@@ -69,6 +69,7 @@ GAMESTATE(
 ```
 
 ![image.png](https://hackmd.io/_uploads/ry-4VZBm6.png)
+
 *Image 1: Initial Game State*
 
 
@@ -94,6 +95,7 @@ GAMESTATE(
 ```
 
 ![image.png](https://hackmd.io/_uploads/HygdHbH76.png)
+
 *Image 2: Intermediate Game State*
 
 #### Final Game State
@@ -118,6 +120,7 @@ GAMESTATE(
 ```
 
 ![image.png](https://hackmd.io/_uploads/rkLUUWSQp.png)
+
 *Image 3: Final Game State*
 
 
@@ -144,6 +147,7 @@ get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
 In the Game menu you can choose between 4 game modes, where you can play with 2 humans, a human and the computer or the computer against the computer. Selecting any of the options brings up the board size menu.
 
 ![image.png](https://hackmd.io/_uploads/HJ06ZfVXp.png)
+
 *Image 4: Game Mode Menu*
 
 After the user chooses an option, the gamemode is dynamically introduced in the fact base as follows:
@@ -169,6 +173,7 @@ set_gamemode(4) :-
 Selecting any of the options brings up the board size menu. Here, you can choose any board size between 8 and 25, and the larger the board, the harder it will be to finish the game.
 
 ![image.png](https://hackmd.io/_uploads/r1k4vfEXT.png)
+
 *Image 5: Board Size Menu*
 
 After the user chooses an option, the board size is dynamically introduced in the fact base as follows:
@@ -189,6 +194,7 @@ set_boardsize(2, INPUT) :-
 Once you've determined the size of the board, you need to know the order in which you want to play. There are two options: play with the white pieces (W) and go first, or play with the black pieces (B) and go second.
 
 ![image.png](https://hackmd.io/_uploads/HyOrDGV7a.png)
+
 *Image 6: Player Menu*
 
 After the user chooses an option, we use the following predicates:
@@ -208,6 +214,7 @@ set_playerside(2) :-
 Finally, if the answer in the Game mode menu was not 1 'Human vs Human', you will be presented with the Bot Menu, where you can choose the difficulty of the computer's moves. Thus, level 1 must return a valid random move. Level 2 should return the best move at the moment (using a greedy algorithm), taking into account the evaluation of the game state.
 
 ![image.png](https://hackmd.io/_uploads/Hy8avfN7T.png)
+
 *Image 7: Bot Menu*
 
 After the user chooses an option, the bot level is dynamically introduced in the fact base as follows:
@@ -589,4 +596,5 @@ During the development of the project, we applied the knowledge acquired during 
 We consulted the following websites to see the description and rules of the game.
 
 https://kanare-abstract.com/en/pages/apart
+
 https://cdn.shopify.com/s/files/1/0578/3502/8664/files/Apart_EN.pdf?v=1682248406
