@@ -70,7 +70,6 @@ move(GAMESTATE, [START, END], NEWGAMESTATE) :-
     execute_move(GAMESTATE, [START, END], NEWGAMESTATE),
     handle_move_type(TYPE, PLAYER, [START, END]).
 
-/*
 % prepare_game/0
 % Predicate that prepares the configurations before starting the game cycle.
 prepare_game :-
@@ -80,7 +79,6 @@ prepare_game :-
     change_random_seed,
     display_game(GAMESTATE), nl,
     play_game(GAMESTATE).
-*/
 
 % play_game(+GAMESTATE)
 % Predicate that represents the game cycle.
@@ -99,13 +97,3 @@ play_game(GAMESTATE) :-
         play_game(GAMESTATE)
     ).
 
-prepare_game :-
-    cs,
-    boardsize(SIZE),
-    gamemode(GAMEMODE),
-    % initial_state(SIZE, BOARD),
-    bot_level(BOTLEVEL),
-    board_checkwin(BOARD),
-    change_random_seed,
-    display_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]), nl,
-    play_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]).
