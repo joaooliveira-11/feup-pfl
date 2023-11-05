@@ -34,6 +34,19 @@ random_choice(CHOICE, OPTIONS) :-
     random(0, LENGTH, INDEX),
     nth0(INDEX, OPTIONS, CHOICE).
 
+% minimax_mode(+MODE, -NEWMODE)
+% Changes minimax algorithm mode.
+minimax_mode(min, max).
+minimax_mode(max, min).
+
+% minimax_value(+MODE, +VALUES, -VALUE)
+% Chooses the value according to Minimax mode
+minimax_value(min, VALUES, VALUE):-
+    last(VALUES, TEMPVALUE),
+    VALUE is -TEMPVALUE.
+minimax_value(max, VALUES, VALUE):- 
+    last(VALUES, VALUE).
+
 % choose_move(+GAMESTATE, +PLAYER, +BOTLEVEL, -MOVE)
 % Selects a move from a list of valid moves.
 % If BOTLEVEL is 1, is a random choice.
@@ -52,15 +65,19 @@ choose_move(GAMESTATE, PLAYER, 2, MOVE) :-
     format('Computer greedily moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]), nl.
 
 % choose_best_move(+GAMESTATE, +PLAYER, +VALIDMOVES, -MOVE)
-% Chooses the best move using a greedy algorithm.
+% Chooses the best move using Minimax algorithm.
+% To choose the best move, we try to maximize the following formula: (Value of my best move (VALUE1) - Value of the next player best move after my best move(VALUE2))
 % If there are moves with the same value, it chooses randomly.
 choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE) :-
+    change_turn(PLAYER, NEXTPLAYER),
     findall(
         VALUE-MOVE,
         (
             member(MOVE, VALIDMOVES),
             execute_move(GAMESTATE, MOVE, NEWGAMESTATE),
-            value(NEWGAMESTATE, PLAYER, VALUE)
+            value(NEWGAMESTATE, PLAYER, VALUE1),
+            minimax_ai(NEWGAMESTATE, NEXTPLAYER, min, 1, VALUE2),
+            VALUE is VALUE1 + VALUE2
         ),
         MOVESVALUE
     ),
@@ -68,7 +85,27 @@ choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE) :-
     last(SORTEDMOVESVALUE, MAX-_),
     findall(MOVES, member(MAX-MOVES, SORTEDMOVESVALUE), MAXMOVES),
     random_choice(MOVE, MAXMOVES),
-    print_sorted_moves(SORTEDMOVESVALUE).  
+    print_sorted_moves(SORTEDMOVESVALUE).
+
+% minimax_ai(+GAMESTATE, +PLAYER, +MODE, +DEPTH, -VALUE)
+% When choosing the best move, we only consider the current play and the play of the next player
+% For this reason, we use Minimax algorithm with depth 2
+minimax_ai(_, _, _, 2, 0):- !.
+minimax_ai(GAMESTATE, PLAYER, MODE, DEPTH, VALUE):-
+	change_turn(PLAYER, NEXTPLAYER),
+	minimax_mode(MODE, NEWMODE),
+    NEWDEPTH is DEPTH + 1,
+	valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
+	findall(TEMPVALUE, 
+            (member(MOVE, VALIDMOVES), 
+            execute_move(GAMESTATE, MOVE, NEWGAMESTATE),
+            value(NEWGAMESTATE, PLAYER, VALUE1),
+            minimax_ai(NEWGAMESTATE, NEXTPLAYER, NEWMODE, NEWDEPTH, VALUE2), 
+            TEMPVALUE is VALUE1 + VALUE2
+            ), 
+        VALUES),
+    sort(VALUES, SORTEDVALUES),
+    minimax_value(MODE, SORTEDVALUES, VALUE).
 
 % get_computer_answer(+GAMESTATE, +PLAYER, +BOTLEVEL)
 % Chooses if the bot will play again after a jump.

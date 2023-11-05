@@ -547,7 +547,7 @@ valid_moves(GAMESTATE, PLAYER, VALIDMOVES) :-
 % Consider the value to be the number of isolated pieces from the player + (2* number of other player pieces)
 % We consider a trade_off of 2 enemy pieces, prioritizing their existence in moves that remove them from the game.
 % We consider that a move that causes the player to win has an additional value of 1000.
-% We consider that a move that causes the other player to win has an additional value of -2000.
+% We consider that a move that causes the other player to win has an additional value of -3000.
 value(GAMESTATE, PLAYER, VALUE) :-
     [BOARD, SIZE, _, GAMEMODE, BOTLEVEL] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
@@ -575,7 +575,7 @@ value(GAMESTATE, PLAYER, VALUE) :-
     change_turn(PLAYER, NEXTPLAYER),
     NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
     (check_win(NEWGAMESTATE) ->
-        VALUE3 = -2000
+        VALUE3 = -3000
     ;
         VALUE3 = 0
     ),
