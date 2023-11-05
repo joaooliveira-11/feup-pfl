@@ -480,13 +480,6 @@ check_win(GAMESTATE) :-
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     check_positions(BOARD, PLAYER, POSITIONS).
 
-both_players_win(GAMESTATE) :-
-    [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
-    change_turn(PLAYER, NEXTPLAYER),
-    check_win(GAMESTATE),
-    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL], 
-    check_win(NEWGAMESTATE).
-
 % continue_game(+GAMESTATE)
 % Analises if the player can play again.
 % If the player can play again doesnt change the turn and gets the answer.
@@ -526,14 +519,11 @@ game_over(GAMESTATE, WINNER) :-
     [BOARD, SIZE, PLAYER, GAMEMODE, BOTLEVEL] = GAMESTATE,
     change_turn(PLAYER, NEXTPLAYER),
     NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
-    (both_players_win(GAMESTATE) ->
+    (check_win(NEWGAMESTATE) ->
         WINNER = NEXTPLAYER
     ;
     check_win(GAMESTATE) ->
         WINNER = PLAYER
-    ;
-    check_win(NEWGAMESTATE) ->
-        WINNER = NEXTPLAYER
     ).
 
 % valid_moves(+GAMESTATE, +PLAYER, -VALIDMOVES)

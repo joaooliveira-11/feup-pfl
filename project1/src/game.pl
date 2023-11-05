@@ -69,7 +69,7 @@ move(GAMESTATE, [START, END], NEWGAMESTATE) :-
     valid_move(BOARD, PLAYER, [START, END], TYPE, 1),
     execute_move(GAMESTATE, [START, END], NEWGAMESTATE),
     handle_move_type(TYPE, PLAYER, [START, END]).
-
+    
 % prepare_game/0
 % Predicate that prepares the configurations before starting the game cycle.
 prepare_game :-
@@ -96,6 +96,7 @@ play_game(GAMESTATE) :-
     ;
         play_game(GAMESTATE)
     ).
+
 /*
 prepare_game :-
     cs,
