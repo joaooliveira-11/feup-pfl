@@ -27,9 +27,9 @@ build_rows(SIZE, NROWS, BOARD, RESULTBOARD) :-
     NROWS1 is NROWS - 1,
     build_rows(SIZE, NROWS1, UPDATEDBOARD, RESULTBOARD).
 
-% initial_state(+SIZE, -BOARD)
+% build_board(+SIZE, -BOARD)
 % Predicate to build a board (size x size) given a size.
-initial_state(SIZE, BOARD) :-
+build_board(SIZE, BOARD) :-
     build_piecerow(SIZE, 1, FIRSTROW),
     build_piecerow(SIZE, 1, SECONDROW),
     build_piecerow(SIZE, 2, SECONDLASTROW),
@@ -42,8 +42,16 @@ initial_state(SIZE, BOARD) :-
     append(BOARD_AUX, MIDROWS, UPDATEDBOARD),
     append(UPDATEDBOARD, [SECONDLASTROW, LASTROW], BOARD).
 
-% display_game(+BOARD)
-% Predicate to display the board.
+% initial_state(+SIZE, -GAMESTATE)
+% Predicate that receives the board size as an argument and returns an initial game state.  
+initial_state(SIZE, GAMESTATE) :-
+    build_board(SIZE, BOARD),
+    gamemode(GAMEMODE),
+    bot_level(BOTLEVEL),
+    GAMESTATE = [BOARD, SIZE, 'W', GAMEMODE, BOTLEVEL].
+
+% display_game(+GAMESTATE)
+% Predicate to display the board given a game state.
 display_game(GAMESTATE) :-
     [BOARD, SIZE, _, _,_] = GAMESTATE,
     write('    | '),
@@ -53,24 +61,27 @@ display_game(GAMESTATE) :-
     nl,
     print_matrix(BOARD, 1).
 
-% move(+GAMESTATE, +PLAYER, +MOVE, -NEWGAMESTATE)
-% Predicate to analise and execute a move from a player.
+% move(+GAMESTATE, +MOVE, -NEWGAMESTATE)
+% Predicate responsible for move validation and execution.
+% Returns a new game state with the updated board.
 move(GAMESTATE, [START, END], NEWGAMESTATE) :-
     [BOARD,_, PLAYER, _, _] = GAMESTATE,
     valid_move(BOARD, PLAYER, [START, END], TYPE, 1),
     execute_move(GAMESTATE, [START, END], NEWGAMESTATE),
     handle_move_type(TYPE, PLAYER, [START, END]).
 
+% prepare_game/0
+% Predicate that prepares the configurations before starting the game cycle.
 prepare_game :-
+    cs,
     boardsize(SIZE),
-    gamemode(GAMEMODE),
-    % initial_state(SIZE, BOARD),
-    bot_level(BOTLEVEL),
-    board_checkwin(BOARD),
+    initial_state(SIZE, GAMESTATE),
     change_random_seed,
-    display_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]), nl,
-    play_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]).
+    display_game(GAMESTATE), nl,
+    play_game(GAMESTATE).
 
+% play_game(+GAMESTATE)
+% Predicate that represents the game cycle.
 play_game(GAMESTATE) :-
     [_,_,_, GAMEMODE,_] = GAMESTATE,
     get_move(GAMESTATE,GAMEMODE,MOVE),
@@ -85,3 +96,16 @@ play_game(GAMESTATE) :-
     ;
         play_game(GAMESTATE)
     ).
+
+/*
+prepare_game :-
+    cs,
+    boardsize(SIZE),
+    gamemode(GAMEMODE),
+    % initial_state(SIZE, BOARD),
+    bot_level(BOTLEVEL),
+    board_checkwin(BOARD),
+    change_random_seed,
+    display_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]), nl,
+    play_game([BOARD, SIZE, 'W',GAMEMODE, BOTLEVEL]).
+*/

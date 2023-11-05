@@ -4,21 +4,21 @@
 :- use_module(library(between)).
 
 % main_menu/0
-% Displays the main menu
-% Asks user to choose the game mode
-% Sets the game mode
-% Moves to next menu
+% Displays the main menu.
+% Asks user to choose the game mode.
+% Sets the game mode.
+% Moves to next menu.
 main_menu :-
     display_mainMenu,
     get_menuinput(1, 4, INPUT),
     set_gamemode(INPUT),
     boardsize_menu.
 
-% boardsize_menu
-% Displays the board size menu
-% Asks user to choose the board size
-% Sets the board size
-% Moves to next menu
+% boardsize_menu/0
+% Displays the board size menu.
+% Asks user to choose the board size.
+% Sets the board size.
+% Moves to next menu.
 boardsize_menu :-
     display_boardsizeMenu,
     get_menuinput(0, 2, INPUT),
@@ -35,17 +35,27 @@ boardsize_menu :-
         bot_level_menu
     ).
 
+% player_menu/0
+% Displays the player menu.
+% Asks user to choose which side they want to play.
+% Executes the prepare_game/1 predicate.
 player_menu :-
     display_playerMenu,
     get_menuinput(0, 2, INPUT),
     set_playerside(INPUT),
     prepare_game.
 
+% bot_level_menu/0
+% Displays the bot menu.
+% Asks user to choose the bot level.
+% Executes the prepare_game/1 predicate.
 bot_level_menu :-
     display_botMenu,
     get_menuinput(0, 2, INPUT),
     set_bot_level(INPUT),
     prepare_game.
 
+% gamewin_menu(+WINNER)
+% Displays the game win menu.
 gamewin_menu(WINNER):-
     display_gamewin(WINNER).
