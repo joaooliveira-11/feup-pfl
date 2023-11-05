@@ -227,7 +227,34 @@ set_bot_level(2) :-
 
 Once all the options have been chosen, the **initial_state(+SIZE, -GAMESTATE)** predicate is used to create the initial game state.
 
-// falar do :- prepare_game quando o initial_state tiver fixed
+```prolog
+initial_state(SIZE, GAMESTATE) :-
+    build_board(SIZE, BOARD),
+    gamemode(GAMEMODE),
+    bot_level(BOTLEVEL),
+    GAMESTATE = [BOARD, SIZE, 'W', GAMEMODE, BOTLEVEL].
+    
+    
+// File: game.pl
+```
+
+To prepare the game and start the game cycle, we used the **prepare_game/0** predicate.
+
+```prolog
+prepare_game :-
+    cs,
+    boardsize(SIZE),
+    initial_state(SIZE, GAMESTATE),
+    change_random_seed,
+    display_game(GAMESTATE), nl,
+    play_game(GAMESTATE).
+    
+    
+// File: game.pl
+```
+
+**Note**: Every time a new game is executed, we change the **random/3** predicate seed using an auxiliar predicate named **change_random_seed**. This way, we guarantee that the random selection is not biased and can consider various options.
+
 
 To print the current board, we use **display_game/1** predicate:
 
