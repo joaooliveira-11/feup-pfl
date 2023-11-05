@@ -96,7 +96,6 @@ play_game(GAMESTATE) :-
     ;
         play_game(GAMESTATE)
     ).
-
 /*
 prepare_game :-
     cs,

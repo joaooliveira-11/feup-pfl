@@ -556,8 +556,10 @@ valid_moves(GAMESTATE, PLAYER, VALIDMOVES) :-
 % Gets the value from a specific game state
 % Consider the value to be the number of isolated pieces from the player + (2* number of other player pieces)
 % We consider a trade_off of 2 enemy pieces, prioritizing their existence in moves that remove them from the game.
+% We consider that a move that causes the player to win has an additional value of 1000.
+% We consider that a move that causes the other player to win has an additional value of -2000.
 value(GAMESTATE, PLAYER, VALUE) :-
-    [BOARD, SIZE, _, _, _] = GAMESTATE,
+    [BOARD, SIZE, _, GAMEMODE, BOTLEVEL] = GAMESTATE,
     get_player_positions(BOARD, PLAYER, SIZE, POSITIONS),
     findall(
         [Y, X],
@@ -569,8 +571,22 @@ value(GAMESTATE, PLAYER, VALUE) :-
         ISOLATEDPOSITIONS
     ),
     length(ISOLATEDPOSITIONS, ISOLATEDPOSITIONSVALUE),
+    length(POSITIONS, TOTALPOSITIONS),
     change_turn(PLAYER, NEXTPLAYER),
     get_player_positions(BOARD, NEXTPLAYER, SIZE, OTHERPOSITIONS),
     length(OTHERPOSITIONS, ENEMYPIECES),
     TRADE_OFF_FACTOR is 2,
-    VALUE is (ISOLATEDPOSITIONSVALUE + (TRADE_OFF_FACTOR * ENEMYPIECES)).
+    VALUE1 is (ISOLATEDPOSITIONSVALUE + (TRADE_OFF_FACTOR * ENEMYPIECES)),
+    (TOTALPOSITIONS =:= ISOLATEDPOSITIONSVALUE ->
+        VALUE2 = 1000
+    ;
+        VALUE2 = 0
+    ),
+    change_turn(PLAYER, NEXTPLAYER),
+    NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],
+    (check_win(NEWGAMESTATE) ->
+        VALUE3 = -2000
+    ;
+        VALUE3 = 0
+    ),
+    VALUE is VALUE1 + VALUE2 + VALUE3. 

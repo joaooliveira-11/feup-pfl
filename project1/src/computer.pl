@@ -67,8 +67,8 @@ choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE) :-
     keysort(MOVESVALUE, SORTEDMOVESVALUE),
     last(SORTEDMOVESVALUE, MAX-_),
     findall(MOVES, member(MAX-MOVES, SORTEDMOVESVALUE), MAXMOVES),
-    random_choice(MOVE, MAXMOVES).
-    % print_sorted_moves(SORTEDMOVESVALUE).  
+    random_choice(MOVE, MAXMOVES),
+    print_sorted_moves(SORTEDMOVESVALUE).  
 
 % get_computer_answer(+GAMESTATE, +PLAYER, +BOTLEVEL)
 % Chooses if the bot will play again after a jump.
