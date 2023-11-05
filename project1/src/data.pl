@@ -21,7 +21,7 @@ jump_piece('B', -1-1).
 
 % cs/0
 % Clear screen
-cs :- write('\33\[2J').
+cs :- write('\33\[2J'), nl.
 
 % display_mainMenu/0
 % Display main menu with the game modes
@@ -44,7 +44,6 @@ display_mainMenu :-
     write('|                        4. Computer vs Computer                      |\n'),
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
-
 
 % display_boardsizeMenu/0
 % Display board size menu for players to choose the board size
@@ -123,7 +122,6 @@ display_gamewin(WINNER) :-
     write('|                                                                     |\n'),
     write('|_____________________________________________________________________|\n').
 
-
 % print_dash_line(+N)
 % Auxiliar function to display the board
 print_dash_line(0).
@@ -138,12 +136,12 @@ print_dash_line(N) :-
 print_columns(N) :-
     print_columns(0, N).
 
+% print_columns(+CURRENT, +N)
 print_columns(N, N).
 print_columns(Current, N) :-
     Next is Current + 1,
     format('~|~d | ', [Next]),
     print_columns(Next, N).
-
 
 % print_matrix(+BOARD, +ROW)
 % Auxiliar function to display the board
@@ -154,15 +152,15 @@ print_matrix([Line|RestOfMatrix], Row) :-
     nl,
     print_underscore_line,
     nl,
-    NewRow is Row + 1, % Increase the row number
-    print_matrix(RestOfMatrix, NewRow). % Recurse with the updated row number
+    NewRow is Row + 1,
+    print_matrix(RestOfMatrix, NewRow). 
 
 % print_underscore_line/0
 % % Auxiliar function to display the board
 print_underscore_line :-
-    boardsize(SIZE), % Obtemos o tamanho do tabuleiro
-    Length is SIZE * 4 + 4, % Calculamos o comprimento da linha de underscores
-    format('~|~`-t~*|', [Length]). % Imprimimos a linha de underscores
+    boardsize(SIZE), 
+    Length is SIZE * 4 + 4, 
+    format('~|~`-t~*|', [Length]). 
 
 % print_line(+Line)
 % % Auxiliar function to display the board
@@ -173,11 +171,8 @@ print_line([CurrentElement|RestOfLine]) :-
     write(' | '),
     print_line(RestOfLine).
 
-print_positions([]).
-print_positions([Position | Rest]) :-
-    format('~w-~w ', Position),
-    print_positions(Rest).
-
+% print_player_turn(+PLAYER)
+% Prints the player turn.
 print_player_turn(PLAYER):-
     means(PLAYER, NAME),
     format('~w pieces turn\n: ', [NAME]).
@@ -185,16 +180,15 @@ print_player_turn(PLAYER):-
 
 board_checkwin(BOARD) :-
     BOARD = [
-    [1, 1, 1, 2, 2, 0, 2, 2],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 2, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 2, 2, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 2, 0]
+        [1, 0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 1, 0, 1, 0, 0],
+        [0, 2, 0, 2, 0, 0, 0, 0],
+        [2, 0, 0, 0, 2, 0, 0, 2],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 2, 2, 0, 0, 0, 0]
   ].
-
 
 print_moves([]).
 print_moves([[StartX-StartY, EndX-EndY] | Rest]) :-
@@ -211,3 +205,8 @@ print_sorted_moves([Value-Move | Rest]) :-
     [YS-XS, YF-XF] = Move,
     format("Move from ~w-~w to ~w-~w, Value: ~w~n", [YS,XS, YF,XF, Value]),
     print_sorted_moves(Rest).
+
+print_positions([]).
+print_positions([Position | Rest]) :-
+    format('~w-~w ', Position),
+    print_positions(Rest).
