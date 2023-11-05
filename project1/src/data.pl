@@ -210,3 +210,8 @@ print_positions([]).
 print_positions([Position | Rest]) :-
     format('~w-~w ', Position),
     print_positions(Rest).
+
+print_list([]):- nl.
+print_list([H | T]) :-
+    write(H), nl,
+    print_list(T).
