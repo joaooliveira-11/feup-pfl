@@ -16,7 +16,7 @@ wait_execute :-
 % auto_execute/0
 % Auxiliar predicate to execute a bot move waiting 5 seconds.
 auto_execute :-
-    sleep(5).
+    sleep(3).
 
 % change_random_seed/0
 % Changes the random/3 seed.
@@ -54,13 +54,15 @@ minimax_value(max, VALUES, VALUE):-
 choose_move(GAMESTATE, PLAYER, 1, MOVE) :-
     valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
     random_choice(MOVE, VALIDMOVES),
+    %wait_execute,
+    auto_execute,
     MOVE = [YS-XS, YF-XF],
     format('Computer randomly moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]),nl.
 choose_move(GAMESTATE, PLAYER, 2, MOVE) :-
     valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
     choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE),
-    wait_execute,
-    % auto_execute,
+    %wait_execute,
+    auto_execute,
     [YS-XS, YF-XF] = MOVE,
     format('Computer greedily moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]), nl.
 
@@ -84,8 +86,7 @@ choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE) :-
     keysort(MOVESVALUE, SORTEDMOVESVALUE),
     last(SORTEDMOVESVALUE, MAX-_),
     findall(MOVES, member(MAX-MOVES, SORTEDMOVESVALUE), MAXMOVES),
-    random_choice(MOVE, MAXMOVES),
-    print_sorted_moves(SORTEDMOVESVALUE).
+    random_choice(MOVE, MAXMOVES).
 
 % minimax_ai(+GAMESTATE, +PLAYER, +MODE, +DEPTH, -VALUE)
 % When choosing the best move, we only consider the current play and the play of the next player

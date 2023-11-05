@@ -92,8 +92,7 @@ get_move(GAMESTATE, h/c, MOVE):-
     (PLAYER = 'W' ->
         get_human_move(GAMESTATE, MOVE)
     ;
-        print_player_turn(PLAYER),
-        sleep(3), 
+        print_player_turn(PLAYER), 
         choose_move(GAMESTATE, PLAYER, BOTLEVEL, MOVE)
     ).
 get_move(GAMESTATE, c/h, MOVE):-
@@ -101,8 +100,7 @@ get_move(GAMESTATE, c/h, MOVE):-
     (PLAYER = 'B' ->
         get_human_move(GAMESTATE, MOVE)
     ;
-        print_player_turn(PLAYER),
-        sleep(3), 
+        print_player_turn(PLAYER), 
         choose_move(GAMESTATE, PLAYER, BOTLEVEL, MOVE)
     ).
 get_move(GAMESTATE, c/c, MOVE):-
