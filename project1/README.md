@@ -69,7 +69,6 @@ GAMESTATE(
 ```
 
 ![image.png](https://hackmd.io/_uploads/ry-4VZBm6.png)
-
 *Image 1: Initial Game State*
 
 
@@ -95,7 +94,6 @@ GAMESTATE(
 ```
 
 ![image.png](https://hackmd.io/_uploads/HygdHbH76.png)
-
 *Image 2: Intermediate Game State*
 
 #### Final Game State
@@ -120,7 +118,6 @@ GAMESTATE(
 ```
 
 ![image.png](https://hackmd.io/_uploads/rkLUUWSQp.png)
-
 *Image 3: Final Game State*
 
 
@@ -147,7 +144,6 @@ get_menuinput(LOWERBOUND, UPPERBOUND, INPUT) :-
 In the Game menu you can choose between 4 game modes, where you can play with 2 humans, a human and the computer or the computer against the computer. Selecting any of the options brings up the board size menu.
 
 ![image.png](https://hackmd.io/_uploads/HJ06ZfVXp.png)
-
 *Image 4: Game Mode Menu*
 
 After the user chooses an option, the gamemode is dynamically introduced in the fact base as follows:
@@ -173,7 +169,6 @@ set_gamemode(4) :-
 Selecting any of the options brings up the board size menu. Here, you can choose any board size between 8 and 25, and the larger the board, the harder it will be to finish the game.
 
 ![image.png](https://hackmd.io/_uploads/r1k4vfEXT.png)
-
 *Image 5: Board Size Menu*
 
 After the user chooses an option, the board size is dynamically introduced in the fact base as follows:
@@ -194,7 +189,6 @@ set_boardsize(2, INPUT) :-
 Once you've determined the size of the board, you need to know the order in which you want to play. There are two options: play with the white pieces (W) and go first, or play with the black pieces (B) and go second.
 
 ![image.png](https://hackmd.io/_uploads/HyOrDGV7a.png)
-
 *Image 6: Player Menu*
 
 After the user chooses an option, we use the following predicates:
@@ -214,7 +208,6 @@ set_playerside(2) :-
 Finally, if the answer in the Game mode menu was not 1 'Human vs Human', you will be presented with the Bot Menu, where you can choose the difficulty of the computer's moves. Thus, level 1 must return a valid random move. Level 2 should return the best move at the moment (using a greedy algorithm), taking into account the evaluation of the game state.
 
 ![image.png](https://hackmd.io/_uploads/Hy8avfN7T.png)
-
 *Image 7: Bot Menu*
 
 After the user chooses an option, the bot level is dynamically introduced in the fact base as follows:
@@ -539,6 +532,17 @@ Basically, to choose the best move in a greedy way, we want to get the move that
 Using minimax algorithm, we maximize the move current player while minimizing the move of the next player. The move with the highest difference between moves is considered the best one.
 
 ```prolog
+choose_move(GAMESTATE, PLAYER, 2, MOVE) :-
+    valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
+    choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE),
+    [YS-XS, YF-XF] = MOVE,
+    format('Computer greedily moved from (~w-~w) to (~w-~w).', [YS, XS, YF, XF]), nl.
+    
+    
+// File: computer.pl
+```
+
+```prolog
 choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE) :-
     change_turn(PLAYER, NEXTPLAYER),
     findall(
@@ -585,6 +589,50 @@ minimax_ai(GAMESTATE, PLAYER, MODE, DEPTH, VALUE):-
 
 If many moves have the same highest value, the bot randomly chooses one in order to avoid infinite cycles.
 
+When the greedy bot makes a jump and can play again, greedly chooses if he wants to play again. If the player can increase the value of the board in the next move chooses yes, otherwise no.
+
+```prolog
+get_computer_answer(GAMESTATE, PLAYER, 2) :-
+    write('Since you made a jump and the jumped piece can move again, you are allowed to play again.\n'),
+    write('Do you want to play again (yes or no)?\n'),
+    choose_best_answer(GAMESTATE, PLAYER, ANSWER),
+    format('computer greedily chose: ~w.\n', [ANSWER]),
+    (
+    ANSWER = 'yes' ->
+        play_game(GAMESTATE)
+    ;
+    ANSWER = 'no' ->
+        [BOARD, SIZE, _, GAMEMODE, BOTLEVEL] = GAMESTATE,
+        allow_single_steps(PLAYER),
+        clear_blocked_positions(PLAYER),
+        remove_continousmove_piece(PLAYER),
+        change_turn(PLAYER, NEXTPLAYER),
+        NEWGAMESTATE = [BOARD, SIZE, NEXTPLAYER, GAMEMODE, BOTLEVEL],    
+        play_game(NEWGAMESTATE)
+    ).
+    
+    
+// File: computer.pl
+```
+
+```prolog
+choose_best_answer(GAMESTATE, PLAYER, ANSWER) :-
+    value(GAMESTATE, PLAYER, CURRENTVALUE),
+    valid_moves(GAMESTATE, PLAYER, VALIDMOVES),
+    choose_best_move(GAMESTATE, PLAYER, VALIDMOVES, MOVE),
+    execute_move(GAMESTATE, MOVE, NEWGAMESTATE),
+    value(NEWGAMESTATE, PLAYER, FUTUREVALUE),
+    (FUTUREVALUE > CURRENTVALUE ->
+        ANSWER = 'yes'
+    ;
+        ANSWER = 'no'
+    ).
+    
+    
+// File: computer.pl
+```
+
+
 ## Conclusions
 
 The *Apart* game has been successfully implemented in Prolog, with the possibility of choosing a board size between 8 and 25. Game modes include human vs human, human vs computer, computer vs human and computer vs computer. When playing against the computer, there are two bots of different difficulty. All moves are validated to ensure that the game works correctly.
@@ -596,5 +644,4 @@ During the development of the project, we applied the knowledge acquired during 
 We consulted the following websites to see the description and rules of the game.
 
 https://kanare-abstract.com/en/pages/apart
-
 https://cdn.shopify.com/s/files/1/0578/3502/8664/files/Apart_EN.pdf?v=1682248406
