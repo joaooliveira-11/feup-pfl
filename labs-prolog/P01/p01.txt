@@ -1,0 +1,49 @@
+(1)
+
+b)
+i) female(haley).
+ii) male(gil).
+iii) parent(frank, phil).
+iv) parent(Parent, claire).
+v) parent(gloria, Children).
+vi) parent(jay, Jaychild), parent(Jaychild, Jaygrandchild).
+vii) parent(Parent, lily), parent(Grandparent, Parent).
+viii) parent(alex, _).
+ix) parent(Parent1, luke), parent(Parent2, luke), parent(Parent1, Sibling), parent(Parent2, Sibling), Parent1 \= Parent2, Sibling \= luke.
+
+Resto no p01.pl.
+
+(2)
+
+b)
+i) teaches(Course, diogenes).
+ii) teaches(_, felismina).
+iii) attends(Course, claudio).
+iv) attends(_, dalmindo).
+v) attends(Course, eduarda), teaches(Course, bernardete).
+vi) attends(Course, alberto), attends(Course, alvaro).
+
+(3)
+
+i) circuit_winner(porto, Pilot).
+ii) circuit_winner(porto, Pilot), team(Pilot, Team).
+iii) nr_gates(Circuit, 9).
+iv) pilots(Pilot, Pilots), Pilots \= edge540.
+v) circuit_winner(Circuit, Pilot), circuit_winner(Circuit1, Pilot), Circuit \= Circuit1.
+vi) circuit_winner(porto, Pilot), pilots(Pilot, Pilots).
+
+(5)
+
+i) The job of sisnando, supervises analysts?
+ii) Any job supervises the job that supervises technicians
+iii) Is any job supervised by a supervisor? If so, what job and who executes the job.
+iv) Is any job that is supervised by Asdrubal job? If so, what person executes that job.
+
+b)
+i) yes
+ii) supervisor
+iii) J = analyst P = leonilde, J = analyst P = marciliano.
+    J = engineer P = osvaldo, J = engineer P = porfirio, J = engineer P = reginaldo
+iv) 
+P = gertudes,
+P = felismina

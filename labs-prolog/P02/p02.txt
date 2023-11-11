@@ -1,0 +1,42 @@
+(1)
+
+a)
+
+i)
+X = a, Y = b, Z = c
+X = a, Y = b, Z = d
+X = a, Y = d, Z = e
+X = a, Y = c, Z = c
+
+ii)
+Y = c, X = a
+
+iii)
+X = a, Y = c
+
+
+b)
+i) 0
+ii) 0
+iii) 3
+
+(2)
+
+                                                        pairs(X, Y) :- d(X), q(Y)        pairs(X,X) :- u(X).    
+
+                                                    d(2)                d(4)
+
+                                                q(4)   q(16)         q(4)   q(16)                                               
+                                            
+
+
+(3)
+
+c)
+i) A = a3
+ii) A = 2
+iii) A = a1, A = a3
+iv) 
+
+(4)
+

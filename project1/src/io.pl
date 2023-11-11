@@ -130,7 +130,7 @@ get_human_answer(GAMESTATE) :-
             play_game(NEWGAMESTATE)
         ;
         write('Invalid input. Please enter yes or no.\n'),
-        ask_to_play_again(GAMESTATE)
+        get_human_answer(GAMESTATE)
     ).
 
 
