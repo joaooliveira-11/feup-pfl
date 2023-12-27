@@ -2,7 +2,9 @@ module Current where
 
 import Data.List (intercalate, sortOn)
 import Aux
+import Modules
 
+{-
 data Inst =
   Push Integer | Add | Mult | Sub | Tru | Fals | Equ | Le | And | Neg | Fetch String | Store String | Noop |
   Branch Code Code | Loop Code Code
@@ -13,12 +15,16 @@ type Code = [Inst]
 type StackType = Either Int String
 type Stack = [StackType]
 
+-}
+
 -- (c) Implement the createEmptyStack function which returns an empty machine's stack.
 createEmptyStack :: Stack
 createEmptyStack = []
 
+{-
 -- (b) Define a new type to represent the machine's state. The type must be named State.
 type State = [(String, StackType)]
+-}
 
 -- (d) Implement the createEmptyState function which returns an empty machine's state.
 createEmptyState :: State
