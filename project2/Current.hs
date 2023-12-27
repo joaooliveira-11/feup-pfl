@@ -26,24 +26,26 @@ createEmptyState = []
 
 -- (e) Implement the stack2Str function which converts a stack given as input to a string
 stack2Str :: Stack -> String
-stack2Str stack = intercalate "," $ map elementToStr $ reverse stack
+stack2Str stack = intercalate "," $ map stackElementToStr $ reverse stack
 
 {-
 
 input: stack2Str [Right "ff", Right "tt",Left 42]
-output: "42,tt,ff"
+output: "42,True,False"
 
 -}
 
 
 -- (f) Implement the state2Str function which converts a machine state given as input to a string
+state2Str :: State -> String
+state2Str state = intercalate "," $ map statePairToStr $ sortOn fst state
 
 {-
-state2Str :: State -> String
-state2Str state = 
+
+*Current> state2Str [("var", Right "tt"), ("a" , Left 3), ("someVar", Right "ff")]
+"a=3,someVar=False,var=True"
 
 -}
-
 
 -- (g) Implement the run function 
 {-
