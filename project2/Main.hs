@@ -3,6 +3,7 @@ module Main where
 import Aux
 import StackOP
 import Current
+import Compiler
 
 
 testCases :: [([Inst], (String, String))]
@@ -25,6 +26,10 @@ main = do
     let passed = length (filter id results)
     putStrLn $ show passed ++ " out of " ++ show (length testCases) ++ " tests passed."
     putStrLn "All tests completed."
+    putStrLn ".............."
+    code <- testCompile
+    putStrLn "Final String :"
+    print $ testAssembler code
 
 runTest :: ([Inst], (String, String)) -> IO Bool
 runTest (input, expected) = do
