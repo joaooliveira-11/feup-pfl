@@ -46,9 +46,14 @@ testCompile = do
                  While (BNeg (BEqu (Variable "x") (Number 1))) 
                        (Seq [Assign "y" (AMul (Variable "y") (Variable "x")), 
                              Assign "x" (ASub (Variable "x") (Number 1))])]
+    let prog3 = [Assign "y" (Number 7), 
+                 If (BLe (Variable "y") (Number 5)) 
+                    (Assign "x" (Number 0)) 
+                    (Assign "x" (Number 10))]
+    let progSeq = [Seq [Assign "x" (Number 5), Assign "y" (Number 3), Assign "z" (Number 2)]]
     putStrLn "Compiling... :"
-    print prog2
-    let code1 = compile prog2
+    print progSeq
+    let code1 = compile progSeq
     putStrLn "Result machine code :"
     print code1
     return code1
