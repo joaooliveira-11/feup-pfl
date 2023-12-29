@@ -1,7 +1,7 @@
 module Compiler where
 
 import Aux
-import Current
+
 
 data Aexp = Number Integer | Variable String | AAdd Aexp Aexp | ASub Aexp Aexp | AMul Aexp Aexp
    deriving (Show, Eq)
@@ -12,8 +12,10 @@ data Bexp = TrueExp | FalseExp | BEqu Aexp Aexp | BLe Aexp Aexp | BAnd Bexp Bexp
 data Stm = Assign String Aexp | Seq [Stm] | If Bexp Stm Stm | While Bexp Stm | Skip
   deriving (Show, Eq)
 
+type Program = [Stm]
 
-compile :: [Stm] -> Code
+
+compile :: Program -> Code
 compile [] = []
 compile (s:stms) = compStm s ++ compile stms
 
@@ -41,16 +43,16 @@ compB (BNeg bexp) = compB bexp ++ [Neg]
 
 testCompile :: IO Code
 testCompile = do
-    let prog1 = [Assign "x" (Number 5), Assign "y" (AAdd (Variable "x") (Number 3))]
-    let prog2 = [Assign "y" (Number 1), Assign "x" (Number 5),  
+    let prog1 = [Assign "x" (Number 5), Assign "y" (AAdd (Variable "x") (Number 3))] -- x :=5; y := x+3
+    let prog2 = [Assign "y" (Number 1), Assign "x" (Number 5),   -- y := 1; x := 5; while ¬(x = 1) do (y := y ∗ x; x := x − 1)
                  While (BNeg (BEqu (Variable "x") (Number 1))) 
                        (Seq [Assign "y" (AMul (Variable "y") (Variable "x")), 
                              Assign "x" (ASub (Variable "x") (Number 1))])]
-    let prog3 = [Assign "y" (Number 7), 
+    let prog3 = [Assign "y" (Number 7),  --  y := 7; if y <= 5 then x := 0 else x := 10
                  If (BLe (Variable "y") (Number 5)) 
                     (Assign "x" (Number 0)) 
                     (Assign "x" (Number 10))]
-    let progSeq = [Seq [Assign "x" (Number 5), Assign "y" (Number 3), Assign "z" (Number 2)]]
+    let progSeq = [Seq [Assign "x" (Number 5), Assign "y" (Number 3), Assign "z" (Number 2)]] -- x := 5; y := 3; z := 2
     putStrLn "Compiling... :"
     print progSeq
     let code1 = compile progSeq

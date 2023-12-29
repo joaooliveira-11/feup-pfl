@@ -3,6 +3,8 @@ module Current where
 import Data.List (intercalate, sortOn)
 import Aux
 import StackOP
+import Compiler
+import Parser
 
 
 createEmptyStack :: Stack
@@ -38,6 +40,11 @@ run ((Branch code1 code2):tailcode, stack, state) = run (branch ((Branch code1 c
 run ((Loop code1 code2):tailcode, stack, state) = run (loop ((Loop code1 code2):tailcode, stack, state))
 run (Neg:tailcode, stack, state) = run (neg (Neg:tailcode, stack, state))
 run (And:tailcode, stack, state) = run (andF (And:tailcode, stack, state))
+
+testParser :: String -> (String, String)
+testParser programCode = (stack2Str stack, state2Str state)
+  where (_,stack,state) = run(compile (parse programCode), createEmptyStack, createEmptyState)
+
 
 
 
