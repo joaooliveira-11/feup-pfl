@@ -1,19 +1,5 @@
 module Compiler where
-
 import Aux
-
-
-data Aexp = Number Integer | Variable String | AAdd Aexp Aexp | ASub Aexp Aexp | AMul Aexp Aexp
-   deriving (Show, Eq)
-
-data Bexp = TrueExp | FalseExp | BEqu Aexp Aexp | BLe Aexp Aexp | BAnd Bexp Bexp | BNeg Bexp
-    deriving (Show, Eq)
-
-data Stm = Assign String Aexp | Seq [Stm] | If Bexp Stm Stm | While Bexp Stm | Skip
-  deriving (Show, Eq)
-
-type Program = [Stm]
-
 
 compile :: Program -> Code
 compile [] = []
@@ -22,7 +8,7 @@ compile (s:stms) = compStm s ++ compile stms
 compStm :: Stm -> Code
 compStm (Assign str aexp) = compA aexp ++ [Store str]
 compStm (Seq stms) = concatMap compStm stms
-compStm (If bexp stm1 stm2) = compB bexp ++ [Branch (compStm stm1) (compStm stm2)]
+compStm (IfThenElse bexp stm1 stm2) = compB bexp ++ [Branch (compStm stm1) (compStm stm2)]
 compStm (While bexp stm) = [Loop (compB bexp) (compStm stm)]
 compStm Skip = [Noop]
 
@@ -49,7 +35,7 @@ testCompile = do
                        (Seq [Assign "y" (AMul (Variable "y") (Variable "x")), 
                              Assign "x" (ASub (Variable "x") (Number 1))])]
     let prog3 = [Assign "y" (Number 7),  --  y := 7; if y <= 5 then x := 0 else x := 10
-                 If (BLe (Variable "y") (Number 5)) 
+                 IfThenElse (BLe (Variable "y") (Number 5)) 
                     (Assign "x" (Number 0)) 
                     (Assign "x" (Number 10))]
     let progSeq = [Seq [Assign "x" (Number 5), Assign "y" (Number 3), Assign "z" (Number 2)]] -- x := 5; y := 3; z := 2

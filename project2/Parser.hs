@@ -2,25 +2,7 @@ module Parser where
 import Compiler
 import Data.Char
 
-
-breakDigits :: String -> (String, String)
-breakDigits = break (not . isDigit)
-
-stringToInt :: String -> Integer
-stringToInt = fromIntegral . foldl (\acc chr -> 10 * acc + digitToInt chr) 0
-
-
-data Token
-  = PlusToken
-  | MinusToken
-  | MultToken
-  | OpenPToken
-  | ClosePToken
-  | IntToken Integer
-  | VarToken String
-  | SemiColonToken
-  | AssignToken 
-  deriving (Show, Eq)
+import Aux
 
 lexer :: String -> [Token]
 lexer [] = []
@@ -31,6 +13,10 @@ lexer ('(':stringtail) = OpenPToken : lexer stringtail
 lexer (')':stringtail) = ClosePToken : lexer stringtail
 lexer (';':stringtail) = SemiColonToken : lexer stringtail
 lexer (':':'=':stringtail) = AssignToken : lexer stringtail
+lexer ('<':'=':stringtail) = BLeToken : lexer stringtail
+lexer ('i':'f':stringtail) = IfToken : lexer stringtail
+lexer ('t':'h':'e':'n':stringtail) = ThenToken : lexer stringtail
+lexer ('e':'l':'s':'e':stringtail) = ElseToken : lexer stringtail
 lexer str@(chr : tailstring)
   | isSpace chr = lexer tailstring
   | isDigit chr = let (digitStr, restStr) = break (not . isDigit) str
@@ -107,6 +93,27 @@ parseSumOrProdOrIntOrPar tokens =
     result -> result
 
 
+parseBexp :: [Token] -> Maybe (Bexp, [Token])
+parseBexp (VarToken var : BLeToken : tokens) =
+  case parseSumOrProdOrIntOrPar tokens of
+    Just (aexp, restTokens) -> Just (BLe (Variable var) aexp, restTokens)
+    _ -> Nothing
+parseBexp _ = Nothing
+
+parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
+parseIfThenElse (IfToken : tokens1) =
+  case parseBexp tokens1 of
+    Just (bexp, ThenToken : tokens2) ->
+      case parseStm tokens2 of
+        (thenStm, ElseToken : tokens3) ->
+          case parseStm tokens3 of
+            (elseStm, restTokens) -> Just (IfThenElse bexp thenStm elseStm, restTokens)
+            _ -> Nothing
+        _ -> Nothing
+    _ -> Nothing
+parseIfThenElse _ = Nothing
+
+
 parseTokens :: [Token] -> Program
 parseTokens [] = []
 parseTokens tokens = let (stm, rest) = parseStm tokens
@@ -117,6 +124,10 @@ parseStm (VarToken var : AssignToken : tokens) =
   case parseSumOrProdOrIntOrPar tokens of
     Just (aexp, SemiColonToken : rest') -> (Assign var aexp, rest')
     _ -> error "Missing semicolon or invalid syntax in arithmetic expression"
+parseStm tokens@(IfToken : _) =
+  case parseIfThenElse tokens of
+    Just (stm, restTokens) -> (stm, restTokens)
+    _ -> error "Invalid syntax in if then else statement"
 parseStm _ = error "Invalid syntax"
 
 parse :: String -> Program
@@ -126,7 +137,6 @@ parse str =
       case parseTokens tokens of
         [] -> error "Empty program"
         prog -> prog
-
 
 printToken:: String -> IO ()
 printToken input = do
