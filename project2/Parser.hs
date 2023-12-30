@@ -72,25 +72,6 @@ parseBexp (VarToken var : BLeToken : tokens) =
     Nothing -> Nothing
 parseBexp _ = Nothing
 
-{-
-parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
-parseIfThenElse (IfToken : tokens1) =
-  case parseBexp tokens1 of
-    Just (bexp, ThenToken : tokens2) ->
-      case parseStm tokens2 of
-        (thenStm, ElseToken : OpenPToken : tokens3) ->
-          case parseStms tokens3 of
-            (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp thenStm (Seq elseStms), restTokens)
-            _ -> Nothing
-        (thenStm, ElseToken : tokens3) ->
-          case parseStm tokens3 of
-            (elseStm, restTokens) -> Just (IfThenElse bexp thenStm elseStm, restTokens)
-            --_ -> Nothing
-        _ -> Nothing
-    _ -> Nothing
-
--}
-
 parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
 parseIfThenElse (IfToken : tokens1) =
   case parseBexp tokens1 of
@@ -127,28 +108,6 @@ parseIfThenElse (IfToken : tokens1) =
         _ -> Nothing
     _ -> Nothing
 
-
-
-{-
-
-parseStms :: [Token] -> ([Stm], [Token])
-parseStms tokens = 
-  case parseStm tokens of
-    (stm, restTokens) -> 
-      let (stms, finalTokens) = parseStms restTokens
-      in (stm : stms, finalTokens)
-    -- (stm, restTokens) -> ([stm], restTokens)
-    -}
-
-{-
-
-parseStms :: [Token] -> ([Stm], [Token])
-parseStms tokens = 
-  case parseStm tokens of
-    (stm, restTokens) -> 
-      let (stms, finalTokens) = parseStms restTokens
-      in (stm : stms, finalTokens)
--}
 
 parseStms :: [Token] -> ([Stm], [Token])
 parseStms tokens = 
