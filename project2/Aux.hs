@@ -65,8 +65,8 @@ searchVar var state = case lookup var state of
     Just value -> value
     Nothing    -> error "Run-time error"
 
-breakDigits :: String -> (String, String)
-breakDigits = break (not . isDigit)
+lexNumber :: String -> (String, String)
+lexNumber = break (not . isDigit)
 
 stringToInt :: String -> Integer
 stringToInt = fromIntegral . foldl (\acc chr -> 10 * acc + digitToInt chr) 0
