@@ -25,68 +25,73 @@ lexer str@(chr : tailstring)
                   in VarToken varStr : lexer restStr
   | otherwise = error $ "Unrecognized character: " ++ [chr]
 
-parseInt :: [Token] -> Maybe (Aexp, [Token])
-parseInt (IntToken n : restTokens) = Just (Number n, restTokens)
-parseInt (VarToken var : restTokens) = Just (Variable var, restTokens)
-parseInt _ = Nothing
+-- Parse integer literals or string variables
+parseBasicExpr :: [Token] -> Maybe (Aexp, [Token])
+parseBasicExpr (IntToken n : restTokens) = Just (Number n, restTokens)
+parseBasicExpr (VarToken var : restTokens) = Just (Variable var, restTokens)
+parseBasicExpr _ = Nothing
 
-parseIntOrParenExpr :: [Token] -> Maybe (Aexp, [Token])
-parseIntOrParenExpr (IntToken n : restTokens) = Just (Number n, restTokens)
-parseIntOrParenExpr (VarToken var : restTokens) = Just (Variable var, restTokens)
-parseIntOrParenExpr (OpenPToken : restTokens1) = 
-  case parseSumOrProdOrIntOrPar restTokens1 of
-    Just (expr, (ClosePToken : restTokens2)) ->
-      Just (expr, restTokens2)
-    Just _ -> Nothing -- no closing paren
-    Nothing -> Nothing
-parseIntOrParenExpr tokens = Nothing
-
-
-parseProdOrInt :: [Token] -> Maybe (Aexp, [Token])  
-parseProdOrInt tokens =
-  case parseInt tokens of
+-- Parse products
+parseMulExpr :: [Token] -> Maybe (Aexp, [Token])  
+parseMulExpr tokens =
+  case parseBasicExpr tokens of
     Just (expr1, (MultToken : restTokens1)) ->
-      case parseProdOrInt restTokens1 of
+      case parseMulExpr restTokens1 of
         Just (expr2, restTokens2) ->
           Just (AMul expr1 expr2, restTokens2)
         Nothing -> Nothing
     result -> result
 
-parseSumOrProdOrInt :: [Token] -> Maybe (Aexp, [Token])
-parseSumOrProdOrInt tokens = 
-  case parseProdOrInt tokens of
+-- Parse Sum and Subtraction
+parseAddSubExpr :: [Token] -> Maybe (Aexp, [Token])
+parseAddSubExpr tokens = 
+  case parseMulExpr tokens of
     Just (expr1, (PlusToken : restTokens1)) ->
-      case parseProdOrInt restTokens1 of
+      case parseMulExpr restTokens1 of
         Just (expr2, restTokens2) ->
           Just (AAdd expr1 expr2, restTokens2)
         Nothing -> Nothing
     Just (expr1, (MinusToken : restTokens1)) ->
-      case parseProdOrInt restTokens1 of
+      case parseMulExpr restTokens1 of
         Just (expr2, restTokens2) ->
           Just (ASub expr1 expr2, restTokens2)
         Nothing -> Nothing
     result -> result
 
-parseProdOrIntOrPar :: [Token] -> Maybe (Aexp, [Token])
-parseProdOrIntOrPar tokens =
-  case parseIntOrParenExpr tokens of
+-- Parse parenthesis expressions
+parseParenExpr :: [Token] -> Maybe (Aexp, [Token])
+parseParenExpr (IntToken n : restTokens) = Just (Number n, restTokens)
+parseParenExpr (VarToken var : restTokens) = Just (Variable var, restTokens)
+parseParenExpr (OpenPToken : restTokens1) = 
+  case parseAddSubParenExpr restTokens1 of
+    Just (expr, (ClosePToken : restTokens2)) ->
+      Just (expr, restTokens2)
+    Just _ -> Nothing -- no closing paren
+    Nothing -> Nothing
+parseParenExpr tokens = Nothing
+
+-- Parse products or parenthesis expressions
+parseMulParenExpr :: [Token] -> Maybe (Aexp, [Token])
+parseMulParenExpr tokens =
+  case parseParenExpr tokens of
     Just (expr1, (MultToken : restTokens1)) ->
-      case parseProdOrIntOrPar restTokens1 of
+      case parseMulParenExpr restTokens1 of
         Just (expr2, restTokens2) ->
           Just (AMul expr1 expr2, restTokens2)
         Nothing -> Nothing
     result -> result
 
-parseSumOrProdOrIntOrPar :: [Token] -> Maybe (Aexp, [Token])
-parseSumOrProdOrIntOrPar tokens =
-  case parseProdOrIntOrPar tokens of
+-- Parse sums or products or parenthesised expressions
+parseAddSubParenExpr :: [Token] -> Maybe (Aexp, [Token])
+parseAddSubParenExpr tokens =
+  case parseMulParenExpr tokens of
     Just (expr1, (PlusToken : restTokens1)) ->
-      case parseSumOrProdOrIntOrPar restTokens1 of
+      case parseAddSubParenExpr restTokens1 of
         Just (expr2, restTokens2) ->
           Just (AAdd expr1 expr2, restTokens2)
         _ -> Nothing
     Just (expr1, (MinusToken : restTokens1)) ->
-      case parseSumOrProdOrIntOrPar restTokens1 of
+      case parseAddSubParenExpr restTokens1 of
         Just (expr2, restTokens2) ->
           Just (ASub expr1 expr2, restTokens2)
         _ -> Nothing
@@ -95,7 +100,7 @@ parseSumOrProdOrIntOrPar tokens =
 
 parseBexp :: [Token] -> Maybe (Bexp, [Token])
 parseBexp (VarToken var : BLeToken : tokens) =
-  case parseSumOrProdOrIntOrPar tokens of
+  case parseAddSubParenExpr tokens of
     Just (aexp, restTokens) -> Just (BLe (Variable var) aexp, restTokens)
     _ -> Nothing
 parseBexp _ = Nothing
@@ -121,7 +126,7 @@ parseTokens tokens = let (stm, rest) = parseStm tokens
 
 parseStm :: [Token] -> (Stm, [Token])
 parseStm (VarToken var : AssignToken : tokens) =
-  case parseSumOrProdOrIntOrPar tokens of
+  case parseAddSubParenExpr tokens of
     Just (aexp, SemiColonToken : rest') -> (Assign var aexp, rest')
     _ -> error "Missing semicolon or invalid syntax in arithmetic expression"
 parseStm tokens@(IfToken : _) =
