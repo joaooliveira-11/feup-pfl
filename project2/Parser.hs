@@ -72,7 +72,7 @@ parseBexp (VarToken var : BLeToken : tokens) =
     Nothing -> Nothing
 parseBexp _ = Nothing
 
-
+{-
 parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
 parseIfThenElse (IfToken : tokens1) =
   case parseBexp tokens1 of
@@ -85,9 +85,49 @@ parseIfThenElse (IfToken : tokens1) =
         (thenStm, ElseToken : tokens3) ->
           case parseStm tokens3 of
             (elseStm, restTokens) -> Just (IfThenElse bexp thenStm elseStm, restTokens)
-            _ -> Nothing
+            --_ -> Nothing
         _ -> Nothing
     _ -> Nothing
+
+-}
+
+parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
+parseIfThenElse (IfToken : tokens1) =
+  case parseBexp tokens1 of
+    Just (bexp, ThenToken : OpenPToken : tokens2) ->
+      case parseStms tokens2 of
+        (thenStms, ClosePToken : SemiColonToken : tokens3) ->
+          case tokens3 of
+            (ElseToken : OpenPToken : tokens4) ->
+              case parseStms tokens4 of
+                (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp (Seq thenStms) (Seq elseStms), restTokens)
+                _ -> Nothing
+            (ElseToken : tokens4) ->
+              case parseStm tokens4 of
+                (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
+        (thenStms, ClosePToken : tokens3) ->
+          case tokens3 of
+            (ElseToken : OpenPToken : tokens4) ->
+              case parseStms tokens4 of
+                (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp (Seq thenStms) (Seq elseStms), restTokens)
+                _ -> Nothing
+            (ElseToken : tokens4) ->
+              case parseStm tokens4 of
+                (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
+    Just (bexp, ThenToken : tokens2) ->
+      case parseStm tokens2 of
+        (thenStm, ElseToken : OpenPToken : tokens3) ->
+          case parseStms tokens3 of
+            (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp thenStm (Seq elseStms), restTokens)
+            _ -> Nothing
+        (thenStm, ElseToken : tokens3) ->
+          case parseStm tokens3 of
+            (elseStm, restTokens) -> Just (IfThenElse bexp thenStm elseStm, restTokens)
+            --_ -> Nothing
+        _ -> Nothing
+    _ -> Nothing
+
+
 
 {-
 
@@ -100,6 +140,16 @@ parseStms tokens =
     -- (stm, restTokens) -> ([stm], restTokens)
     -}
 
+{-
+
+parseStms :: [Token] -> ([Stm], [Token])
+parseStms tokens = 
+  case parseStm tokens of
+    (stm, restTokens) -> 
+      let (stms, finalTokens) = parseStms restTokens
+      in (stm : stms, finalTokens)
+-}
+
 parseStms :: [Token] -> ([Stm], [Token])
 parseStms tokens = 
   case tokens of
@@ -108,7 +158,7 @@ parseStms tokens =
             (stm, restTokens) -> 
               let (stms, finalTokens) = parseStms restTokens
               in (stm : stms, finalTokens)
-              
+
 parseStm :: [Token] -> (Stm, [Token])
 parseStm (VarToken var : AssignToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr  tokens of
@@ -119,8 +169,6 @@ parseStm tokens@(IfToken : _) =
     Just (stm, restTokens) -> trace ("Remaining tokens test2: " ++ show restTokens) (stm, restTokens)
     _ -> error "Invalid syntax in if then else statement"
 parseStm _ = error "Invalid syntax"
-
--- testParser "x := 42; if x <= 43 then (x := 33; x := x+1;) else x := 1;" == ("","x=34")
 
 parseTokens :: [Token] -> Program
 parseTokens [] = []
