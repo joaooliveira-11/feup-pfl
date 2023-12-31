@@ -113,7 +113,6 @@ parseBexpEquality _ = Nothing
 
 -}
 
-
 parseBexp :: [Token] -> Maybe (Bexp, [Token])
 parseBexp tokens =
   case parseBexpEquality tokens of
@@ -125,6 +124,21 @@ parseBexp tokens =
     result -> result
 
 parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
+parseBexpEquality (OpenPToken: tokens1) = 
+  case parseParentSumsOrMultOrBasicExpr tokens1 of
+    Just (aexp1, BEqAritToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, ClosePToken:restTokens2) ->
+          Just (BEqu aexp1 aexp2, restTokens2)
+        Just _ -> Nothing
+        Nothing -> Nothing
+    Just (aexp1, BLeToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, ClosePToken:restTokens2) ->
+          Just (BLe aexp1 aexp2, restTokens2)
+        Just _ -> Nothing
+        Nothing -> Nothing
+    _ -> Nothing
 parseBexpEquality tokens =
   case parseParentSumsOrMultOrBasicExpr tokens of
     Just (aexp1, BEqAritToken : restTokens1) ->
@@ -138,6 +152,37 @@ parseBexpEquality tokens =
           Just (BLe aexp1 aexp2, restTokens2)
         Nothing -> Nothing
     _ -> Nothing
+
+
+{-
+parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
+parseBexpEquality (OpenPToken: tokens1) = 
+  case parseParentSumsOrMultOrBasicExpr tokens1 of
+    Just (aexp1, BEqAritToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, ClosePToken : restTokens2) ->
+          Just (BEqu aexp1 aexp2, restTokens2)
+        Nothing -> Nothing
+    Just (aexp1, BLeToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, ClosePToken : restTokens2) ->
+          Just (BLe aexp1 aexp2, restTokens2)
+        Nothing -> Nothing
+    _ -> Nothing
+parseBexpEquality tokens =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp1, BEqAritToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, restTokens2) ->
+          Just (BEqu aexp1 aexp2, restTokens2)
+        Nothing -> Nothing
+    Just (aexp1, BLeToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, restTokens2) ->
+          Just (BLe aexp1 aexp2, restTokens2)
+        Nothing -> Nothing
+    _ -> Nothing
+-}
 
 parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
 parseIfThenElse (IfToken : OpenPToken : tokens1) =
