@@ -33,6 +33,8 @@ data Token
   | SemiColonToken
   | AssignToken
   | BLeToken
+  | BEqAritToken
+  | BEqBoolToken
   | IfToken
   | ThenToken
   | ElseToken

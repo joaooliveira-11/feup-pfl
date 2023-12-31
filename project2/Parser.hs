@@ -15,6 +15,8 @@ lexer (')':stringtail) = ClosePToken : lexer stringtail
 lexer (';':stringtail) = SemiColonToken : lexer stringtail
 lexer (':':'=':stringtail) = AssignToken : lexer stringtail
 lexer ('<':'=':stringtail) = BLeToken : lexer stringtail
+lexer ('=':'=':stringtail) = BEqAritToken : lexer stringtail
+lexer ('=':stringtail) = BEqBoolToken : lexer stringtail
 lexer ('i':'f':stringtail) = IfToken : lexer stringtail
 lexer ('t':'h':'e':'n':stringtail) = ThenToken : lexer stringtail
 lexer ('e':'l':'s':'e':stringtail) = ElseToken : lexer stringtail
@@ -70,9 +72,56 @@ parseBexp (VarToken var : BLeToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr tokens of
     Just (aexp, restTokens) -> Just (BLe (Variable var) aexp, restTokens)
     Nothing -> Nothing
+parseBexp (IntToken n : BLeToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BLe (Number n) aexp, restTokens)
+    Nothing -> Nothing
+parseBexp (VarToken var : BEqAritToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BEqu (Variable var) aexp, restTokens)
+    Nothing -> Nothing
+parseBexp (IntToken n : BEqAritToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BEqu (Number n) aexp, restTokens)
+    Nothing -> Nothing
 parseBexp _ = Nothing
 
+
 parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
+parseIfThenElse (IfToken : OpenPToken : tokens1) =
+  case parseBexp tokens1 of
+    Just (bexp, ClosePToken : ThenToken : OpenPToken : tokens2) ->
+      case parseStms tokens2 of
+        (thenStms, ClosePToken : SemiColonToken : tokens3) ->
+          case tokens3 of
+            (ElseToken : OpenPToken : tokens4) ->
+              case parseStms tokens4 of
+                (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp (Seq thenStms) (Seq elseStms), restTokens)
+                _ -> Nothing
+            (ElseToken : tokens4) ->
+              case parseStm tokens4 of
+                (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
+        (thenStms, ClosePToken : tokens3) ->
+          case tokens3 of
+            (ElseToken : OpenPToken : tokens4) ->
+              case parseStms tokens4 of
+                (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp (Seq thenStms) (Seq elseStms), restTokens)
+                _ -> Nothing
+            (ElseToken : tokens4) ->
+              case parseStm tokens4 of
+                (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
+    Just (bexp, ClosePToken : ThenToken : tokens2) ->
+      case parseStm tokens2 of
+        (thenStm, ElseToken : OpenPToken : tokens3) ->
+          case parseStms tokens3 of
+            (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp thenStm (Seq elseStms), restTokens)
+            _ -> Nothing
+        (thenStm, ElseToken : tokens3) ->
+          case parseStm tokens3 of
+            (elseStm, restTokens) -> Just (IfThenElse bexp thenStm elseStm, restTokens)
+            --_ -> Nothing
+        _ -> Nothing
+    _ -> Nothing
 parseIfThenElse (IfToken : tokens1) =
   case parseBexp tokens1 of
     Just (bexp, ThenToken : OpenPToken : tokens2) ->
