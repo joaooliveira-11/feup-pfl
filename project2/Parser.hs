@@ -67,6 +67,8 @@ parseParentSumsOrMultOrBasicExpr tokens =
         _ -> Nothing
     result -> result
 
+{-
+
 parseBexp :: [Token] -> Maybe (Bexp, [Token])
 parseBexp (VarToken var : BLeToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr tokens of
@@ -86,6 +88,56 @@ parseBexp (IntToken n : BEqAritToken : tokens) =
     Nothing -> Nothing
 parseBexp _ = Nothing
 
+-}
+
+{-
+
+parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
+parseBexpEquality (VarToken var : BLeToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BLe (Variable var) aexp, restTokens)
+    Nothing -> Nothing
+parseBexpEquality (IntToken n : BLeToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BLe (Number n) aexp, restTokens)
+    Nothing -> Nothing
+parseBexpEquality (VarToken var : BEqAritToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BEqu (Variable var) aexp, restTokens)
+    Nothing -> Nothing
+parseBexpEquality (IntToken n : BEqAritToken : tokens) =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp, restTokens) -> Just (BEqu (Number n) aexp, restTokens)
+    Nothing -> Nothing
+parseBexpEquality _ = Nothing
+
+-}
+
+
+parseBexp :: [Token] -> Maybe (Bexp, [Token])
+parseBexp tokens =
+  case parseBexpEquality tokens of
+    Just (bexp, BEqBoolToken : restTokens1) ->
+      case parseBexpEquality restTokens1 of
+        Just (bexp2, restTokens2) ->
+          Just (BEquality bexp bexp2, restTokens2)
+        Nothing -> Nothing
+    result -> result
+
+parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
+parseBexpEquality tokens =
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (aexp1, BEqAritToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, restTokens2) ->
+          Just (BEqu aexp1 aexp2, restTokens2)
+        Nothing -> Nothing
+    Just (aexp1, BLeToken : restTokens1) ->
+      case parseParentSumsOrMultOrBasicExpr restTokens1 of
+        Just (aexp2, restTokens2) ->
+          Just (BLe aexp1 aexp2, restTokens2)
+        Nothing -> Nothing
+    _ -> Nothing
 
 parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
 parseIfThenElse (IfToken : OpenPToken : tokens1) =
@@ -170,11 +222,11 @@ parseStms tokens =
 parseStm :: [Token] -> (Stm, [Token])
 parseStm (VarToken var : AssignToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr  tokens of
-    Just (aexp, SemiColonToken : rest') -> trace ("Remaining tokens test1: " ++ show rest') (Assign var aexp, rest')
+    Just (aexp, SemiColonToken : rest') -> (Assign var aexp, rest') --  trace ("Remaining tokens test1: " ++ show rest') (Assign var aexp, rest')
     _ -> error "Missing semicolon or invalid syntax in arithmetic expression"
 parseStm tokens@(IfToken : _) =
   case parseIfThenElse tokens of
-    Just (stm, restTokens) -> trace ("Remaining tokens test2: " ++ show restTokens) (stm, restTokens)
+    Just (stm, restTokens) -> (stm, restTokens) -- trace ("Remaining tokens test2: " ++ show restTokens) (stm, restTokens)
     _ -> error "Invalid syntax in if then else statement"
 parseStm _ = error "Invalid syntax"
 

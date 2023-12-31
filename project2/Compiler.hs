@@ -23,6 +23,7 @@ compB :: Bexp -> Code
 compB TrueExp = [Tru]
 compB FalseExp = [Fals]
 compB (BEqu aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Equ]
+compB (BEquality bexp1 bexp2) = compB bexp2 ++ compB bexp1 ++ [Equ]
 compB (BLe aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Le]
 compB (BAnd bexp1 bexp2) = compB bexp2 ++ compB bexp1 ++ [And]
 compB (BNeg bexp) = compB bexp ++ [Neg]
