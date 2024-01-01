@@ -20,12 +20,20 @@ lexer ('=':stringtail) = BEqBoolToken : lexer stringtail
 lexer ('i':'f':stringtail) = IfToken : lexer stringtail
 lexer ('t':'h':'e':'n':stringtail) = ThenToken : lexer stringtail
 lexer ('e':'l':'s':'e':stringtail) = ElseToken : lexer stringtail
+lexer ('T':'r':'u':'e':stringtail) = TrueToken : lexer stringtail
+lexer ('F':'a':'l':'s':'e':stringtail) = FalseToken : lexer stringtail
+lexer ('n':'o':'t':stringtail) = NotToken : lexer stringtail
+lexer ('a':'n':'d':stringtail) = AndToken : lexer stringtail
+lexer('w':'h':'i':'l':'e':stringtail) = WhileToken : lexer stringtail
+lexer('d':'o':stringtail) = DoToken : lexer stringtail
 lexer str@(chr : tailstring)
   | isSpace chr = lexer tailstring
   | isDigit chr = let (digitStr, restStr) = lexNumber str
                   in IntToken (stringToInt digitStr) : lexer restStr
   | isAlpha chr = let (varStr, restStr) = span isAlphaNum str
-                  in VarToken varStr : lexer restStr
+                  in if isNotValidVar varStr || not (isLower chr)
+                    then error $ "Invalid variable name: " ++ varStr
+                    else VarToken varStr : lexer restStr
   | otherwise = error $ "Unrecognized character: " ++ [chr]
 
 -- Parse parenthesised expressions
@@ -67,124 +75,49 @@ parseParentSumsOrMultOrBasicExpr tokens =
         _ -> Nothing
     result -> result
 
-{-
+--------------------------------------------------------------------------------------
 
 parseBexp :: [Token] -> Maybe (Bexp, [Token])
-parseBexp (VarToken var : BLeToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BLe (Variable var) aexp, restTokens)
-    Nothing -> Nothing
-parseBexp (IntToken n : BLeToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BLe (Number n) aexp, restTokens)
-    Nothing -> Nothing
-parseBexp (VarToken var : BEqAritToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BEqu (Variable var) aexp, restTokens)
-    Nothing -> Nothing
-parseBexp (IntToken n : BEqAritToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BEqu (Number n) aexp, restTokens)
-    Nothing -> Nothing
-parseBexp _ = Nothing
+parseBexp (OpenPToken : tokens1) = case parseNotOrBoolEqualityOrAnd tokens1 of
+  Just (stm, ClosePToken : rest) -> Just (stm, rest)
+  _ -> Nothing
+parseBexp (TrueToken : xs) = Just (TrueExp, xs)
+parseBexp (FalseToken : xs) = Just (FalseExp, xs)
+parseBexp tokens = parseArithmeticComparison tokens
 
--}
-
-{-
-
-parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
-parseBexpEquality (VarToken var : BLeToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BLe (Variable var) aexp, restTokens)
-    Nothing -> Nothing
-parseBexpEquality (IntToken n : BLeToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BLe (Number n) aexp, restTokens)
-    Nothing -> Nothing
-parseBexpEquality (VarToken var : BEqAritToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BEqu (Variable var) aexp, restTokens)
-    Nothing -> Nothing
-parseBexpEquality (IntToken n : BEqAritToken : tokens) =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp, restTokens) -> Just (BEqu (Number n) aexp, restTokens)
-    Nothing -> Nothing
-parseBexpEquality _ = Nothing
-
--}
-
-parseBexp :: [Token] -> Maybe (Bexp, [Token])
-parseBexp tokens =
-  case parseBexpEquality tokens of
-    Just (bexp, BEqBoolToken : restTokens1) ->
-      case parseBexpEquality restTokens1 of
-        Just (bexp2, restTokens2) ->
-          Just (BEquality bexp bexp2, restTokens2)
-        Nothing -> Nothing
-    result -> result
-
-parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
-parseBexpEquality (OpenPToken: tokens1) = 
-  case parseParentSumsOrMultOrBasicExpr tokens1 of
-    Just (aexp1, BEqAritToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, ClosePToken:restTokens2) ->
-          Just (BEqu aexp1 aexp2, restTokens2)
-        Just _ -> Nothing
-        Nothing -> Nothing
-    Just (aexp1, BLeToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, ClosePToken:restTokens2) ->
-          Just (BLe aexp1 aexp2, restTokens2)
-        Just _ -> Nothing
-        Nothing -> Nothing
+parseNotOrBoolEqualityOrAnd :: [Token] -> Maybe (Bexp, [Token])
+parseNotOrBoolEqualityOrAnd xs = case parseNotOrBoolEquality xs of
+  Just (stm, AndToken : rest) -> case parseNotOrBoolEqualityOrAnd rest of  
+    Just (stm2, rest2) -> Just (BAnd stm stm2, rest2)
     _ -> Nothing
-parseBexpEquality tokens =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp1, BEqAritToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, restTokens2) ->
-          Just (BEqu aexp1 aexp2, restTokens2)
-        Nothing -> Nothing
-    Just (aexp1, BLeToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, restTokens2) ->
-          Just (BLe aexp1 aexp2, restTokens2)
-        Nothing -> Nothing
-    _ -> Nothing
+  result -> result
 
-
-{-
-parseBexpEquality :: [Token] -> Maybe (Bexp, [Token])
-parseBexpEquality (OpenPToken: tokens1) = 
-  case parseParentSumsOrMultOrBasicExpr tokens1 of
-    Just (aexp1, BEqAritToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, ClosePToken : restTokens2) ->
-          Just (BEqu aexp1 aexp2, restTokens2)
-        Nothing -> Nothing
-    Just (aexp1, BLeToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, ClosePToken : restTokens2) ->
-          Just (BLe aexp1 aexp2, restTokens2)
-        Nothing -> Nothing
+parseNotOrBoolEquality:: [Token] -> Maybe (Bexp, [Token])
+parseNotOrBoolEquality xs = case parseNot xs of
+  Just (stm, BEqBoolToken : rest) -> case parseNotOrBoolEquality rest of
+    Just (stm2, rest2) -> Just (BEquality stm stm2, rest2)
     _ -> Nothing
-parseBexpEquality tokens =
-  case parseParentSumsOrMultOrBasicExpr tokens of
-    Just (aexp1, BEqAritToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, restTokens2) ->
-          Just (BEqu aexp1 aexp2, restTokens2)
-        Nothing -> Nothing
-    Just (aexp1, BLeToken : restTokens1) ->
-      case parseParentSumsOrMultOrBasicExpr restTokens1 of
-        Just (aexp2, restTokens2) ->
-          Just (BLe aexp1 aexp2, restTokens2)
-        Nothing -> Nothing
-    _ -> Nothing
--}
+  result -> result
 
+parseNot:: [Token] -> Maybe (Bexp, [Token])
+parseNot (NotToken : xs) = case parseBexp xs of
+  Just (stm, rest) -> Just (BNeg stm, rest)
+  _ -> Nothing
+parseNot xs = parseBexp xs
+
+parseArithmeticComparison :: [Token] -> Maybe (Bexp, [Token])
+parseArithmeticComparison tokens = case parseParentSumsOrMultOrBasicExpr tokens of
+  Just (exp, BEqAritToken : remaining) -> case parseParentSumsOrMultOrBasicExpr remaining of
+    Just (exp2, remaining2) -> Just (BEqu exp exp2, remaining2)
+    _ -> Nothing
+  Just (exp, BLeToken : remaining) -> case parseParentSumsOrMultOrBasicExpr remaining of
+    Just(exp2, remaining2) -> Just (BLe exp exp2, remaining2)
+    _ -> Nothing
+  result -> Nothing
+
+------------------------------------------------------------------------------------------------
 parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
+{-
 parseIfThenElse (IfToken : OpenPToken : tokens1) =
   case parseBexp tokens1 of
     Just (bexp, ClosePToken : ThenToken : OpenPToken : tokens2) ->
@@ -219,6 +152,7 @@ parseIfThenElse (IfToken : OpenPToken : tokens1) =
             --_ -> Nothing
         _ -> Nothing
     _ -> Nothing
+-}
 parseIfThenElse (IfToken : tokens1) =
   case parseBexp tokens1 of
     Just (bexp, ThenToken : OpenPToken : tokens2) ->
@@ -254,6 +188,7 @@ parseIfThenElse (IfToken : tokens1) =
         _ -> Nothing
     _ -> Nothing
 
+------------------------------------------------------------------
 
 parseStms :: [Token] -> ([Stm], [Token])
 parseStms tokens = 
@@ -275,6 +210,8 @@ parseStm tokens@(IfToken : _) =
     _ -> error "Invalid syntax in if then else statement"
 parseStm _ = error "Invalid syntax"
 
+---------------------------------------------------------------------------
+
 parseTokens :: [Token] -> Program
 parseTokens [] = []
 parseTokens tokens = let (stm, tailtoken) = parseStm tokens
@@ -291,4 +228,5 @@ parse input =
 printToken:: String -> IO ()
 printToken input = do
   let tokens = lexer input
-  putStrLn $ "Tokens: " ++ show tokens  -- Print the tokens after lexer 
+  putStrLn $ "Tokens: " ++ show tokens 
+

@@ -1,5 +1,6 @@
 module Aux where
 import Data.Char
+import Data.List
 
 data Inst =
   Push Integer | Add | Mult | Sub | Tru | Fals | Equ | Le | And | Neg | Fetch String | Store String | Noop |
@@ -38,6 +39,12 @@ data Token
   | IfToken
   | ThenToken
   | ElseToken
+  | TrueToken
+  | FalseToken
+  | NotToken
+  | AndToken
+  | WhileToken
+  | DoToken
   deriving (Show, Eq)
 
 stackElementToStr :: StackType -> String
@@ -72,3 +79,9 @@ lexNumber = break (not . isDigit)
 
 stringToInt :: String -> Integer
 stringToInt = fromIntegral . foldl (\acc chr -> 10 * acc + digitToInt chr) 0
+
+getReservedkeywords :: [String]
+getReservedkeywords = ["not", "True", "False", "if", "then", "else", "and", "while", "do"]
+
+isNotValidVar :: String -> Bool
+isNotValidVar var = any (`isInfixOf` var) getReservedkeywords
