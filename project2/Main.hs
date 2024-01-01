@@ -14,7 +14,10 @@ main = do
   runTests
 
 
-{- ******************** Assembler *********************** -}
+
+{- ***************************************************** -}
+{- ******************** Assembler ********************** -}
+{- ***************************************************** -}
 
 createEmptyStack :: Stack
 createEmptyStack = []
@@ -46,14 +49,13 @@ run ((Loop code1 code2):tailcode, stack, state) = run (loop ((Loop code1 code2):
 run (Neg:tailcode, stack, state) = run (neg (Neg:tailcode, stack, state))
 run (And:tailcode, stack, state) = run (andF (And:tailcode, stack, state))
 
-{- ******************** Assembler *********************** -}
 
 
 
 
-
-
+{- ***************************************************** -}
 {- ******************** Compiler *********************** -}
+{- ***************************************************** -}
 
 compile :: Program -> Code
 compile [] = []
@@ -82,14 +84,13 @@ compB (BLe aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Le]
 compB (BAnd bexp1 bexp2) = compB bexp2 ++ compB bexp1 ++ [And]
 compB (BNeg bexp) = compB bexp ++ [Neg]
 
-{- ******************** Compiler *********************** -}
 
 
 
 
-
-
-{- ******************** Parser *********************** -}
+{- ***************************************************** -}
+{- ********************* Parser ************************ -}
+{- ***************************************************** -}
 
 lexer :: String -> [Token]
 lexer [] = []
@@ -202,43 +203,23 @@ parseArithmeticComparison tokens = case parseParentSumsOrMultOrBasicExpr tokens 
   result -> Nothing
 
 ------------------------------------------------------------------------------------------------
-parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
-{-
-parseIfThenElse (IfToken : OpenPToken : tokens1) =
-  case parseBexp tokens1 of
-    Just (bexp, ClosePToken : ThenToken : OpenPToken : tokens2) ->
-      case parseStms tokens2 of
-        (thenStms, ClosePToken : SemiColonToken : tokens3) ->
-          case tokens3 of
-            (ElseToken : OpenPToken : tokens4) ->
-              case parseStms tokens4 of
-                (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp (Seq thenStms) (Seq elseStms), restTokens)
-                _ -> Nothing
-            (ElseToken : tokens4) ->
-              case parseStm tokens4 of
-                (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
-        (thenStms, ClosePToken : tokens3) ->
-          case tokens3 of
-            (ElseToken : OpenPToken : tokens4) ->
-              case parseStms tokens4 of
-                (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp (Seq thenStms) (Seq elseStms), restTokens)
-                _ -> Nothing
-            (ElseToken : tokens4) ->
-              case parseStm tokens4 of
-                (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
-    Just (bexp, ClosePToken : ThenToken : tokens2) ->
-      case parseStm tokens2 of
-        (thenStm, ElseToken : OpenPToken : tokens3) ->
+  
+parseWhileLoop :: [Token] -> Maybe (Stm, [Token])
+parseWhileLoop (WhileToken : tokens1) =
+  case parseBexp tokens1 of 
+    Just (bexp, DoToken : tokens2) ->
+      case tokens2 of
+        (OpenPToken : tokens3) ->
           case parseStms tokens3 of
-            (elseStms, ClosePToken : SemiColonToken : restTokens) -> Just (IfThenElse bexp thenStm (Seq elseStms), restTokens)
+            (doStms, ClosePToken : SemiColonToken : tokens4) -> Just (While bexp (Seq doStms), tokens4)
             _ -> Nothing
-        (thenStm, ElseToken : tokens3) ->
-          case parseStm tokens3 of
-            (elseStm, restTokens) -> Just (IfThenElse bexp thenStm elseStm, restTokens)
-            --_ -> Nothing
-        _ -> Nothing
+        _ ->
+          case parseStm tokens2 of
+            (doStm, tokens3) -> Just (While bexp doStm, tokens3)
     _ -> Nothing
--}
+parseWhileLoop _ = Nothing
+
+parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
 parseIfThenElse (IfToken : tokens1) =
   case parseBexp tokens1 of
     Just (bexp, ThenToken : OpenPToken : tokens2) ->
@@ -252,6 +233,7 @@ parseIfThenElse (IfToken : tokens1) =
             (ElseToken : tokens4) ->
               case parseStm tokens4 of
                 (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
+            _ -> Nothing
         (thenStms, ClosePToken : tokens3) ->
           case tokens3 of
             (ElseToken : OpenPToken : tokens4) ->
@@ -261,6 +243,8 @@ parseIfThenElse (IfToken : tokens1) =
             (ElseToken : tokens4) ->
               case parseStm tokens4 of
                 (elseStm, restTokens) -> Just (IfThenElse bexp (Seq thenStms) elseStm, restTokens)
+            _ -> Nothing
+        _ -> Nothing
     Just (bexp, ThenToken : tokens2) ->
       case parseStm tokens2 of
         (thenStm, ElseToken : OpenPToken : tokens3) ->
@@ -273,6 +257,7 @@ parseIfThenElse (IfToken : tokens1) =
             --_ -> Nothing
         _ -> Nothing
     _ -> Nothing
+parseIfThenElse _ = Nothing
 
 ------------------------------------------------------------------
 
@@ -288,12 +273,16 @@ parseStms tokens =
 parseStm :: [Token] -> (Stm, [Token])
 parseStm (VarToken var : AssignToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr  tokens of
-    Just (aexp, SemiColonToken : rest') -> (Assign var aexp, rest') --  trace ("Remaining tokens test1: " ++ show rest') (Assign var aexp, rest')
+    Just (aexp, SemiColonToken : rest') ->  (Assign var aexp, rest') --  trace ("Remaining tokens test1: " ++ show rest') (Assign var aexp, rest')
     _ -> error "Missing semicolon or invalid syntax in arithmetic expression"
 parseStm tokens@(IfToken : _) =
   case parseIfThenElse tokens of
     Just (stm, restTokens) -> (stm, restTokens) -- trace ("Remaining tokens test2: " ++ show restTokens) (stm, restTokens)
     _ -> error "Invalid syntax in if then else statement"
+parseStm tokens@(WhileToken : _) =
+  case parseWhileLoop tokens of
+    Just (stm, restTokens) -> (stm, restTokens)
+    _ -> error "Invalid syntax in while loop"
 parseStm _ = error "Invalid syntax"
 
 ---------------------------------------------------------------------------
@@ -316,13 +305,13 @@ printToken input = do
   let tokens = lexer input
   putStrLn $ "Tokens: " ++ show tokens 
 
-{- ******************** Parser *********************** -}
 
 
 
 
-
-{- ******************** Testers *********************** -}
+{- ***************************************************** -}
+{- ********************* Testers *********************** -}
+{- ***************************************************** -}
 
 testAssembler :: Code -> (String, String)
 testAssembler code = (stack2Str stack, state2Str state)
@@ -400,24 +389,3 @@ runTestParser (input, expected) = do
         else do
             putStrLn $ "\ESC[31mComparing " ++ show input ++ " and " ++ show expected ++ ". Result: Test Failed. Got " ++ show output ++ "\ESC[0m"
             return False
-
-
-{- ******************** Testers *********************** -}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
