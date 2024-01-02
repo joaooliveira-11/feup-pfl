@@ -1,8 +1,8 @@
 # Haskell Compiler
 
 ## Group Members 
-| Nome     | Up       | Contribuição |
-| -------- | -------- | ---          |
+| Name     | UP Number   | Contribution |
+| -------- | -------- | --- |
 | Inês Alexandre Queirós Matos Macedo de Oliveira | 202103343 | 50% |
 | João Pedro Cruz Moreira de Oliveira | 202108737 | 50% |
 
