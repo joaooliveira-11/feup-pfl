@@ -47,26 +47,26 @@ data Token
   | DoToken
   deriving (Show, Eq)
 
-stackElementToStr :: StackType -> String
+stackElementToStr :: StackType -> String -- Converts a StackType to a String
 stackElementToStr (Left integer) = show integer
 stackElementToStr (Right string) 
     | string == "tt" = "True"
     | string == "ff" = "False"
     | otherwise = error "Run-time error"
 
-statePairToStr :: (String, StackType) -> String
+statePairToStr :: (String, StackType) -> String -- Converts a pair of String and StackType to a String
 statePairToStr (var, value) = var ++ "=" ++ stackElementToStr value
 
-strToBool :: String -> Bool
+strToBool :: String -> Bool -- Converts a String to a Bool
 strToBool "tt" = True
 strToBool "ff" = False
 strToBool _ = error "Run-time error"
 
-boolToStr :: Bool -> String
+boolToStr :: Bool -> String -- Converts a Bool to a String
 boolToStr True = "tt"
 boolToStr False = "ff"
 
-updateState :: String -> StackType -> State -> State
+updateState :: String -> StackType -> State -> State -- Updates the state by adding a new pair of String and StackType and first deleting if the String already exists.
 updateState var el state = (var, el) : filter ((/= var) . fst) state
 
 searchVar :: String -> State -> StackType
@@ -74,14 +74,14 @@ searchVar var state = case lookup var state of
     Just value -> value
     Nothing    -> error "Run-time error"
 
-lexNumber :: String -> (String, String)
+lexNumber :: String -> (String, String) -- Extracts a number from a String given as input
 lexNumber = break (not . isDigit)
 
-stringToInt :: String -> Integer
+stringToInt :: String -> Integer -- Converts a String to an Integer
 stringToInt = fromIntegral . foldl (\acc chr -> 10 * acc + digitToInt chr) 0
 
-getReservedkeywords :: [String]
+getReservedkeywords :: [String] -- Returns the reserved keywords for the parser
 getReservedkeywords = ["not", "True", "False", "if", "then", "else", "and", "while", "do"]
 
-isNotValidVar :: String -> Bool
+isNotValidVar :: String -> Bool -- Checks if a variable is valid
 isNotValidVar var = any (`isInfixOf` var) getReservedkeywords

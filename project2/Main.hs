@@ -19,19 +19,19 @@ main = do
 {- ******************** Assembler ********************** -}
 {- ***************************************************** -}
 
-createEmptyStack :: Stack
+createEmptyStack :: Stack -- Creates an empty stack
 createEmptyStack = []
 
-createEmptyState :: State
+createEmptyState :: State -- Creates an empty state
 createEmptyState = []
 
-stack2Str :: Stack -> String
+stack2Str :: Stack -> String -- Converts a Stack to a String
 stack2Str stack = intercalate "," $ map stackElementToStr stack
 
-state2Str :: State -> String
+state2Str :: State -> String -- Converts a State to a String
 state2Str state = intercalate "," $ map statePairToStr $ sortOn fst state
 
-run :: (Code, Stack, State) -> (Code, Stack, State)
+run :: (Code, Stack, State) -> (Code, Stack, State) -- Runs the program code
 run ([], stack, state) = ([], stack, state)
 run (Add:tailcode, stack, state) = run (add (Add:tailcode, stack, state))
 run (Mult:tailcode, stack, state) = run (mult (Mult:tailcode, stack, state))
@@ -57,25 +57,25 @@ run (And:tailcode, stack, state) = run (andF (And:tailcode, stack, state))
 {- ******************** Compiler *********************** -}
 {- ***************************************************** -}
 
-compile :: Program -> Code
+compile :: Program -> Code -- Compiles a program
 compile [] = []
 compile (s:stms) = compStm s ++ compile stms
 
-compStm :: Stm -> Code
+compStm :: Stm -> Code -- Compiles a statement
 compStm (Assign str aexp) = compA aexp ++ [Store str]
 compStm (Seq stms) = concatMap compStm stms
 compStm (IfThenElse bexp stm1 stm2) = compB bexp ++ [Branch (compStm stm1) (compStm stm2)]
 compStm (While bexp stm) = [Loop (compB bexp) (compStm stm)]
 compStm Skip = [Noop]
 
-compA :: Aexp -> Code
+compA :: Aexp -> Code -- Compiles an arithmetic expression
 compA (Number n) = [Push n]
 compA (Variable str) = [Fetch str]
 compA (AAdd aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Add]
 compA (ASub aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Sub]
 compA (AMul aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Mult]
 
-compB :: Bexp -> Code
+compB :: Bexp -> Code -- Compiles a boolean expression
 compB TrueExp = [Tru]
 compB FalseExp = [Fals]
 compB (BEqu aexp1 aexp2) = compA aexp2 ++ compA aexp1 ++ [Equ]
@@ -92,7 +92,7 @@ compB (BNeg bexp) = compB bexp ++ [Neg]
 {- ********************* Parser ************************ -}
 {- ***************************************************** -}
 
-lexer :: String -> [Token]
+lexer :: String -> [Token] -- Converts a String to a list of Tokens, representing words.
 lexer [] = []
 lexer ('+':stringtail) = PlusToken : lexer stringtail
 lexer ('-':stringtail) = MinusToken : lexer stringtail
@@ -123,8 +123,7 @@ lexer str@(chr : tailstring)
                     else VarToken varStr : lexer restStr
   | otherwise = error $ "Unrecognized character: " ++ [chr]
 
--- Parse parenthesised expressions
-parseParenOrBasicExpr :: [Token] -> Maybe (Aexp, [Token])
+parseParenOrBasicExpr :: [Token] -> Maybe (Aexp, [Token]) -- Parse parenthesised expressions
 parseParenOrBasicExpr (IntToken n : tailTokens) = Just (Number n, tailTokens)
 parseParenOrBasicExpr (VarToken var : tailTokens) = Just (Variable var, tailTokens)
 parseParenOrBasicExpr (OpenPToken : tailTokens) = 
@@ -135,8 +134,7 @@ parseParenOrBasicExpr (OpenPToken : tailTokens) =
     Nothing -> Nothing
 parseParenOrBasicExpr tokens = Nothing
 
--- Parse products or parenthesis expressions
-parseParenMulOrBasicExpr :: [Token] -> Maybe (Aexp, [Token])
+parseParenMulOrBasicExpr :: [Token] -> Maybe (Aexp, [Token]) -- Parse products or parenthesis expressions
 parseParenMulOrBasicExpr tokens =
   case parseParenOrBasicExpr tokens of
     Just (expr1, (MultToken : tailTokens1)) ->
@@ -146,8 +144,7 @@ parseParenMulOrBasicExpr tokens =
         Nothing -> Nothing
     result -> result
 
--- Parse sums or products or parenthesised expressions
-parseParentSumsOrMultOrBasicExpr :: [Token] -> Maybe (Aexp, [Token])
+parseParentSumsOrMultOrBasicExpr :: [Token] -> Maybe (Aexp, [Token]) -- Parse sums or products or parenthesised expressions
 parseParentSumsOrMultOrBasicExpr tokens =
   case parseParenMulOrBasicExpr tokens of
     Just (expr1, (PlusToken : restTokens1)) ->
@@ -204,7 +201,7 @@ parseArithmeticComparison tokens = case parseParentSumsOrMultOrBasicExpr tokens 
 
 ------------------------------------------------------------------------------------------------
   
-parseWhileLoop :: [Token] -> Maybe (Stm, [Token])
+parseWhileLoop :: [Token] -> Maybe (Stm, [Token]) -- Parse while loops
 parseWhileLoop (WhileToken : tokens1) =
   case parseBexp tokens1 of 
     Just (bexp, DoToken : tokens2) ->
@@ -219,7 +216,7 @@ parseWhileLoop (WhileToken : tokens1) =
     _ -> Nothing
 parseWhileLoop _ = Nothing
 
-parseIfThenElse :: [Token] -> Maybe (Stm, [Token])
+parseIfThenElse :: [Token] -> Maybe (Stm, [Token]) -- Parse if-then-else statements
 parseIfThenElse (IfToken : tokens1) =
   case parseBexp tokens1 of
     Just (bexp, ThenToken : OpenPToken : tokens2) ->
@@ -261,7 +258,7 @@ parseIfThenElse _ = Nothing
 
 ------------------------------------------------------------------
 
-parseStms :: [Token] -> ([Stm], [Token])
+parseStms :: [Token] -> ([Stm], [Token]) -- Parse multiple statements. For example multiple nested stms in if-then-else and while loops.
 parseStms tokens = 
   case tokens of
     (ClosePToken : _) -> ([], tokens)
@@ -270,7 +267,7 @@ parseStms tokens =
               let (stms, finalTokens) = parseStms restTokens
               in (stm : stms, finalTokens)
 
-parseStm :: [Token] -> (Stm, [Token])
+parseStm :: [Token] -> (Stm, [Token]) -- Parse a single statement
 parseStm (VarToken var : AssignToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr  tokens of
     Just (aexp, SemiColonToken : rest') ->  (Assign var aexp, rest') --  trace ("Remaining tokens test1: " ++ show rest') (Assign var aexp, rest')
@@ -287,12 +284,12 @@ parseStm _ = error "Invalid syntax"
 
 ---------------------------------------------------------------------------
 
-parseTokens :: [Token] -> Program
+parseTokens :: [Token] -> Program -- Parse a list of tokens
 parseTokens [] = []
 parseTokens tokens = let (stm, tailtoken) = parseStm tokens
                      in stm : parseTokens tailtoken
 
-parse :: String -> Program
+parse :: String -> Program -- Parse a string
 parse input = 
   case lexer input of
     tokens ->
@@ -300,7 +297,7 @@ parse input =
         [] -> error "Empty program"
         prog -> prog
 
-printToken:: String -> IO ()
+printToken:: String -> IO () -- Prints the tokens of a string after using the lexer function
 printToken input = do
   let tokens = lexer input
   putStrLn $ "Tokens: " ++ show tokens 
@@ -313,15 +310,15 @@ printToken input = do
 {- ********************* Testers *********************** -}
 {- ***************************************************** -}
 
-testAssembler :: Code -> (String, String)
+testAssembler :: Code -> (String, String) -- Tests the assembler
 testAssembler code = (stack2Str stack, state2Str state)
   where (_,stack,state) = run(code, createEmptyStack, createEmptyState)
 
-testParser :: String -> (String, String)
+testParser :: String -> (String, String) -- Tests the parser
 testParser programCode = (stack2Str stack, state2Str state)
   where (_,stack,state) = run(compile (parse programCode), createEmptyStack, createEmptyState)
 
-testAssemblerCases :: [([Inst], (String, String))]
+testAssemblerCases :: [([Inst], (String, String))] -- Test cases for the assembler
 testAssemblerCases = [
     ([Push 10,Push 4,Push 3,Sub,Mult], ("-10","")),
     ([Fals,Push 3,Tru,Store "var",Store "a", Store "someVar"], ("","a=3,someVar=False,var=True")),
@@ -334,7 +331,7 @@ testAssemblerCases = [
     ([Push 10,Store "i",Push 1,Store "fact",Loop [Push 1,Fetch "i",Equ,Neg] [Fetch "i",Fetch "fact",Mult,Store "fact",Push 1,Fetch "i",Sub,Store "i"]], ("","fact=3628800,i=1"))
     ]
 
-testParserCases :: [(String, (String, String))]
+testParserCases :: [(String, (String, String))] -- Test cases for the parser
 testParserCases = [
     ("x := 5; x := x - 1;" , ("","x=4")),
     ("x := 0 - 2;" , ("","x=-2")),
@@ -352,7 +349,7 @@ testParserCases = [
     ("i := 10; fact := 1; while (not(i == 1)) do (fact := fact * i; i := i - 1;);" , ("","fact=3628800,i=1"))
     ]
 
-runTests :: IO ()
+runTests :: IO () -- Runs all the tests
 runTests = do
     putStrLn "\n Running tests Assembler ..."
     results <- mapM runTestAssembler testAssemblerCases
@@ -368,7 +365,7 @@ runTests = do
     putStrLn "All tests completed."
     putStrLn "..............\n"
    
-runTestAssembler :: ([Inst], (String, String)) -> IO Bool
+runTestAssembler :: ([Inst], (String, String)) -> IO Bool -- Runs assembler tests
 runTestAssembler (input, expected) = do
     let output = testAssembler input
     if output == expected
@@ -379,7 +376,7 @@ runTestAssembler (input, expected) = do
             putStrLn $ "\ESC[31mComparing " ++ show input ++ " and " ++ show expected ++ ". Result: Test Failed. Got " ++ show output ++ "\ESC[0m"
             return False
 
-runTestParser :: (String, (String, String)) -> IO Bool
+runTestParser :: (String, (String, String)) -> IO Bool -- Runs parser tests
 runTestParser (input, expected) = do
     let output = testParser input
     if output == expected
