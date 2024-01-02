@@ -1,5 +1,5 @@
 module StackOP where 
-import Aux
+import Auxx
 
 add :: (Code, Stack, State) -> (Code, Stack, State) -- Add operation, adds the result to the top of the stack
 add (Add:tailcode, (Left i1):(Left i2):tailstack, state) = (tailcode, Left (i1 + i2):tailstack, state)

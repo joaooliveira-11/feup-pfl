@@ -1,4 +1,4 @@
-module Aux where
+module Auxx where
 import Data.Char
 import Data.List
 

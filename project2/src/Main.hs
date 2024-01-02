@@ -1,6 +1,6 @@
 module Main where
 
-import Aux
+import Auxx
 import StackOP
 
 import Data.List (intercalate, sortOn)
