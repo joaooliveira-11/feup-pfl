@@ -119,9 +119,9 @@ lexer str@(chr : tailstring)
                   in IntToken (stringToInt digitStr) : lexer restStr
   | isAlpha chr = let (varStr, restStr) = span isAlphaNum str
                   in if isNotValidVar varStr || not (isLower chr)
-                    then error $ "Invalid variable name: " ++ varStr
+                    then error "Run-time error" -- error $ "Invalid variable name: " ++ varStr
                     else VarToken varStr : lexer restStr
-  | otherwise = error $ "Unrecognized character: " ++ [chr]
+  | otherwise = error "Run-time error" -- error $ "Unrecognized character: " ++ [chr]
 
 parseParenOrBasicExpr :: [Token] -> Maybe (Aexp, [Token]) -- Parse parenthesised expressions
 parseParenOrBasicExpr (IntToken n : tailTokens) = Just (Number n, tailTokens)
@@ -286,16 +286,16 @@ parseStm :: [Token] -> (Stm, [Token]) -- Parse a single statement
 parseStm (VarToken var : AssignToken : tokens) =
   case parseParentSumsOrMultOrBasicExpr  tokens of
     Just (aexp, SemiColonToken : rest') ->  (Assign var aexp, rest') --  trace ("Remaining tokens test1: " ++ show rest') (Assign var aexp, rest')
-    _ -> error "Missing semicolon or invalid syntax in arithmetic expression"
+    _ -> error "Run-time error"-- error "Missing semicolon or invalid syntax in arithmetic expression"
 parseStm tokens@(IfToken : _) =
   case parseIfThenElse tokens of
     Just (stm, restTokens) -> (stm, restTokens) -- trace ("Remaining tokens test2: " ++ show restTokens) (stm, restTokens)
-    _ -> error "Invalid syntax in if then else statement"
+    _ -> error "Run-time error" -- error "Invalid syntax in if then else statement"
 parseStm tokens@(WhileToken : _) =
   case parseWhileLoop tokens of
     Just (stm, restTokens) -> (stm, restTokens)
-    _ -> error "Invalid syntax in while loop"
-parseStm _ = error "Invalid syntax"
+    _ -> error "Run-time error" -- error "Invalid syntax in while loop"
+parseStm _ = error "Run-time error" -- error "Invalid syntax"
 
 ---------------------------------------------------------------------------
 
@@ -309,7 +309,7 @@ parse input =
   case lexer input of
     tokens ->
       case parseTokens tokens of
-        [] -> error "Empty program"
+        [] -> error "Run-time error" -- error "Empty program"
         prog -> prog
 
 printToken:: String -> IO () -- Prints the tokens of a string after using the lexer function
@@ -343,7 +343,28 @@ testAssemblerCases = [
     ([Push (-20),Tru,Tru,Neg,Equ], ("False,-20","")),
     ([Push (-20),Push (-21), Le], ("True","")),
     ([Push 5,Store "x",Push 1,Fetch "x",Sub,Store "x"], ("","x=4")),
-    ([Push 10,Store "i",Push 1,Store "fact",Loop [Push 1,Fetch "i",Equ,Neg] [Fetch "i",Fetch "fact",Mult,Store "fact",Push 1,Fetch "i",Sub,Store "i"]], ("","fact=3628800,i=1"))
+    ([Push 10,Store "i",Push 1,Store "fact",Loop [Push 1,Fetch "i",Equ,Neg] [Fetch "i",Fetch "fact",Mult,Store "fact",Push 1,Fetch "i",Sub,Store "i"]], ("","fact=3628800,i=1")),
+    
+    ------------------------------------------------------------------------
+    ---------------------------- Personal Tests ----------------------------
+    ------------------------------------------------------------------------
+
+    ([Push 5, Push 3, Add], ("8","")),
+    ([Push 5, Push 3, Mult], ("15","")),
+    ([Push 5, Push 3, Sub], ("-2","")),
+    ([Push 5, Push 3, Le], ("True","")),
+    ([Push 3, Push 5, Le], ("False","")),
+    ([Push 5, Push 5, Le], ("True","")),
+    ([Push 5, Push 5, Equ], ("True","")),
+    ([Push 5, Push 3, Equ], ("False","")),
+    ([Tru, Fals, Equ], ("False","")),
+    ([Tru, Tru, Equ], ("True","")),
+    ([Push 5, Store "x", Fetch "x"], ("5","x=5")), 
+    ([Push 5, Push 3, Equ, Branch [Push 1] [Push 2]], ("2","")),
+    ([Push 5, Push 3, Le, Branch [Push 1] [Push 2]], ("1","")),
+    ([Push 3, Push 5, Le, Branch [Push 1] [Push 2]], ("2","")), 
+    ([Push 10, Store "i", Push 1, Store "sum", Loop [Push 1, Fetch "i", Equ, Neg] [Fetch "i", Fetch "sum", Add, Store "sum", Push 1, Fetch "i", Sub, Store "i"]], ("","i=1,sum=55"))
+
     ]
 
 testParserCases :: [(String, (String, String))] -- Test cases for the parser
@@ -361,7 +382,46 @@ testParserCases = [
     ("if (1 == 0+1 = 2+1 == 3) then x := 1; else x := 2;" , ("","x=1")),
     ("if (1 == 0+1 = (2+1 == 4)) then x := 1; else x := 2;" , ("","x=2")),
     ("x := 2; y := (x - 3)*(4 + 2*3); z := x +x*(2);" , ("","x=2,y=-10,z=6")),
-    ("i := 10; fact := 1; while (not(i == 1)) do (fact := fact * i; i := i - 1;);" , ("","fact=3628800,i=1"))
+    ("i := 10; fact := 1; while (not(i == 1)) do (fact := fact * i; i := i - 1;);" , ("","fact=3628800,i=1")),
+
+
+
+    ------------------------------------------------------------------------
+    ---------------------------- Personal Tests ----------------------------
+    ------------------------------------------------------------------------
+
+    ("y := 10; z := y - 5;", ("", "y=10,z=5")),
+    ("a := 3; b := a * 3; c := b - a;", ("", "a=3,b=9,c=6")),
+    ("if True then a := 5; else a := 10;", ("", "a=5")),
+    ("if False then b := 1; else b := 2;", ("", "b=2")),
+    ("if (5 == 4+1) then x := 7; else x := 8;", ("", "x=7")),
+    ("a := 4 * (3 + 2) - 10;", ("", "a=10")),
+    ("b := (2 * 2) - (3 - 1);", ("", "b=2")),
+    ("counter := 5; sum := 0; while (not(counter == 0)) do (sum := sum + counter; counter := counter - 1;);", ("", "counter=0,sum=15")),
+    ("n := 4; factorial := 1; while (not(n == 1)) do (factorial := factorial * n; n := n - 1;);", ("", "factorial=24,n=1")),
+    ("if (1 == 1) then x := 100; else x := 200;", ("", "x=100")),
+    ("x := 5; if x == 5 then x := x * 2; else x := x + 2;", ("", "x=10")),
+    ("y := 0; if (y == 0) then y := 9; else y := 1;", ("", "y=9")),
+    ("if (2 <= 3) then a := 4; else a := 5; if (a == 4) then b := a * 2; else b := a + 2;", ("", "a=4,b=8")),
+    ("x := 3; while (not(x == 0)) do (x := x - 1;);", ("", "x=0")),
+    ("counter := 3; total := 0; while (not(counter == 0)) do (total := total + 5; counter := counter - 1;);", ("", "counter=0,total=15")),
+    ("n := 5; sum := 0; while (not(n == 0)) do (sum := sum + n; n := n - 1;);", ("", "n=0,sum=15")),
+    ("if (10 == 10) then a := 1; else a := 2; while (not(a == 5)) do (a := a + 1;);", ("", "a=5")),
+    ("count := 1; sum := 0; while (count <= 5) do (sum := sum + count; count := count + 1;);", ("", "count=6,sum=15")),
+    ("num := 4; product := 1; while (num <= 1) do (product := product * num; num := num - 1;);", ("", "num=4,product=1")),
+    ("i := 1; total := 0; while (i <= 4) do (total := total + i * 2; i := i + 1;);", ("", "i=5,total=20")),
+    ("x := 5; while (x <= 0) do (x := x - 1;);", ("", "x=5")),
+    ("counter := 2; result := 0; while (counter <= 4) do (result := result + counter; counter := counter + 1;);", ("", "counter=5,result=9")),
+    ("if (3 <= 4) then a := 2; else a := 3;", ("", "a=2")),
+    ("a := 5; b := 10; if (b <= a) then c := a + b; else c := a - b;", ("", "a=5,b=10,c=-5")),
+    ("x := 10; while (x <= 15) do (x := x + 1;);", ("", "x=16")),
+    ("count := 1; total := 0; while (count <= 3) do (total := total + 2; count := count + 1;);", ("", "count=4,total=6")),
+    ("if (1 <= 1) then x := 100; else x := 200;", ("", "x=100")),
+    ("y := 5; if (y <= 5) then y := y * 2; else y := y + 2;", ("", "y=10")),
+    ("z := 7; if (z <= 6) then z := 1; else z := 2;", ("", "z=2")),
+    ("n := 3; sum := 0; while (n <= 5) do (sum := sum + n; n := n + 1;);", ("", "n=6,sum=12")),
+    ("if (4 <= 3) then a := 4; else a := 5; if (a <= 5) then b := a * 2; else b := a + 2;", ("", "a=5,b=10")),
+    ("x := 1; while (x <= 10) do (x := x + 2;);", ("", "x=11"))
     ]
 
 runTests :: IO () -- Runs all the tests
