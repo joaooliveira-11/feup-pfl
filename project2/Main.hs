@@ -161,43 +161,58 @@ parseParentSumsOrMultOrBasicExpr tokens =
 
 --------------------------------------------------------------------------------------
 
-parseBexp :: [Token] -> Maybe (Bexp, [Token])
-parseBexp (OpenPToken : tokens1) = case parseNotOrBoolEqualityOrAnd tokens1 of
-  Just (stm, ClosePToken : rest) -> Just (stm, rest)
-  _ -> Nothing
+
+parseIntegerLessThanOrEqual :: Aexp -> [Token] -> Maybe (Bexp, [Token]) -- Parse integer less than or equal
+parseIntegerLessThanOrEqual exp remaining = 
+  case parseParentSumsOrMultOrBasicExpr remaining of
+    Just(exp2, remaining2) -> Just (BLe exp exp2, remaining2)
+    _ -> Nothing
+
+parseIntegerEquality :: Aexp -> [Token] -> Maybe (Bexp, [Token]) -- Parse integer equality
+parseIntegerEquality exp remaining = 
+  case parseParentSumsOrMultOrBasicExpr remaining of
+    Just (exp2, remaining2) -> Just (BEqu exp exp2, remaining2)
+    _ -> Nothing
+
+parseArithmeticComparison :: [Token] -> Maybe (Bexp, [Token]) -- Parse arithmetic comparison
+parseArithmeticComparison tokens = 
+  case parseParentSumsOrMultOrBasicExpr tokens of
+    Just (exp, BLeToken : remaining) -> parseIntegerLessThanOrEqual exp remaining
+    Just (exp, BEqAritToken : remaining) -> parseIntegerEquality exp remaining
+    _ -> Nothing
+
+parseNot:: [Token] -> Maybe (Bexp, [Token]) -- Parse not tokens
+parseNot (NotToken : xs) = 
+  case parseBexp xs of
+    Just (stm, rest) -> Just (BNeg stm, rest)
+    _ -> Nothing
+parseNot xs = parseBexp xs
+
+parseNotOrBoolEquality:: [Token] -> Maybe (Bexp, [Token]) -- Parse not or boolean equality tokens
+parseNotOrBoolEquality xs = 
+  case parseNot xs of
+    Just (stm, BEqBoolToken : rest) -> case parseNotOrBoolEquality rest of
+      Just (stm2, rest2) -> Just (BEquality stm stm2, rest2)
+      _ -> Nothing
+    result -> result
+
+parseNotOrBoolEqualityOrAnd :: [Token] -> Maybe (Bexp, [Token]) -- Parse not or boolean equality or and tokens
+parseNotOrBoolEqualityOrAnd xs = 
+  case parseNotOrBoolEquality xs of
+    Just (stm, AndToken : rest) -> case parseNotOrBoolEqualityOrAnd rest of  
+      Just (stm2, rest2) -> Just (BAnd stm stm2, rest2)
+      _ -> Nothing
+    result -> result
+
+parseBexp :: [Token] -> Maybe (Bexp, [Token]) -- Parse boolean expressions
+parseBexp (OpenPToken : tokens1) = 
+  case parseNotOrBoolEqualityOrAnd tokens1 of
+    Just (stm, ClosePToken : rest) -> Just (stm, rest)
+    _ -> Nothing
 parseBexp (TrueToken : xs) = Just (TrueExp, xs)
 parseBexp (FalseToken : xs) = Just (FalseExp, xs)
 parseBexp tokens = parseArithmeticComparison tokens
 
-parseNotOrBoolEqualityOrAnd :: [Token] -> Maybe (Bexp, [Token])
-parseNotOrBoolEqualityOrAnd xs = case parseNotOrBoolEquality xs of
-  Just (stm, AndToken : rest) -> case parseNotOrBoolEqualityOrAnd rest of  
-    Just (stm2, rest2) -> Just (BAnd stm stm2, rest2)
-    _ -> Nothing
-  result -> result
-
-parseNotOrBoolEquality:: [Token] -> Maybe (Bexp, [Token])
-parseNotOrBoolEquality xs = case parseNot xs of
-  Just (stm, BEqBoolToken : rest) -> case parseNotOrBoolEquality rest of
-    Just (stm2, rest2) -> Just (BEquality stm stm2, rest2)
-    _ -> Nothing
-  result -> result
-
-parseNot:: [Token] -> Maybe (Bexp, [Token])
-parseNot (NotToken : xs) = case parseBexp xs of
-  Just (stm, rest) -> Just (BNeg stm, rest)
-  _ -> Nothing
-parseNot xs = parseBexp xs
-
-parseArithmeticComparison :: [Token] -> Maybe (Bexp, [Token])
-parseArithmeticComparison tokens = case parseParentSumsOrMultOrBasicExpr tokens of
-  Just (exp, BEqAritToken : remaining) -> case parseParentSumsOrMultOrBasicExpr remaining of
-    Just (exp2, remaining2) -> Just (BEqu exp exp2, remaining2)
-    _ -> Nothing
-  Just (exp, BLeToken : remaining) -> case parseParentSumsOrMultOrBasicExpr remaining of
-    Just(exp2, remaining2) -> Just (BLe exp exp2, remaining2)
-    _ -> Nothing
-  result -> Nothing
 
 ------------------------------------------------------------------------------------------------
   
