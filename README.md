@@ -7,7 +7,7 @@ Project 1 - Apart Board Game with Prolog
 - Bot lvl 1 (random) and Bot lvl 2 (greedy);
 - AI program using Minimax algorithm with board evaluation to predict oponnent's movements.
 
-Project 2 - Haskel Compiler
+Project 2 - Haskell Compiler
 - Low-level machine with configurations of the form (c, e, s) where c is a list of instructions to be executed, e is the evaluation stack, and s is the storage.
 - The instructions of the machine are: push-n, add, mult, sub, true, false, eq, le, and, neg, fetch-x, store-x, noop, branch(c1, c2) and loop(c1, c2.
 - Development of a small imperative programming language with arithmetic and boolean expressions, and statements consisting of assignments of the form x := a, sequence of statements (instr1 ; instr2), if then else statements, and while loops.
