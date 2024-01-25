@@ -1,74 +1,56 @@
+import Language.Haskell.TH (safe)
 -- 1.1)
+
 testaTriangulo :: Float -> Float -> Float -> Bool
-testaTriangulo a b c = (a + b > c) && (a + c > b) && (b + c > a) 
+testaTriangulo l1 l2 l3 = (l1 < l2 + l3) && (l2 < l1 + l3) && (l3 < l1 + l2)
 
 -- 1.2)
+
 areaTriangulo :: Float -> Float -> Float -> Float
-areaTriangulo a b c = 
+areaTriangulo l1 l2 l3 = sqrt(s * (s -l1) * (s-l2) * (s-l3))
+    where s = (l1+l2+l3)/2
+
+areaTriangulo2 :: Float -> Float -> Float -> Float
+areaTriangulo2 a b c = 
     let s = (a + b + c) / 2
     in sqrt(s * (s - a) * (s - b) * (s - c))
-
-areaTrianguloX :: Float -> Float -> Float -> Float
-areaTrianguloX a b c = sqrt(s * (s - a) * (s - b) * (s - c))
-    where s = (a + b + c) / 2
-
+                        
 -- 1.3)
+
 metades :: [a] -> ([a], [a])
-metades xs = (take half xs, drop half xs)
-    where half = length xs `div` 2
-
-metadesx :: [a] -> ([a], [a])
-metadesx list = 
-    let half = length list `div`2
-    in (take half list , drop half list)
-    
--- 1.4) head, tail, length, take, drop e reverse.
-
---a) last function
-
-last2 :: [a] -> a
-last2 list = head (reverse list)
-
-last3 :: [a] -> a
-last3 list = (reverse list) !! 0
-
-last4 :: [a] -> a
-last4 list = head (drop (length list - 1) list)
+metades list = (take half list, drop half list)
+    where half = (length list) `div` 2
 
 
---b) init function
+-- 1.4)
+lastReverse :: [a] -> a
+lastReverse list = head (reverse list)
 
-init2 :: [a] -> [a]
-init2 list = take (length list - 1) list
+lastTake :: [a] -> a
+lastTake list = head (drop ((length list) -1) list)
 
-init3 :: [a] -> [a]
-init3 list = reverse (tail (reverse list) )
+lastTake2 :: [a] -> a
+lastTake2 list = head (take 1 (reverse list))
 
-init4 :: [a] -> [a]
-init4 list = reverse (drop 1 (reverse list))
 
 -- 1.5)
 
--- a)
-
-
 binom :: Integer -> Integer -> Integer
-binom n k = product [1..9] `div`product [1..k] * product[1..(n-k)]
-
+binom n k = product [1..n] `div` (product [1..k] * product [1..(n-k)])
 
 -- 1.6)
 
 raizes :: Float -> Float -> Float -> (Float, Float)
-raizes a b c = (r1, r2)
-    where  
-        r1 = -b + sqrt(b^2 - 4 * a * c) / (2 * a)
-        r2 = -b - sqrt(b^2 - 4 * a * c) / (2 * a)
+raizes a b c = (r1,r2)
+    where r1 = (-b + sqrt(b^2 - 4*a*c)) / (2*a)
+          r2 = (-b - sqrt(b^2 - 4*a*c)) / (2*a)
+
 
 raizes1 :: Float -> Float -> Float -> (Float, Float)
 raizes1 a b c = 
-    let 
-        r1 = -b + sqrt(b^2 - 4 * a * c) / (2 * a)
-        r2 = -b - sqrt(b^2 - 4 * a * c) / (2 * a)
+    let
+        r1 = (-b + sqrt(b^2 - 4*a*c)) / (2*a)
+        r2 = (-b - sqrt(b^2 - 4*a*c)) / (2*a)
     in (r1,r2)
 
 
@@ -82,55 +64,28 @@ raizes1 a b c =
 --f) id: a -> a   not: Bool -> Bool  combination invalid
 
 
--- 1.8)
+-- 1.8
 
--- a)
-segundo :: [a] -> a
-segundo xs = head (tail xs)
-
--- b)
-trocar :: (a,b) -> (b,a)
-trocar (x, y) = (y, x)
-
-
--- c) 
-par :: a -> b -> (a,b)
-par x y = (x, y)
-
--- d) 
-dobro :: Num a => a -> a
-dobro x = 2 * x
- 
--- e) 
-metade :: Fractional a => a -> a
-metade x = x/2
-
--- f)
-minuscula :: Char -> Bool
-minuscula x = x >= 'a' && x <= 'z'
-
--- g)
-intervalo :: Ord a => a -> a -> a -> Bool
-intervalo x a b = x >=  a && x <= b
-
--- h) 
-palindrome :: Eq a => [a] -> Bool
-palindrome xs = reverse xs == xs
-
--- i)
-twice :: (a -> a) -> a -> a
-twice f x = f (f x)
+-- a) segundo :: [a]- > a
+-- b) trocar :: (a,b) -> (b,a)
+-- c) par :: a -> b -> (a,b)
+-- d) dobro :: Num a => a -> a
+-- e) metade :: Fractional a => a -> a
+-- f) minuscula :: Char -> Bool
+-- g) intervalo :: Ord a => a -> a -> a-> Bool
+-- h) palindrome :: Eq  a =>  [a] -> Bool
+-- i) twice :: (a -> a) -> a -> a
 
 -- 1.9)
 
-classificaConditional :: Int -> String
-classificaConditional grade =
+classificaCond :: Int -> String
+classificaCond grade = 
     if grade <= 9 then "reprovado"
     else if grade <= 12 then "suficiente"
     else if grade <= 15 then "bom"
     else if grade <= 18 then "muito bom"
     else if grade <= 20 then "muito bom com distinção"
-    else "nota invalida"
+    else "unknown"
 
 classificaGuards :: Int -> String
 classificaGuards grade  
@@ -141,7 +96,7 @@ classificaGuards grade
     | grade <= 20 = "muito bom com distinção"
     | otherwise = "nota invalida"
 
- 
+
 -- 1.10)
 
 classificaImcConditional :: Float -> Float -> String
@@ -150,15 +105,15 @@ classificaImcConditional peso altura =
     else if imc < 25 then "peso normal"
     else if imc < 30 then "excesso de peso"
     else "obesidade"
-    where imc = peso / (altura ^2)
+    where imc = peso / (altura^2)
 
 classificaImcGuards :: Float -> Float -> String
-classificaImcGuards peso altura
+classificaImcGuards peso altura 
     | imc < 18.5 = "baixo peso"
     | imc < 25 = "peso normal"
     | imc < 30 = "excesso de peso"
     | otherwise = "obesidade"
-    where imc = peso * (altura ^2)
+    where imc = peso / (altura^2)
 
 -- 1.11)
 
@@ -175,19 +130,13 @@ xor False True = True
 xor _ _ = False
 
 -- 1.13)
-
-safetailConditional :: [a] -> [a] 
-safetailConditional list=
-    if (length list) == 0 then []
-    else tail list
-
-safetailConditional1 :: [a] -> [a] 
-safetailConditional1 list =
+safetailCond :: [a] -> [a]
+safetailCond list = 
     if null list then []
     else tail list
 
 safetailGuards :: [a] -> [a]
-safetailGuards list
+safetailGuards list 
     | null list = []
     | otherwise = tail list
 
@@ -196,9 +145,8 @@ safetailPatterns [] = []
 safetailPatterns list = tail list
 
 -- 1.14)
-
-curtaLength :: [a] -> Bool
-curtaLength list = (length list) <= 2
+curta :: [a] -> Bool
+curta list = length list <= 2
 
 curtaPatterns :: [a] -> Bool
 curtaPatterns [] = True
@@ -209,10 +157,23 @@ curtaPatterns _ = False
 curtaGuards :: [a] -> Bool
 curtaGuards list
     | null list = True
-    | length list == 1  = True
-    | length list == 2  = True
+    | length list  == 1 = True
+    | length list  == 2 = False
     | otherwise = False
 
+-- 1.15)
+mediana :: Ord a => a -> a -> a -> a
+mediana a b c = 
+    if ((a >= b && a <= c) || (a >= c && a <= b))  then a
+    else if ((b >= a && b <= c) || (b >= c && b <= a))  then b
+    else c
+
+medianaSum :: Num a => a -> a -> a -> a
+medianaSum x y z = x + y + z - max x (max y z) - min x (min y z)
+
+
+
+{-
 -- 1.15)
 mediana :: Ord a => a -> a -> a -> a
 mediana x y z
@@ -224,3 +185,5 @@ medianaSum :: (Ord a, Num a) => a -> a -> a -> a
 medianaSum x y z = x + y + z - max x (max y z) - min x (min y z)
 
 -- 1.16) moodlez
+
+-}

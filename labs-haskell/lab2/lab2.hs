@@ -6,52 +6,58 @@ import Distribution.SPDX (LicenseId(W3C_19980720))
 -- 2.1)
 myAnd :: [Bool] -> Bool
 myAnd [] = True
-myAnd (h:t) = h && myAnd t
+myAnd (x:xs) = x && myAnd xs 
 
 myOr :: [Bool] -> Bool
 myOr [] = False
-myOr (h:t) = h || myOr t
+myOr (x:xs) = x || myOr xs 
 
 myConcat :: [[a]] -> [a]
 myConcat [] = []
-myConcat (h:t) = h ++ myConcat t
-
-myConcat1 :: [[a]] -> [a]
-myConcat1 lists = [el | list <- lists, el <- list]
+myConcat (x:xs) = x ++ myConcat xs
 
 myReplicate :: Int -> a -> [a]
-myReplicate 0 n = []
-myReplicate counter n = [n] ++ myReplicate (counter - 1) n 
+myReplicate 0 el = []
+myReplicate count el = el : myReplicate (count -1) el
 
-myReplicate1 :: Int -> a -> [a]
-myReplicate1 counter n = [n | _ <- [1..counter]]
+myIdx :: [a] -> Int -> a
+myIdx [] _ = error "invalid index"
+myIdx (h:t) 0 = h
+myIdx (h:t) idx = myIdx t (idx-1)
 
-myIndex :: [a] -> Int -> a
-myIndex (x:_) 0  = x 
-myIndex (_:xs) n = myIndex xs (n - 1)
-myIndex _ _      = error "error"
+myElem :: Eq a => a -> [a] -> Bool
+myElem _ [] = False
+myElem el (h:t) = 
+    if el == h then True
+    else myElem el t
+
 
 -- 2.2)
-intersperse1 :: a -> [a] -> [a]
-intersperse1 sep [] = []
-intersperse1 _ [x] = [x]
-intersperse1 sep (h:t) = h : sep : intersperse1 sep t  
+
+myInterspace :: a -> [a] -> [a]
+myInterspace _ [] = []
+myInterspace _ [el] = [el]
+myInterspace sep (h:t) = h:sep:myInterspace sep t
 
 -- 2.3)
+
 mdc :: Integer -> Integer -> Integer
-mdc a 0 = a
-mdc a b = mdc b (a `mod` b)
+mdc a b 
+    | b == 0 = a
+    | otherwise = mdc b (a `mod` b)
+
+mdc1 :: Integer -> Integer -> Integer
+mdc1 a 0 = a
+mdc1 a b = mdc1 b (a `mod` b)
 
 -- 2.4)
 
--- a)
 myInsert :: Ord a => a -> [a] -> [a]
 myInsert el [] = [el]
-myInsert el (h:t) = 
-    if el <= h then el : h : t
-    else h: myInsert el t 
+myInsert el (h:t) =
+    if el <= h then el:h:t
+    else h:myInsert el t
 
--- b)
 myIsort :: Ord a => [a] -> [a]
 myIsort [] = []
 myIsort (h:t) = myInsert h (myIsort t)
@@ -59,141 +65,135 @@ myIsort (h:t) = myInsert h (myIsort t)
 
 -- 2.5)
 
--- a)
 myMinimum :: Ord a => [a] -> a
+myMinimum [] = error "invalid input"
 myMinimum [el] = el
-myMinimum (h:t) =
-    if h < myMinimum t then h
+myMinimum (h:t) = 
+    if h <= myMinimum t then h
     else myMinimum t
 
--- b)
-myDelete :: Eq  a=>  a -> [a] -> [a]
-myDelete el [] = []
-myDelete el (h:t) = 
-    if el == h then t
-    else h : myDelete el t  
 
--- c)
-mySsort :: Ord a => [a] -> [a]
-mySsort [] = []
-mySsort list = currentMin : mySsort (myDelete currentMin list)
-    where currentMin = myMinimum list 
+myDelete :: Eq a => a -> [a] -> [a]
+myDelete _ [] = []
+myDelete el (h:t) =
+    if el == h then t
+    else h : myDelete el t
+
+mysSort :: Ord a => [a] -> [a]
+mysSort [] = []
+mysSort list = minimum : mysSort (myDelete minimum list)
+    where minimum = myMinimum list
 
 -- 2.6)
-mySquareSum :: Integer
-mySquareSum = sum [x ^ 2 | x <- [1..100]]
+sumSquare :: Integer -> Integer
+sumSquare n = sum [el^2| el<-[1..n]]
 
--- 2.8) 
+-- 2.8)
 dotprod :: [Float] -> [Float] -> Float
-dotprod l1 l2 = sum [x1 * x2 | (x1,x2) <- zip l1 l2]
+dotprod l1 l2 = sum [el1 * el2 | (el1, el2) <- zip l1 l2]
 
 -- 2.9)
 divprop :: Integer -> [Integer]
-divprop n = [div | div <- [1..n-1], n `mod` div == 0]
+divprop n = [div | div<-[1..(n-1)], n `mod` div == 0]
 
 -- 2.10)
 perfeitos :: Integer -> [Integer]
-perfeitos n = [x | x <- [1..n], x == sum (divprop x)]
+perfeitos n = [perfeito | perfeito <-[1..n], sum(divprop perfeito) == perfeito]
 
--- 2.11)
+--2.11)
 pitagoricos :: Integer -> [(Integer, Integer, Integer)]
-pitagoricos n = [ (x,y,z) | x <- [1..n], y <- [1..n], z <- [1..n], x^2+y^2 == z^2]
+pitagoricos n = [(x,y,z) | x<-[1..n], y<-[1..n], z<-[1..n], x ^2 + y^2 == z^2]
 
 -- 2.12)
 primo :: Integer -> Bool
-primo n = (divprop n) == [1]
+primo n = divs == [1]
+    where divs = divprop n
 
 -- 2.13)
 mersennes :: [Int]
-mersennes = [n | n <- [1..30], primo (2 ^ n - 1)]
+mersennes = [n | n <- [1..30], primo (2^n -1)]
 
 -- 2.16)
-
 concatComp :: [[a]] -> [a]
-concatComp lists = [el | list <- lists, el <- list]
-
+concatComp list = [el | sublist<- list, el <- sublist]
+ 
 replicateComp :: Integer -> a -> [a]
 replicateComp counter el = [el | _ <- [1..counter]]
 
 indexComp :: [a] -> Int -> a
-indexComp list idx = head [el | (el, pos) <- zip list [0..length list] , pos == idx]
-
+indexComp list idx = head [el | (el, pos )<- zip list [0..length list - 1], idx == pos]
 
 -- 2.17)
 forte :: String -> Bool
-forte string = 
-    length string >= 8 &&
-    or [isUpper c| c <- string] &&
-    or [isLower c | c <- string] && 
-    or [isDigit c | c <- string]
+forte word = 
+    length word >= 8 &&
+    or [isUpper el | el <- word] &&
+    or [isLower el | el <- word] && 
+    or [isDigit el | el <- word] 
 
-
--- 2.19
+-- 2.19)
 nub1 :: Eq a => [a] -> [a]
 nub1 [] = []
-nub1 (h:t) = h : nub1 [e | e <- t, not (e == h)]  -- e /= b
+nub1 (h:t) = h : nub1 newlist
+    where newlist = [el | el <- t, el /= h]
 
 -- 2.20)
+transpose1 :: [[a]] -> [[a]]
+transpose1 lists = [[sublist !! idx | sublist <- lists] | idx <- [0..maxidx]]
+    where maxidx = length (head lists) -1
 
+transpose2 :: [[a]] -> [[a]]
+transpose2 lists =
+    if null (head lists) then []
+    else map head lists : transpose2 (map tail lists)
 
+transpose3 :: [[a]] -> [[a]]
+transpose3 lists =
+    if null (head lists) then []
+    else map (\sublist -> head sublist) lists : transpose2 (map (\sublist -> tail sublist)lists)
 
 -- 2.21)
-
 algarismosAux :: Int -> [Int]
 algarismosAux 0 = []
-algarismosAux n = alg : algarismosAux rest
-    where alg = n `mod` 10
-          rest = n `div` 10
-
+algarismosAux n = n `mod` 10 : algarismosAux (n `div` 10)
 
 algarismos :: Int -> [Int]
 algarismos n = reverse (algarismosAux n)
 
 -- 2.22)
-
 toBitsAux :: Int -> [Int]
 toBitsAux 0 = []
-toBitsAux n = bit : toBitsAux rest
-    where
-        bit = n `mod` 2
-        rest = n `div` 2
+toBitsAux n = n `mod` 2 : toBitsAux (n `div` 2)
 
 toBits :: Int -> [Int]
 toBits n = reverse (toBitsAux n)
 
--- 2.23) 
-
+-- 2.23)
 fromBits :: [Int] -> Int
-fromBits [] = 0
-fromBits (h:t)= h *2^multiplier + fromBits t
+fromBits list = sum [2^pos * el | (el, pos) <- zip list [size, size-1..0]]
+    where size = length list -1
+
+fromBits1 :: [Int] -> Int
+fromBits1 [] = 0
+fromBits1 (h:t)= h *2^multiplier + fromBits t
     where multiplier = (length (h:t)) -1
+
 
 -- 2.24)
 merge :: Ord a => [a] -> [a] -> [a]
 merge [] l2 = l2
 merge l1 [] = l1
-merge (h:t) (h1:t1) =
-    if h <= h1 then h : merge t (h1:t1)
-    else h1 : merge (h:t) t1
+merge (h1:t1) (h2:t2) = 
+    if h1 <= h2 then h1 : merge t1 (h2:t2)
+    else h2 : merge (h1:t1) t2
 
--- 2.15)
+metades :: [a] -> ([a], [a])
+metades list = (take half list, drop half list)
+    where half = (length list) `div` 2
 
--- Converte letras em inteiros 0..25 e vice-versa
-letraInt :: Char -> Int
-letraInt c = ord c - ord 'A'
-
-intLetra :: Int -> Char
-intLetra n = chr (n + ord 'A')
-
-maiúscula :: Char -> Bool
-maiúscula x = x >='A' && x <='Z'
-
--- Efectuar um deslocamento de k posições
-desloca :: Int -> Char -> Char
-desloca k x | maiúscula x = intLetra ((letraInt x + k)`mod`26)
-            | otherwise   = x
-
--- Repetir o deslocamento para toda a cadeia de caracteres.
-cifrar :: Int -> String -> String
-cifrar k xs = [desloca k x | x<-xs]
+msort :: Ord a => [a] -> [a]
+msort [] = []
+msort [el] = [el]
+msort list = merge (msort l1) (msort l2)
+    where (l1,l2) = metades list
 
